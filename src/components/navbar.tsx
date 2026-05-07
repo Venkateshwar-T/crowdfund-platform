@@ -24,10 +24,12 @@ export function Navbar() {
       href={href} 
       className="relative group py-1 px-1"
     >
+      {/* Uplift text animation */}
       <span className="block text-sm font-medium transition-transform duration-300 ease-out group-hover:-translate-y-1 whitespace-nowrap">
         {children}
       </span>
-      <span className="absolute bottom-0 left-0 h-[2px] w-full bg-primary origin-left scale-x-0 transition-transform duration-300 ease-out group-hover:scale-x-100" />
+      {/* Rounded, fading, and expanding underline */}
+      <span className="absolute bottom-0 left-0 h-[2.5px] w-full bg-primary rounded-full origin-left scale-x-0 opacity-0 transition-all duration-300 ease-out group-hover:scale-x-100 group-hover:opacity-100" />
     </Link>
   );
 
@@ -46,14 +48,14 @@ export function Navbar() {
               CrowdFund
             </Link>
             
-            {/* Navigation links */}
-            <div className="flex items-center gap-4 md:gap-6">
+            {/* Navigation links - visible from medium screens up */}
+            <div className="hidden md:flex items-center gap-4 md:gap-6">
               <NavLink href="/">Home</NavLink>
               <NavLink href="/browse">Browse</NavLink>
             </div>
 
             {/* Search bar visible only on large screens */}
-            <div className="hidden lg:block flex-1 max-w-sm ml-4">
+            <div className="hidden lg:block flex-1 max-w-xs ml-4">
               <CustomSearchBar onClick={() => setIsSearching(true)} />
             </div>
 
@@ -69,7 +71,7 @@ export function Navbar() {
 
           {/* Right Section: Actions */}
           <div className="flex items-center gap-3 md:gap-6 shrink-0 ml-4">
-            {/* How it Works - now a help icon */}
+            {/* Help icon replacing "How it Works" text */}
             <Link 
               href="/how-it-works" 
               className="p-2 hover:bg-accent rounded-full transition-colors"
@@ -116,8 +118,8 @@ export function Navbar() {
                 if (e.key === 'Escape') setIsSearching(false);
               }}
             />
-            {/* Thick bottom line */}
-            <div className="absolute bottom-0 left-0 h-[2px] w-full bg-primary" />
+            {/* Thick animated bottom line */}
+            <div className="absolute bottom-0 left-0 h-[2.5px] w-full bg-primary rounded-full" />
           </div>
 
           <Search className="h-6 w-6 text-primary shrink-0" />
