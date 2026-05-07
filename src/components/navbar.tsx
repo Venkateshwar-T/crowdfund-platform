@@ -139,7 +139,7 @@ export function Navbar() {
               ref={searchInputRef}
               type="text"
               placeholder="Search fundraisers, categories, or cities..."
-              className="h-12 w-full border-0 bg-transparent rounded-none px-0 focus-visible:ring-0 focus-visible:ring-offset-0 text-lg placeholder:text-muted-foreground/40 shadow-none"
+              className="h-12 w-full border-0 bg-transparent rounded-none px-0 focus-visible:ring-0 focus-visible:ring-offset-0 text-base md:text-lg placeholder:text-muted-foreground/40 shadow-none"
               onKeyDown={(e) => {
                 if (e.key === 'Escape') setIsSearching(false);
               }}
