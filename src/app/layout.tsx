@@ -1,7 +1,7 @@
-
 import type {Metadata} from 'next';
 import './globals.css';
 import { Navbar } from '@/components/navbar';
+import { MobileJoinBanner } from '@/components/mobile-join-banner';
 
 export const metadata: Metadata = {
   title: 'CrowdFund | Launch Your Dreams',
@@ -22,6 +22,7 @@ export default function RootLayout({
       </head>
       <body className="font-body antialiased">
         <Navbar />
+        <MobileJoinBanner />
         {children}
       </body>
     </html>

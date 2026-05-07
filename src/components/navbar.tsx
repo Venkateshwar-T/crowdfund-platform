@@ -76,7 +76,8 @@ export function Navbar() {
               <CircleHelp className="h-5 w-5 text-muted-foreground" />
             </Link>
 
-            <CustomButton variant="default" className="rounded-full px-4 md:px-6 whitespace-nowrap">
+            {/* Connect Wallet - Hidden on mobile, visible from MD up */}
+            <CustomButton variant="default" className="hidden md:flex rounded-full px-4 md:px-6 whitespace-nowrap">
               Connect Wallet
             </CustomButton>
 
