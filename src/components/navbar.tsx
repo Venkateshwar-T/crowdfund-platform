@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { useState, useRef, useEffect } from 'react';
-import { ArrowLeft, Search, CircleHelp } from 'lucide-react';
+import { ArrowLeft, Search, CircleHelp, Menu, X, Home, Compass } from 'lucide-react';
 import { CustomSearchBar } from './custom-search-bar';
 import { CustomButton } from './custom-button';
 import { Input } from '@/components/ui/input';
@@ -10,6 +10,7 @@ import { cn } from '@/lib/utils';
 
 export function Navbar() {
   const [isSearching, setIsSearching] = useState(false);
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
   const searchInputRef = useRef<HTMLInputElement>(null);
 
   // Focus the input when search mode is activated
@@ -19,17 +20,31 @@ export function Navbar() {
     }
   }, [isSearching]);
 
+  // Close menu if searching starts
+  useEffect(() => {
+    if (isSearching) setIsMenuOpen(false);
+  }, [isSearching]);
+
   const NavLink = ({ href, children }: { href: string; children: React.ReactNode }) => (
     <Link 
       href={href} 
       className="relative group py-1 px-1"
     >
-      {/* Uplift text animation */}
       <span className="block text-sm font-medium transition-transform duration-300 ease-out group-hover:-translate-y-1 whitespace-nowrap">
         {children}
       </span>
-      {/* Rounded, fading, and expanding underline with fixed height and specific transitions */}
       <span className="absolute bottom-0 left-0 h-[2px] w-full bg-primary rounded-full origin-left scale-x-0 opacity-0 transition-[transform,opacity] duration-300 ease-out group-hover:scale-x-100 group-hover:opacity-100" />
+    </Link>
+  );
+
+  const MobileNavLink = ({ href, icon: Icon, children }: { href: string; icon: any; children: React.ReactNode }) => (
+    <Link 
+      href={href} 
+      onClick={() => setIsMenuOpen(false)}
+      className="flex items-center gap-4 px-6 py-4 hover:bg-accent transition-colors border-b last:border-0"
+    >
+      <Icon className="h-5 w-5 text-primary" />
+      <span className="text-base font-medium">{children}</span>
     </Link>
   );
 
@@ -37,7 +52,7 @@ export function Navbar() {
     <nav className="sticky top-0 z-50 w-full border-b bg-background/80 backdrop-blur-md">
       <div className="relative flex h-16 items-center px-4 md:px-6">
         
-        {/* Normal Navbar Content - Fades away when searching */}
+        {/* Normal Navbar Content */}
         <div className={cn(
           "flex items-center justify-between w-full transition-all duration-500 ease-in-out",
           isSearching ? "opacity-0 pointer-events-none scale-95" : "opacity-100 scale-100"
@@ -48,51 +63,65 @@ export function Navbar() {
               CrowdFund
             </Link>
             
-            {/* Navigation links - visible from medium screens up */}
+            {/* Desktop Navigation */}
             <div className="hidden md:flex items-center gap-4 md:gap-6">
               <NavLink href="/">Home</NavLink>
               <NavLink href="/browse">Browse</NavLink>
             </div>
 
-            {/* Search bar for medium screens */}
+            {/* Medium screen search bar */}
             <div className="hidden md:block lg:hidden w-full max-w-[120px] ml-4">
               <CustomSearchBar placeholder="Search" onClick={() => setIsSearching(true)} />
             </div>
 
-            {/* Search bar for large screens */}
+            {/* Large screen search bar */}
             <div className="hidden lg:block w-full max-w-[240px] ml-4">
               <CustomSearchBar placeholder="Search fundraisers" onClick={() => setIsSearching(true)} />
             </div>
           </div>
 
           {/* Right Section: Actions */}
-          <div className="flex items-center gap-3 md:gap-6 shrink-0 ml-4">
-            {/* Help icon replacing "How it Works" text */}
+          <div className="flex items-center gap-2 md:gap-6 shrink-0 ml-4">
+            {/* Help icon - Hidden on mobile */}
             <Link 
               href="/how-it-works" 
-              className="p-2 hover:bg-accent rounded-full transition-colors"
+              className="hidden md:flex p-2 hover:bg-accent rounded-full transition-colors"
               title="How it Works"
             >
               <CircleHelp className="h-5 w-5 text-muted-foreground" />
             </Link>
 
-            {/* Connect Wallet - Hidden on mobile, visible from MD up */}
+            {/* Connect Wallet - Hidden on mobile */}
             <CustomButton variant="default" className="hidden md:flex rounded-full px-4 md:px-6 whitespace-nowrap">
               Connect Wallet
             </CustomButton>
 
-            {/* Mobile Search Trigger (xs and sm screens only) */}
-            <button 
-              onClick={() => setIsSearching(true)}
-              className="md:hidden p-2 hover:bg-accent rounded-full transition-colors"
-              aria-label="Search"
-            >
-              <Search className="h-5 w-5 text-muted-foreground" />
-            </button>
+            {/* Mobile Actions */}
+            <div className="flex md:hidden items-center gap-1">
+              <button 
+                onClick={() => setIsSearching(true)}
+                className="p-2 hover:bg-accent rounded-full transition-colors"
+                aria-label="Search"
+              >
+                <Search className="h-5 w-5 text-muted-foreground" />
+              </button>
+              
+              <button 
+                onClick={() => setIsMenuOpen(!isMenuOpen)}
+                className="p-2 hover:bg-accent rounded-full transition-colors"
+                aria-label="Menu"
+              >
+                {isMenuOpen ? (
+                  <X className="h-6 w-6 text-primary" />
+                ) : (
+                  <Menu className="h-6 w-6 text-muted-foreground" />
+                )}
+              </button>
+            </div>
           </div>
         </div>
 
-        {/* Expanded Search Bar - Covers the whole navbar */}
+        {/* Expanded Search Bar Overlay */}
         <div className={cn(
           "absolute inset-0 flex items-center px-4 md:px-6 transition-all duration-500 ease-in-out bg-background",
           isSearching ? "opacity-100 translate-y-0" : "opacity-0 pointer-events-none translate-y-2"
@@ -115,11 +144,22 @@ export function Navbar() {
                 if (e.key === 'Escape') setIsSearching(false);
               }}
             />
-            {/* Thick animated bottom line */}
             <div className="absolute bottom-0 left-0 h-[2px] w-full bg-primary rounded-full" />
           </div>
 
           <Search className="h-6 w-6 text-primary shrink-0" />
+        </div>
+      </div>
+
+      {/* Mobile Menu Dropdown */}
+      <div className={cn(
+        "md:hidden absolute top-full left-0 w-full bg-background border-b shadow-xl transition-all duration-300 ease-in-out overflow-hidden",
+        isMenuOpen ? "max-height-60 opacity-100" : "max-h-0 opacity-0 pointer-events-none"
+      )}>
+        <div className="flex flex-col bg-background">
+          <MobileNavLink href="/" icon={Home}>Home</MobileNavLink>
+          <MobileNavLink href="/browse" icon={Compass}>Browse</MobileNavLink>
+          <MobileNavLink href="/how-it-works" icon={CircleHelp}>How it Works</MobileNavLink>
         </div>
       </div>
     </nav>
