@@ -28,8 +28,8 @@ export function Navbar() {
       <span className="block text-sm font-medium transition-transform duration-300 ease-out group-hover:-translate-y-1 whitespace-nowrap">
         {children}
       </span>
-      {/* Rounded, fading, and expanding underline */}
-      <span className="absolute bottom-0 left-0 h-[2.5px] w-full bg-primary rounded-full origin-left scale-x-0 opacity-0 transition-all duration-300 ease-out group-hover:scale-x-100 group-hover:opacity-100" />
+      {/* Rounded, fading, and expanding underline with fixed height and specific transitions */}
+      <span className="absolute bottom-0 left-0 h-[2px] w-full bg-primary rounded-full origin-left scale-x-0 opacity-0 transition-[transform,opacity] duration-300 ease-out group-hover:scale-x-100 group-hover:opacity-100" />
     </Link>
   );
 
@@ -118,8 +118,8 @@ export function Navbar() {
                 if (e.key === 'Escape') setIsSearching(false);
               }}
             />
-            {/* Thick animated bottom line */}
-            <div className="absolute bottom-0 left-0 h-[2.5px] w-full bg-primary rounded-full" />
+            {/* Thick animated bottom line - fixed height for consistency */}
+            <div className="absolute bottom-0 left-0 h-[2px] w-full bg-primary rounded-full" />
           </div>
 
           <Search className="h-6 w-6 text-primary shrink-0" />
