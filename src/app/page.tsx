@@ -25,25 +25,21 @@ export default function Home() {
           </div>
 
           {/* Image Content */}
-          <div className="relative w-full max-w-2xl mx-auto order-2 group">
-            <div className="relative aspect-[4/3] w-full overflow-hidden rounded-3xl">
+          <div className="relative w-full max-w-2xl mx-auto order-2">
+            <div className="relative aspect-[4/3] w-full overflow-hidden">
               <Image
                 src="/crowdfunding.png"
                 alt="Crowdfunding Hero"
                 fill
-                className="object-cover transition-transform duration-700 group-hover:scale-105"
+                className="object-cover"
                 style={{
-                  maskImage: 'radial-gradient(circle, black 65%, transparent 100%)',
-                  WebkitMaskImage: 'radial-gradient(circle, black 65%, transparent 100%)',
+                  maskImage: 'radial-gradient(ellipse, black 80%, transparent 100%)',
+                  WebkitMaskImage: 'radial-gradient(ellipse, black 80%, transparent 100%)',
                 }}
                 priority
                 data-ai-hint="crowdfunding banner"
               />
             </div>
-            
-            {/* Background decorative elements */}
-            <div className="absolute -top-12 -right-12 w-64 h-64 bg-primary/10 rounded-full blur-3xl -z-10 animate-pulse" />
-            <div className="absolute -bottom-12 -left-12 w-64 h-64 bg-secondary/20 rounded-full blur-3xl -z-10 animate-pulse delay-700" />
           </div>
 
         </div>
