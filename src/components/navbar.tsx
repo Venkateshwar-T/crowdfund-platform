@@ -43,7 +43,7 @@ export function Navbar() {
           isSearching ? "opacity-0 pointer-events-none scale-95" : "opacity-100 scale-100"
         )}>
           {/* Left Section: Logo, Navigation, and Search Trigger */}
-          <div className="flex items-center gap-4 md:gap-8 flex-1 min-w-0">
+          <div className="flex items-center gap-4 md:gap-6 flex-1 min-w-0">
             <Link href="/" className="text-2xl font-bold tracking-tight text-primary whitespace-nowrap shrink-0">
               CrowdFund
             </Link>
@@ -54,15 +54,15 @@ export function Navbar() {
               <NavLink href="/browse">Browse</NavLink>
             </div>
 
-            {/* Search bar visible only on large screens */}
-            <div className="hidden lg:block flex-1 max-w-xs ml-4">
+            {/* Search bar visible only on large screens - removed flex-1 to keep it closer */}
+            <div className="hidden lg:block w-full max-w-[240px] ml-4">
               <CustomSearchBar onClick={() => setIsSearching(true)} />
             </div>
 
             {/* Search icon trigger for medium screens */}
             <button 
               onClick={() => setIsSearching(true)}
-              className="hidden md:flex lg:hidden p-2 hover:bg-accent rounded-full transition-colors ml-2"
+              className="hidden md:flex lg:hidden p-2 hover:bg-accent rounded-full transition-colors"
               aria-label="Search"
             >
               <Search className="h-5 w-5 text-muted-foreground" />
