@@ -1,3 +1,11 @@
+
 {
-  "placeholderImages": []
+  "placeholderImages": [
+    {
+      "id": "hero-image",
+      "description": "Crowdfunding Platform Hero Banner",
+      "imageUrl": "/crowfundng.png",
+      "imageHint": "crowdfunding banner"
+    }
+  ]
 }
