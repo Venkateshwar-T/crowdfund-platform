@@ -6,13 +6,15 @@ import { Input } from '@/components/ui/input';
 
 export function CustomSearchBar() {
   return (
-    <div className="relative w-full max-w-sm">
-      <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-      <Input
-        type="search"
-        placeholder="Search projects..."
-        className="pl-10 h-9 bg-muted/50 border-none focus-visible:ring-1 focus-visible:ring-primary/50"
-      />
+    <div className="relative w-full max-w-[280px] flex items-center gap-3">
+      <Search className="h-5 w-5 text-muted-foreground shrink-0" />
+      <div className="w-full">
+        <Input
+          type="search"
+          placeholder="Search fundraisers"
+          className="h-9 w-full border-0 border-b border-muted-foreground/20 bg-transparent rounded-none px-0 focus-visible:ring-0 focus-visible:border-primary transition-all placeholder:text-muted-foreground/60"
+        />
+      </div>
     </div>
   );
 }
