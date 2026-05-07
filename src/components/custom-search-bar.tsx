@@ -2,34 +2,29 @@
 'use client';
 
 import { Search } from 'lucide-react';
-import { Input } from '@/components/ui/input';
 import { cn } from '@/lib/utils';
-import { useState } from 'react';
 
-export function CustomSearchBar() {
-  const [isFocused, setIsFocused] = useState(false);
+interface CustomSearchBarProps {
+  onClick?: () => void;
+  className?: string;
+}
 
+export function CustomSearchBar({ onClick, className }: CustomSearchBarProps) {
   return (
-    <div className="relative w-full max-w-[280px] flex items-center gap-3">
-      <Search className="h-5 w-5 text-muted-foreground shrink-0" />
+    <div 
+      onClick={onClick}
+      className={cn(
+        "relative w-full max-w-[280px] flex items-center gap-3 cursor-text group",
+        className
+      )}
+    >
+      <Search className="h-5 w-5 text-muted-foreground shrink-0 transition-colors group-hover:text-primary" />
       <div className="relative w-full">
-        <Input
-          type="search"
-          placeholder="Search fundraisers"
-          onFocus={() => setIsFocused(true)}
-          onBlur={() => setIsFocused(false)}
-          className="h-9 w-full border-0 bg-transparent rounded-none px-0 focus-visible:ring-0 focus-visible:ring-offset-0 placeholder:text-muted-foreground/60 shadow-none"
-        />
-        {/* Baseline - the thin line */}
+        <div className="h-9 w-full flex items-center text-sm text-muted-foreground/60 select-none">
+          Search fundraisers
+        </div>
+        {/* Baseline */}
         <div className="absolute bottom-0 left-0 h-[1px] w-full bg-muted-foreground/20" />
-        
-        {/* Active Line - grows from left to right */}
-        <div 
-          className={cn(
-            "absolute bottom-0 left-0 h-[2px] bg-primary transition-all duration-300 ease-out",
-            isFocused ? "w-full" : "w-0"
-          )}
-        />
       </div>
     </div>
   );
