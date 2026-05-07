@@ -2,11 +2,8 @@
 'use client';
 
 import Image from 'next/image';
-import { PlaceHolderImages } from '@/lib/placeholder-images';
 
 export default function Home() {
-  const heroImage = PlaceHolderImages.find(img => img.id === 'hero-image');
-
   return (
     <main className="flex min-h-[calc(100vh-4rem)] flex-col items-center">
       {/* Hero Section */}
@@ -14,7 +11,7 @@ export default function Home() {
         <div className="grid grid-cols-1 gap-12 lg:grid-cols-2 lg:items-center">
           
           {/* Text Content */}
-          <div className="flex flex-col gap-6 text-center lg:text-left order-1 lg:order-1">
+          <div className="flex flex-col gap-6 text-center lg:text-left order-1">
             <h1 className="text-4xl font-extrabold tracking-tight sm:text-5xl md:text-6xl lg:text-7xl leading-[1.1]">
               Crowdfunding made transparent by{' '}
               <span className="relative inline-block">
@@ -28,11 +25,10 @@ export default function Home() {
           </div>
 
           {/* Image Content */}
-          <div className="relative w-full max-w-2xl mx-auto order-2 lg:order-2 group">
+          <div className="relative w-full max-w-2xl mx-auto order-2 group">
             <div className="relative aspect-[4/3] w-full overflow-hidden rounded-3xl">
-              {/* The Image with "blurred edges" effect using a radial mask */}
               <Image
-                src="/crowfundng.png"
+                src="/crowdfunding.png"
                 alt="Crowdfunding Hero"
                 fill
                 className="object-cover transition-transform duration-700 group-hover:scale-105"

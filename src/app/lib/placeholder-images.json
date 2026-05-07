@@ -4,7 +4,7 @@
     {
       "id": "hero-image",
       "description": "Crowdfunding Platform Hero Banner",
-      "imageUrl": "/crowfundng.png",
+      "imageUrl": "/crowdfunding.png",
       "imageHint": "crowdfunding banner"
     }
   ]
