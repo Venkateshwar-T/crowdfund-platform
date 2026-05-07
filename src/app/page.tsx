@@ -1,16 +1,15 @@
-
 'use client';
 
 import { CustomButton } from "@/components/custom-button";
 
 export default function Home() {
   return (
-    <main className="flex min-h-[calc(100vh-4rem)] flex-col items-center justify-center p-4">
-      <div className="relative group text-center">
-        {/* Subtle glow effect behind the text */}
-        <div className="absolute -inset-8 bg-primary/10 blur-3xl rounded-full opacity-50 transition-opacity group-hover:opacity-75" />
+    <main className="flex min-h-[calc(100vh-4rem)] flex-col items-center justify-center p-4 overflow-hidden">
+      <div className="relative group text-center w-full max-w-4xl px-4">
+        {/* Subtle glow effect behind the text - constrained with overflow-hidden on main */}
+        <div className="absolute -inset-8 bg-primary/10 blur-3xl rounded-full opacity-50 transition-opacity group-hover:opacity-75 pointer-events-none" />
         
-        <h1 className="relative font-headline text-6xl md:text-8xl font-bold tracking-tight text-primary select-none animate-in fade-in zoom-in duration-1000 ease-out">
+        <h1 className="relative font-headline text-5xl md:text-8xl font-bold tracking-tight text-primary select-none animate-in fade-in zoom-in duration-1000 ease-out">
           CrowdFund
         </h1>
         
