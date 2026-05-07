@@ -10,7 +10,7 @@ export default function Home() {
     <main className="flex min-h-[calc(100vh-4rem)] flex-col items-center">
       {/* Hero Section */}
       <section className="w-full max-w-7xl px-4 py-8 md:py-12">
-        <div className="grid grid-cols-1 gap-12 lg:grid-cols-2 lg:items-center lg:gap-8">
+        <div className="grid grid-cols-1 gap-10 lg:grid-cols-2 lg:items-center lg:gap-8">
           
           {/* Text Content */}
           <div className="flex flex-col gap-8 text-center lg:text-left order-1">
@@ -29,7 +29,7 @@ export default function Home() {
 
             <div className="flex flex-wrap gap-4 justify-center lg:justify-start">
               <CustomButton 
-                className="rounded-full px-6 h-12 text-base sm:px-10 sm:h-14 sm:text-lg font-bold"
+                className="rounded-full px-6 h-10 text-base sm:px-10 sm:h-14 sm:text-lg font-bold"
               >
                 Start a Fundraiser
               </CustomButton>
@@ -46,8 +46,8 @@ export default function Home() {
                 className="object-cover"
                 style={{
                   WebkitMaskImage: `
-                    linear-gradient(to bottom, transparent, black 5%, black 95%, transparent),
-                    linear-gradient(to right, transparent, black 5%, black 95%, transparent)
+                    linear-gradient(to bottom, transparent, black 50%, black 80%, transparent),
+                    linear-gradient(to right, transparent, black 50%, black 70%, transparent)
                   `,
                   WebkitMaskComposite: 'source-in',
                   maskComposite: 'intersect',
