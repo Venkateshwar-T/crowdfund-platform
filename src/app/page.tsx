@@ -1,3 +1,4 @@
+
 'use client';
 
 import Image from 'next/image';
@@ -29,25 +30,22 @@ export default function Home() {
           {/* Image Content */}
           <div className="relative w-full max-w-2xl mx-auto order-2 lg:order-2 group">
             <div className="relative aspect-[4/3] w-full overflow-hidden rounded-3xl">
-              {/* The Image with "blurred edges" effect using a radial mask and soft overlay */}
-              <div className="absolute inset-0 z-10 pointer-events-none ring-1 ring-inset ring-black/5 rounded-3xl" />
+              {/* The Image with "blurred edges" effect using a radial mask */}
               <Image
-                src={heroImage?.imageUrl || '/crowfundng.png'}
-                alt={heroImage?.description || 'Crowdfunding Hero'}
+                src="/crowfundng.png"
+                alt="Crowdfunding Hero"
                 fill
                 className="object-cover transition-transform duration-700 group-hover:scale-105"
                 style={{
-                  maskImage: 'radial-gradient(circle, black 70%, transparent 100%)',
-                  WebkitMaskImage: 'radial-gradient(circle, black 70%, transparent 100%)',
+                  maskImage: 'radial-gradient(circle, black 65%, transparent 100%)',
+                  WebkitMaskImage: 'radial-gradient(circle, black 65%, transparent 100%)',
                 }}
                 priority
-                data-ai-hint={heroImage?.imageHint || 'crowdfunding banner'}
+                data-ai-hint="crowdfunding banner"
               />
-              {/* Inner glow to enhance soft edges */}
-              <div className="absolute inset-0 bg-gradient-to-t from-background/20 to-transparent pointer-events-none" />
             </div>
             
-            {/* Background decorative elements to complement the blur */}
+            {/* Background decorative elements */}
             <div className="absolute -top-12 -right-12 w-64 h-64 bg-primary/10 rounded-full blur-3xl -z-10 animate-pulse" />
             <div className="absolute -bottom-12 -left-12 w-64 h-64 bg-secondary/20 rounded-full blur-3xl -z-10 animate-pulse delay-700" />
           </div>
