@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { useState, useRef, useEffect } from 'react';
-import { ArrowLeft, Search } from 'lucide-react';
+import { ArrowLeft, Search, CircleHelp } from 'lucide-react';
 import { CustomSearchBar } from './custom-search-bar';
 import { CustomButton } from './custom-button';
 import { Input } from '@/components/ui/input';
@@ -29,13 +29,13 @@ export function Navbar() {
           isSearching ? "opacity-0 pointer-events-none scale-95" : "opacity-100 scale-100"
         )}>
           {/* Left Section: Logo, Navigation, and Search Trigger */}
-          <div className="flex items-center gap-4 md:gap-8 flex-1">
-            <Link href="/" className="text-2xl font-bold tracking-tight text-primary whitespace-nowrap">
+          <div className="flex items-center gap-4 md:gap-8 flex-1 min-w-0">
+            <Link href="/" className="text-2xl font-bold tracking-tight text-primary whitespace-nowrap shrink-0">
               CrowdFund
             </Link>
             
-            {/* Visible on md screens and up */}
-            <div className="hidden md:flex items-center gap-6">
+            {/* Navigation links always visible */}
+            <div className="flex items-center gap-4 md:gap-6">
               <Link 
                 href="/" 
                 className="text-sm font-medium transition-colors hover:text-primary whitespace-nowrap"
@@ -50,27 +50,41 @@ export function Navbar() {
               </Link>
             </div>
 
-            {/* Initial search bar width reduced on medium screens */}
-            <div className="hidden sm:block flex-1 max-w-[200px] md:max-w-[240px] lg:max-w-sm ml-4">
+            {/* Search bar visible only on large screens */}
+            <div className="hidden lg:block flex-1 max-w-sm ml-4">
               <CustomSearchBar onClick={() => setIsSearching(true)} />
             </div>
+
+            {/* Search icon trigger for medium screens */}
+            <button 
+              onClick={() => setIsSearching(true)}
+              className="hidden md:flex lg:hidden p-2 hover:bg-accent rounded-full transition-colors ml-2"
+              aria-label="Search"
+            >
+              <Search className="h-5 w-5 text-muted-foreground" />
+            </button>
           </div>
 
           {/* Right Section: Actions */}
-          <div className="flex items-center gap-4 md:gap-6 shrink-0">
+          <div className="flex items-center gap-3 md:gap-6 shrink-0 ml-4">
+            {/* How it Works - now a help icon */}
             <Link 
               href="/how-it-works" 
-              className="hidden text-sm font-medium transition-colors hover:text-primary sm:block whitespace-nowrap"
+              className="p-2 hover:bg-accent rounded-full transition-colors"
+              title="How it Works"
             >
-              How it Works
+              <CircleHelp className="h-5 w-5 text-muted-foreground" />
             </Link>
+
             <CustomButton variant="default" className="rounded-full px-4 md:px-6 whitespace-nowrap">
               Connect Wallet
             </CustomButton>
-            {/* Mobile Search Trigger */}
+
+            {/* Mobile Search Trigger (xs and sm screens only) */}
             <button 
               onClick={() => setIsSearching(true)}
-              className="sm:hidden p-2 hover:bg-accent rounded-full transition-colors"
+              className="md:hidden p-2 hover:bg-accent rounded-full transition-colors"
+              aria-label="Search"
             >
               <Search className="h-5 w-5 text-muted-foreground" />
             </button>
