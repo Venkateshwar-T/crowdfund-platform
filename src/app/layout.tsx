@@ -1,9 +1,11 @@
+
 import type {Metadata} from 'next';
 import './globals.css';
+import { Navbar } from '@/components/navbar';
 
 export const metadata: Metadata = {
-  title: 'Welcome Canvas | Hello World',
-  description: 'A serene and simple Hello World experience.',
+  title: 'CrowdFund | Launch Your Dreams',
+  description: 'A modern decentralized crowdfunding platform.',
 };
 
 export default function RootLayout({
@@ -18,7 +20,10 @@ export default function RootLayout({
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
       </head>
-      <body className="font-body antialiased">{children}</body>
+      <body className="font-body antialiased">
+        <Navbar />
+        {children}
+      </body>
     </html>
   );
 }
