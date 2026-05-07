@@ -1,4 +1,3 @@
-
 'use client';
 
 import Link from 'next/link';
@@ -35,7 +34,8 @@ export function Navbar() {
               CrowdFund
             </Link>
             
-            <div className="hidden lg:flex items-center gap-6">
+            {/* Visible on md screens and up */}
+            <div className="hidden md:flex items-center gap-6">
               <Link 
                 href="/" 
                 className="text-sm font-medium transition-colors hover:text-primary whitespace-nowrap"
@@ -50,7 +50,8 @@ export function Navbar() {
               </Link>
             </div>
 
-            <div className="hidden sm:block flex-1 max-w-sm ml-4">
+            {/* Initial search bar width reduced on medium screens */}
+            <div className="hidden sm:block flex-1 max-w-[200px] md:max-w-[240px] lg:max-w-sm ml-4">
               <CustomSearchBar onClick={() => setIsSearching(true)} />
             </div>
           </div>
@@ -59,7 +60,7 @@ export function Navbar() {
           <div className="flex items-center gap-4 md:gap-6 shrink-0">
             <Link 
               href="/how-it-works" 
-              className="hidden text-sm font-medium transition-colors hover:text-primary md:block whitespace-nowrap"
+              className="hidden text-sm font-medium transition-colors hover:text-primary sm:block whitespace-nowrap"
             >
               How it Works
             </Link>

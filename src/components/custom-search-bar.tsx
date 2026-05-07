@@ -1,4 +1,3 @@
-
 'use client';
 
 import { Search } from 'lucide-react';
@@ -14,7 +13,7 @@ export function CustomSearchBar({ onClick, className }: CustomSearchBarProps) {
     <div 
       onClick={onClick}
       className={cn(
-        "relative w-full max-w-[280px] flex items-center gap-3 cursor-text group",
+        "relative w-full flex items-center gap-3 cursor-text group",
         className
       )}
     >
