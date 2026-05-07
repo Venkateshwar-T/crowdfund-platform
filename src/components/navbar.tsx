@@ -54,19 +54,15 @@ export function Navbar() {
               <NavLink href="/browse">Browse</NavLink>
             </div>
 
-            {/* Search bar visible only on large screens - removed flex-1 to keep it closer */}
-            <div className="hidden lg:block w-full max-w-[240px] ml-4">
-              <CustomSearchBar onClick={() => setIsSearching(true)} />
+            {/* Search bar for medium screens */}
+            <div className="hidden md:block lg:hidden w-full max-w-[120px] ml-4">
+              <CustomSearchBar placeholder="Search" onClick={() => setIsSearching(true)} />
             </div>
 
-            {/* Search icon trigger for medium screens */}
-            <button 
-              onClick={() => setIsSearching(true)}
-              className="hidden md:flex lg:hidden p-2 hover:bg-accent rounded-full transition-colors"
-              aria-label="Search"
-            >
-              <Search className="h-5 w-5 text-muted-foreground" />
-            </button>
+            {/* Search bar for large screens */}
+            <div className="hidden lg:block w-full max-w-[240px] ml-4">
+              <CustomSearchBar placeholder="Search fundraisers" onClick={() => setIsSearching(true)} />
+            </div>
           </div>
 
           {/* Right Section: Actions */}
@@ -118,7 +114,7 @@ export function Navbar() {
                 if (e.key === 'Escape') setIsSearching(false);
               }}
             />
-            {/* Thick animated bottom line - fixed height for consistency */}
+            {/* Thick animated bottom line */}
             <div className="absolute bottom-0 left-0 h-[2px] w-full bg-primary rounded-full" />
           </div>
 
