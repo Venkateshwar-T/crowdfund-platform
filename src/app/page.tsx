@@ -3,6 +3,7 @@
 
 import Image from 'next/image';
 import { CustomButton } from '@/components/custom-button';
+import { cn } from '@/lib/utils';
 
 export default function Home() {
   return (
@@ -27,7 +28,9 @@ export default function Home() {
             </div>
 
             <div className="flex flex-wrap gap-4 justify-center lg:justify-start">
-              <CustomButton size="lg" className="rounded-full px-10 h-14 text-lg">
+              <CustomButton 
+                className="rounded-full px-6 h-12 text-base sm:px-10 sm:h-14 sm:text-lg font-bold"
+              >
                 Start a Fundraiser
               </CustomButton>
             </div>
@@ -43,8 +46,8 @@ export default function Home() {
                 className="object-cover"
                 style={{
                   WebkitMaskImage: `
-                    linear-gradient(to bottom, transparent, black 10%, black 90%, transparent),
-                    linear-gradient(to right, transparent, black 10%, black 90%, transparent)
+                    linear-gradient(to bottom, transparent, black 5%, black 95%, transparent),
+                    linear-gradient(to right, transparent, black 5%, black 95%, transparent)
                   `,
                   WebkitMaskComposite: 'source-in',
                   maskComposite: 'intersect',
