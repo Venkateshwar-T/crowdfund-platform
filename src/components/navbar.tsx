@@ -19,6 +19,18 @@ export function Navbar() {
     }
   }, [isSearching]);
 
+  const NavLink = ({ href, children }: { href: string; children: React.ReactNode }) => (
+    <Link 
+      href={href} 
+      className="relative group py-1 px-1"
+    >
+      <span className="block text-sm font-medium transition-transform duration-300 ease-out group-hover:-translate-y-1 whitespace-nowrap">
+        {children}
+      </span>
+      <span className="absolute bottom-0 left-0 h-[2px] w-full bg-primary origin-left scale-x-0 transition-transform duration-300 ease-out group-hover:scale-x-100" />
+    </Link>
+  );
+
   return (
     <nav className="sticky top-0 z-50 w-full border-b bg-background/80 backdrop-blur-md">
       <div className="relative flex h-16 items-center px-4 md:px-6">
@@ -34,20 +46,10 @@ export function Navbar() {
               CrowdFund
             </Link>
             
-            {/* Navigation links always visible */}
+            {/* Navigation links */}
             <div className="flex items-center gap-4 md:gap-6">
-              <Link 
-                href="/" 
-                className="text-sm font-medium transition-colors hover:text-primary whitespace-nowrap"
-              >
-                Home
-              </Link>
-              <Link 
-                href="/browse" 
-                className="text-sm font-medium transition-colors hover:text-primary whitespace-nowrap"
-              >
-                Browse
-              </Link>
+              <NavLink href="/">Home</NavLink>
+              <NavLink href="/browse">Browse</NavLink>
             </div>
 
             {/* Search bar visible only on large screens */}
