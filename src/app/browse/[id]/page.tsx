@@ -243,8 +243,8 @@ function ContributorsList({ count }: { count: number }) {
           <CollapsibleTrigger asChild>
             <CustomButton variant="ghost" size="sm" className="rounded-full h-8 w-8 p-0 hover:bg-primary/10">
               {isOpen ? <ChevronUp className="h-4 w-4 text-primary" /> : <ChevronDown className="h-4 w-4 text-primary" />}
-            </CollapsibleTrigger>
-          </div>
+            </CustomButton>
+          </CollapsibleTrigger>
         </div>
 
         <CollapsibleContent className="mt-6 space-y-4 animate-in slide-in-from-top-2 duration-300">
