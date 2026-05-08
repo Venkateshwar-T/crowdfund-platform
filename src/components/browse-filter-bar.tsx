@@ -58,14 +58,14 @@ export function BrowseFilterBar() {
 
   return (
     <div className="sticky top-16 z-30 w-full bg-background/95 backdrop-blur-sm border-b shadow-sm">
-      <div className="max-w-7xl mx-auto px-4 h-11 md:h-16 flex items-center justify-between">
-        <h1 className="text-sm md:text-xl font-semibold text-foreground">
+      <div className="max-w-7xl mx-auto px-4 h-11 md:h-14 flex items-center justify-between">
+        <h1 className="text-sm md:text-lg font-semibold text-foreground">
           Browse campaigns
         </h1>
 
         <Sheet>
           <SheetTrigger asChild>
-            <CustomButton variant="outline" size="sm" className="rounded-full gap-2 h-8 md:h-10 px-3 md:px-4 border-muted-foreground/20 hover:bg-primary/5 hover:text-primary transition-all">
+            <CustomButton variant="outline" size="sm" className="rounded-full gap-2 h-8 md:h-9 px-3 md:px-4 border-muted-foreground/20 hover:bg-primary/5 hover:text-primary transition-all">
               <Filter className="h-3.5 w-3.5 md:h-4 md:w-4" />
               <span className="text-xs md:text-sm font-medium">Filter</span>
             </CustomButton>
