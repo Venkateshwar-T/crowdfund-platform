@@ -173,39 +173,27 @@ export default function NewFundraiserPage() {
 
   return (
     <div className="flex flex-col min-h-screen bg-background">
-      <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur-md">
-        <div className="max-w-3xl mx-auto px-4 h-14 md:h-16 flex items-center gap-4">
-          <button 
-            onClick={() => router.back()}
-            className="p-2 hover:bg-accent rounded-full transition-colors"
-          >
-            <ArrowLeft className="h-5 w-5 text-muted-foreground" />
-          </button>
-          <h1 className="text-lg font-bold tracking-tight">Create New Campaign</h1>
-        </div>
-      </header>
-
-      <main className="flex-grow py-8 px-4">
+      <main className="flex-grow py-6 md:py-8 px-4">
         <div className="max-w-3xl mx-auto">
           <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6 md:space-y-8">
               
-              <div className="space-y-6">
+              <div className="space-y-4 md:space-y-6">
                 <FormField
                   control={form.control}
                   name="title"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel className="text-base font-bold">Campaign Title</FormLabel>
+                      <FormLabel className="text-sm md:text-base font-bold">Campaign Title</FormLabel>
                       <FormControl>
                         <Input 
                           placeholder="e.g. Help Sarah's Medical Recovery" 
-                          className="h-12 text-base rounded-xl border-muted-foreground/20 transition-all"
+                          className="h-10 md:h-12 text-sm md:text-base rounded-xl border-muted-foreground/20 transition-all"
                           {...field} 
                         />
                       </FormControl>
-                      <FormDescription>Make it catchy and clear about the cause.</FormDescription>
-                      <FormMessage />
+                      <FormDescription className="text-xs md:text-sm">Make it catchy and clear about the cause.</FormDescription>
+                      <FormMessage className="text-xs md:text-sm" />
                     </FormItem>
                   )}
                 />
@@ -215,29 +203,29 @@ export default function NewFundraiserPage() {
                   name="description"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel className="text-base font-bold">Description</FormLabel>
+                      <FormLabel className="text-sm md:text-base font-bold">Description</FormLabel>
                       <FormControl>
                         <Textarea 
                           placeholder="Tell your story. What happened? Why do you need help? How will the funds be used?" 
-                          className="min-h-[150px] text-base rounded-xl border-muted-foreground/20 transition-all resize-none"
+                          className="min-h-[120px] md:min-h-[150px] text-sm md:text-base rounded-xl border-muted-foreground/20 transition-all resize-none"
                           {...field} 
                         />
                       </FormControl>
-                      <FormMessage />
+                      <FormMessage className="text-xs md:text-sm" />
                     </FormItem>
                   )}
                 />
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
                   <FormField
                     control={form.control}
                     name="category"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel className="text-base font-bold">Category</FormLabel>
+                        <FormLabel className="text-sm md:text-base font-bold">Category</FormLabel>
                         <Select onValueChange={field.onChange} defaultValue={field.value}>
                           <FormControl>
-                            <SelectTrigger className="h-12 rounded-xl border-muted-foreground/20">
+                            <SelectTrigger className="h-10 md:h-12 text-sm md:text-base rounded-xl border-muted-foreground/20">
                               <SelectValue placeholder="Select a domain" />
                             </SelectTrigger>
                           </FormControl>
@@ -249,7 +237,7 @@ export default function NewFundraiserPage() {
                             ))}
                           </SelectContent>
                         </Select>
-                        <FormMessage />
+                        <FormMessage className="text-xs md:text-sm" />
                       </FormItem>
                     )}
                   />
@@ -260,15 +248,15 @@ export default function NewFundraiserPage() {
                       name="otherCategory"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel className="text-base font-bold">Category Name</FormLabel>
+                          <FormLabel className="text-sm md:text-base font-bold">Category Name</FormLabel>
                           <FormControl>
                             <Input 
                               placeholder="Specify domain" 
-                              className="h-12 rounded-xl border-muted-foreground/20"
+                              className="h-10 md:h-12 text-sm md:text-base rounded-xl border-muted-foreground/20"
                               {...field} 
                             />
                           </FormControl>
-                          <FormMessage />
+                          <FormMessage className="text-xs md:text-sm" />
                         </FormItem>
                       )}
                     />
@@ -276,10 +264,10 @@ export default function NewFundraiserPage() {
                 </div>
               </div>
 
-              <Card className="p-6 border-muted-foreground/10 bg-primary/5 rounded-3xl overflow-visible">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div className="space-y-4">
-                    <FormLabel className="text-base font-bold">Target Amount</FormLabel>
+              <Card className="p-4 md:p-6 border-muted-foreground/10 bg-primary/5 rounded-3xl overflow-visible">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
+                  <div className="space-y-3 md:space-y-4">
+                    <FormLabel className="text-sm md:text-base font-bold">Target Amount</FormLabel>
                     <div className="flex gap-2">
                       <FormField
                         control={form.control}
@@ -288,7 +276,7 @@ export default function NewFundraiserPage() {
                           <FormItem className="w-1/3">
                             <Select onValueChange={field.onChange} defaultValue={field.value}>
                               <FormControl>
-                                <SelectTrigger className="h-12 rounded-xl border-muted-foreground/20 bg-background">
+                                <SelectTrigger className="h-10 md:h-12 text-sm md:text-base rounded-xl border-muted-foreground/20 bg-background">
                                   <SelectValue />
                                 </SelectTrigger>
                               </FormControl>
@@ -309,11 +297,11 @@ export default function NewFundraiserPage() {
                               <Input 
                                 type="number"
                                 placeholder="0.00" 
-                                className="h-12 text-base rounded-xl border-muted-foreground/20 transition-all bg-background"
+                                className="h-10 md:h-12 text-sm md:text-base rounded-xl border-muted-foreground/20 transition-all bg-background"
                                 {...field} 
                               />
                             </FormControl>
-                            <FormMessage />
+                            <FormMessage className="text-xs md:text-sm" />
                           </FormItem>
                         )}
                       />
@@ -325,26 +313,26 @@ export default function NewFundraiserPage() {
                     name="deadline"
                     render={({ field }) => (
                       <FormItem className="flex flex-col gap-1.5">
-                        <FormLabel className="text-base font-bold">Deadline Date</FormLabel>
+                        <FormLabel className="text-sm md:text-base font-bold">Deadline Date</FormLabel>
                         <FormControl>
                           <CustomDatePicker 
                             value={field.value} 
                             onChange={field.onChange}
-                            placeholder="Select campaign end date"
+                            placeholder="Select end date"
                           />
                         </FormControl>
-                        <FormMessage />
+                        <FormMessage className="text-xs md:text-sm" />
                       </FormItem>
                     )}
                   />
                 </div>
               </Card>
 
-              <div className="space-y-4">
-                <FormLabel className="text-base font-bold">Media Uploads (Max 5)</FormLabel>
+              <div className="space-y-3 md:space-y-4">
+                <FormLabel className="text-sm md:text-base font-bold">Media Uploads (Max 5)</FormLabel>
                 <div 
                   className={cn(
-                    "relative border-2 border-dashed rounded-3xl p-8 transition-all duration-200 flex flex-col items-center justify-center gap-4 cursor-pointer",
+                    "relative border-2 border-dashed rounded-3xl p-6 md:p-8 transition-all duration-200 flex flex-col items-center justify-center gap-3 md:gap-4 cursor-pointer",
                     dragActive ? "border-primary bg-primary/5" : "border-muted-foreground/20 hover:border-primary/50 hover:bg-primary/5",
                     files.length >= MAX_FILES && "opacity-50 pointer-events-none"
                   )}
@@ -363,17 +351,17 @@ export default function NewFundraiserPage() {
                     onChange={handleFileChange}
                     disabled={files.length >= MAX_FILES}
                   />
-                  <div className="h-16 w-16 rounded-2xl bg-primary/10 flex items-center justify-center text-primary">
-                    <Upload className="h-8 w-8" />
+                  <div className="h-12 w-12 md:h-16 md:w-16 rounded-2xl bg-primary/10 flex items-center justify-center text-primary">
+                    <Upload className="h-6 w-6 md:h-8 md:w-8" />
                   </div>
                   <div className="text-center">
-                    <p className="text-sm font-bold">Click or drag & drop</p>
-                    <p className="text-xs text-muted-foreground mt-1">Images or videos up to 10MB each</p>
+                    <p className="text-xs md:text-sm font-bold">Click or drag & drop</p>
+                    <p className="text-[10px] md:text-xs text-muted-foreground mt-1">Images or videos up to 10MB each</p>
                   </div>
                 </div>
 
                 {files.length > 0 && (
-                  <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-4">
+                  <div className="grid grid-cols-3 md:grid-cols-5 gap-3 md:gap-4">
                     {files.map((file, i) => {
                       const isImage = file.type.startsWith('image/');
                       return (
@@ -382,11 +370,11 @@ export default function NewFundraiserPage() {
                             <img src={previews[i]} alt="Preview" className="h-full w-full object-cover" />
                           ) : (
                             <div className="absolute inset-0 flex items-center justify-center text-muted-foreground">
-                              {file.type.startsWith('video/') ? <Film className="h-6 w-6" /> : <ImageIcon className="h-6 w-6" />}
+                              {file.type.startsWith('video/') ? <Film className="h-5 w-5 md:h-6 md:w-6" /> : <ImageIcon className="h-5 w-5 md:h-6 md:w-6" />}
                             </div>
                           )}
                           <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col items-center justify-center p-2">
-                            <p className="text-[10px] text-white font-medium truncate w-full text-center mb-2">{file.name}</p>
+                            <p className="text-[8px] md:text-[10px] text-white font-medium truncate w-full text-center mb-1 md:mb-2">{file.name}</p>
                             <button 
                               type="button"
                               onClick={(e) => { e.stopPropagation(); removeFile(i); }}
@@ -407,35 +395,35 @@ export default function NewFundraiserPage() {
                 name="additionalNotes"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel className="text-base font-bold">Additional Notes</FormLabel>
+                    <FormLabel className="text-sm md:text-base font-bold">Additional Notes</FormLabel>
                     <FormControl>
                       <Textarea 
-                        placeholder="Any extra details or messages for your supporters?" 
-                        className="min-h-[100px] text-base rounded-xl border-muted-foreground/20 transition-all resize-none"
+                        placeholder="Any extra details for your supporters?" 
+                        className="min-h-[80px] md:min-h-[100px] text-sm md:text-base rounded-xl border-muted-foreground/20 transition-all resize-none"
                         {...field} 
                       />
                     </FormControl>
-                    <FormMessage />
+                    <FormMessage className="text-xs md:text-sm" />
                   </FormItem>
                 )}
               />
 
-              <div className="pt-8 flex flex-col gap-4">
+              <div className="pt-6 md:pt-8 flex flex-col gap-3 md:gap-4">
                 <CustomButton 
                   type="submit" 
-                  className="w-full h-14 text-lg font-bold rounded-full shadow-lg hover:shadow-primary/20"
+                  className="w-full h-12 md:h-14 text-base md:text-lg font-bold rounded-full shadow-lg hover:shadow-primary/20"
                   isLoading={isSubmitting}
                 >
                   {isSubmitting ? (
                     <>
-                      <Loader2 className="mr-2 h-5 w-5 animate-spin" />
+                      <Loader2 className="mr-2 h-4 w-4 md:h-5 md:w-5 animate-spin" />
                       Creating Campaign...
                     </>
                   ) : (
                     'Create Campaign'
                   )}
                 </CustomButton>
-                <p className="text-center text-xs text-muted-foreground">
+                <p className="text-center text-[10px] md:text-xs text-muted-foreground">
                   By creating a campaign, you agree to our Terms of Service and Privacy Policy.
                 </p>
               </div>

@@ -91,14 +91,14 @@ export function CustomDatePicker({ value, onChange, placeholder, className }: Cu
         type="button"
         onClick={() => setIsOpen(!isOpen)}
         className={cn(
-          "w-full flex items-center justify-between bg-background border border-muted-foreground/20 rounded-xl px-5 py-3 h-12 shadow-sm hover:border-primary/50 transition-all text-foreground",
+          "w-full flex items-center justify-between bg-background border border-muted-foreground/20 rounded-xl px-4 py-2 md:px-5 md:py-3 h-10 md:h-12 shadow-sm hover:border-primary/50 transition-all text-sm md:text-base text-foreground",
           !value && "text-muted-foreground"
         )}
       >
         <div className="flex items-center gap-3">
-          <CalendarIcon size={18} className="text-primary" />
+          <CalendarIcon size={16} className="text-primary md:w-[18px] md:h-[18px]" />
           <span className="font-medium">
-            {value ? format(value, 'MMMM d, yyyy') : (placeholder || 'Select date')}
+            {value ? format(value, 'MMM d, yyyy') : (placeholder || 'Select date')}
           </span>
         </div>
       </button>
@@ -106,7 +106,7 @@ export function CustomDatePicker({ value, onChange, placeholder, className }: Cu
       {isOpen && (
         <div className="absolute top-full left-0 mt-2 w-full bg-background rounded-2xl shadow-2xl border border-border p-5 z-[100] animate-in fade-in zoom-in duration-200 origin-top">
           <div className="flex items-center justify-between mb-4">
-            <h3 className="font-bold text-foreground">
+            <h3 className="font-bold text-sm md:text-base text-foreground">
               {viewDate.toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}
             </h3>
             <div className="flex gap-1">
