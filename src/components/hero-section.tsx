@@ -41,8 +41,8 @@ export function HeroSection() {
               className="object-cover"
               style={{
                 WebkitMaskImage: `
-                  linear-gradient(to bottom, transparent, black 5%, black 95%, transparent),
-                  linear-gradient(to right, transparent, black 5%, black 95%, transparent)
+                  linear-gradient(to bottom, transparent, black 25%, black 80%, transparent),
+                  linear-gradient(to right, transparent, black 30%, black 70%, transparent)
                 `,
                 WebkitMaskComposite: 'source-in',
                 maskComposite: 'intersect',
