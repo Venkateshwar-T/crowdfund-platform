@@ -1,20 +1,19 @@
-
 'use client';
 
 import Image from 'next/image';
 import { CustomButton } from '@/components/custom-button';
-import { cn } from '@/lib/utils';
+import { CategoryBubbles } from '@/components/category-bubbles';
 
 export default function Home() {
   return (
     <main className="flex min-h-[calc(100vh-4rem)] flex-col items-center">
       {/* Hero Section */}
-      <section className="w-full max-w-7xl px-4 py-8 md:py-12">
-        <div className="grid grid-cols-1 gap-10 lg:grid-cols-2 lg:items-center lg:gap-8">
+      <section className="w-full max-w-7xl px-4 py-8 md:py-16">
+        <div className="grid grid-cols-1 gap-10 lg:grid-cols-2 lg:items-center lg:gap-12">
           
           {/* Text Content */}
           <div className="flex flex-col gap-8 text-center lg:text-left order-1">
-            <div className="flex flex-col gap-4">
+            <div className="flex flex-col gap-6">
               <h1 className="text-4xl font-extrabold sm:text-5xl md:text-6xl lg:text-7xl leading-[1.1]">
                 Crowdfunding made transparent by{' '}
                 <span className="relative inline-block">
@@ -45,12 +44,8 @@ export default function Home() {
                 fill
                 className="object-cover"
                 style={{
-                  WebkitMaskImage: `
-                    linear-gradient(to bottom, transparent, black 50%, black 80%, transparent),
-                    linear-gradient(to right, transparent, black 50%, black 70%, transparent)
-                  `,
-                  WebkitMaskComposite: 'source-in',
-                  maskComposite: 'intersect',
+                  WebkitMaskImage: 'radial-gradient(ellipse, black 80%, transparent 100%)',
+                  maskImage: 'radial-gradient(ellipse, black 80%, transparent 100%)',
                 }}
                 priority
                 draggable="false"
@@ -60,6 +55,9 @@ export default function Home() {
 
         </div>
       </section>
+
+      {/* Category Section */}
+      <CategoryBubbles />
     </main>
   );
 }
