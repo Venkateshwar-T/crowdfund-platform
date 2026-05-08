@@ -3,6 +3,7 @@
 import { HeroSection } from '@/components/hero-section';
 import { CategoryBubbles } from '@/components/category-bubbles';
 import { WhyChooseUs } from '@/components/why-choose-us';
+import { ScrollToTop } from '@/components/scroll-to-top';
 
 export default function Home() {
   return (
@@ -10,6 +11,7 @@ export default function Home() {
       <HeroSection />
       <CategoryBubbles />
       <WhyChooseUs />
+      <ScrollToTop />
     </main>
   );
 }
