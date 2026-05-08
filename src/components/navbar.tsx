@@ -60,13 +60,13 @@ export function Navbar() {
     if (isSearching) setIsMenuOpen(false);
   }, [isSearching]);
 
-  const NavLink = ({ href, children, onMouseEnter, onMouseLeave }: { href: string; children: React.ReactNode; onMouseEnter?: () => void; onMouseLeave?: () => void }) => {
+  const NavLink = ({ href, children, onMouseEnter, onMouseLeave, disableHoverEffect }: { href: string; children: React.ReactNode; onMouseEnter?: () => void; onMouseLeave?: () => void; disableHoverEffect?: boolean }) => {
     const isActive = pathname === href;
     
     return (
       <Link 
         href={href} 
-        className="relative group py-1 px-1"
+        className={cn("relative group py-1 px-1", isActive && "pointer-events-none")}
         onMouseEnter={onMouseEnter}
         onMouseLeave={onMouseLeave}
       >
@@ -117,7 +117,7 @@ export function Navbar() {
               
               <div 
                 className="relative h-full flex items-center"
-                onMouseEnter={() => setIsBrowseOpen(true)}
+                onMouseEnter={() => pathname !== '/browse' && setIsBrowseOpen(true)}
                 onMouseLeave={() => setIsBrowseOpen(false)}
               >
                 <NavLink href="/browse">Browse</NavLink>
