@@ -1,6 +1,7 @@
 'use client';
 
 import Image from 'next/image';
+import Link from 'next/link';
 import { CustomButton } from '@/components/custom-button';
 
 export function HeroSection() {
@@ -28,11 +29,13 @@ export function HeroSection() {
             >
               Start a Fundraiser
             </CustomButton>
+            
             <CustomButton 
               variant="outline"
+              asChild
               className="rounded-full px-6 h-10 text-base sm:px-10 sm:h-14 sm:text-lg font-bold"
             >
-              Explore Campaigns
+              <Link href="/browse">Explore Campaigns</Link>
             </CustomButton>
           </div>
         </div>

@@ -61,7 +61,7 @@ export function Navbar() {
   }, [isSearching]);
 
   const NavLink = ({ href, children, onMouseEnter, onMouseLeave }: { href: string; children: React.ReactNode; onMouseEnter?: () => void; onMouseLeave?: () => void }) => {
-    const isActive = pathname === href;
+    const isActive = pathname === href || (href !== '/' && pathname?.startsWith(href));
     
     return (
       <Link 
@@ -85,7 +85,7 @@ export function Navbar() {
   };
 
   const MobileNavLink = ({ href, icon: Icon, children }: { href: string; icon: any; children: React.ReactNode }) => {
-    const isActive = pathname === href;
+    const isActive = pathname === href || (href !== '/' && pathname?.startsWith(href));
     return (
       <Link 
         href={href} 
@@ -117,7 +117,7 @@ export function Navbar() {
               
               <div 
                 className="relative h-full flex items-center"
-                onMouseEnter={() => pathname !== '/browse' && setIsBrowseOpen(true)}
+                onMouseEnter={() => !pathname?.startsWith('/browse') && setIsBrowseOpen(true)}
                 onMouseLeave={() => setIsBrowseOpen(false)}
               >
                 <NavLink href="/browse">Browse</NavLink>
@@ -217,7 +217,7 @@ export function Navbar() {
             className="p-2 -ml-2 hover:bg-accent rounded-full transition-colors"
             aria-label="Back"
           >
-            <ArrowLeft className="h-5 w-5 md:h-6 md:w-6 text-muted-foreground" />
+            <ArrowLeft className="h-4 w-4 md:h-5 md:w-5 text-muted-foreground" />
           </button>
           
           <div className="flex-1 relative mx-4">
@@ -225,7 +225,7 @@ export function Navbar() {
               ref={searchInputRef}
               type="text"
               placeholder="Search fundraisers, categories, or cities..."
-              className="h-10 md:h-12 w-full border-0 bg-transparent rounded-none px-0 focus-visible:ring-0 focus-visible:ring-offset-0 text-sm md:text-lg placeholder:text-muted-foreground/40 shadow-none"
+              className="h-10 md:h-12 w-full border-0 bg-transparent rounded-none px-0 focus-visible:ring-0 focus-visible:ring-offset-0 text-sm md:text-base placeholder:text-muted-foreground/40 shadow-none"
               onKeyDown={(e) => {
                 if (e.key === 'Escape') setIsSearching(false);
               }}
@@ -233,7 +233,7 @@ export function Navbar() {
             <div className="absolute bottom-0 left-0 h-[2px] w-full bg-primary rounded-full" />
           </div>
 
-          <Search className="h-5 w-5 md:h-6 md:w-6 text-primary shrink-0" />
+          <Search className="h-4 w-4 md:h-5 md:w-5 text-primary shrink-0" />
         </div>
       </div>
 

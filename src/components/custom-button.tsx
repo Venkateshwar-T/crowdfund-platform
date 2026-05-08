@@ -1,4 +1,3 @@
-
 'use client';
 
 import * as React from 'react';
@@ -10,18 +9,25 @@ interface CustomButtonProps extends ButtonProps {
 }
 
 export const CustomButton = React.forwardRef<HTMLButtonElement, CustomButtonProps>(
-  ({ className, children, isLoading, disabled, ...props }, ref) => {
+  ({ className, children, isLoading, disabled, asChild = false, ...props }, ref) => {
     return (
       <Button
         ref={ref}
+        asChild={asChild}
         disabled={isLoading || disabled}
         className={cn('font-semibold transition-all hover:opacity-90 active:scale-95', className)}
         {...props}
       >
-        {isLoading ? (
-          <div className="mr-2 h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent" />
-        ) : null}
-        {children}
+        {asChild ? (
+          children
+        ) : (
+          <>
+            {isLoading && (
+              <div className="mr-2 h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent" />
+            )}
+            {children}
+          </>
+        )}
       </Button>
     );
   }
