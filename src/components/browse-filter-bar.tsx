@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { Filter, RotateCcw } from 'lucide-react';
+import { Filter } from 'lucide-react';
 import { CustomButton } from './custom-button';
 import {
   Sheet,
@@ -56,13 +56,6 @@ export function BrowseFilterBar() {
     setSelectedCategories([]);
   };
 
-  const handleReset = () => {
-    setTimeFilter('any');
-    setStatusFilter('all');
-    setIsAllCategories(true);
-    setSelectedCategories([]);
-  };
-
   return (
     <div className="sticky top-16 z-30 w-full bg-background/95 backdrop-blur-sm border-b shadow-sm">
       <div className="max-w-7xl mx-auto px-4 h-11 md:h-16 flex items-center justify-between">
@@ -79,23 +72,14 @@ export function BrowseFilterBar() {
           </SheetTrigger>
           <SheetContent className="w-[85vw] sm:max-w-md flex flex-col h-full p-0 gap-0">
             <SheetHeader className="p-6 text-left border-b">
-              <div className="flex items-center justify-between">
-                <SheetTitle className="text-xl font-bold">Filters</SheetTitle>
-                <button 
-                  onClick={handleReset}
-                  className="flex items-center gap-1.5 text-xs font-medium text-muted-foreground hover:text-primary transition-colors"
-                >
-                  <RotateCcw className="h-3 w-3" />
-                  Reset all
-                </button>
-              </div>
+              <SheetTitle className="text-xl font-bold">Filters</SheetTitle>
             </SheetHeader>
             
-            <ScrollArea className="flex-grow p-6">
-              <div className="flex flex-col gap-8 pb-8">
+            <ScrollArea className="flex-grow">
+              <div className="flex flex-col gap-8 p-6 pb-12">
                 {/* Time Section */}
                 <div className="space-y-4">
-                  <h3 className="text-sm font-bold uppercase tracking-wider text-muted-foreground/70">Time</h3>
+                  <h3 className="text-xs font-bold uppercase tracking-wider text-muted-foreground/70">Time</h3>
                   <RadioGroup 
                     value={timeFilter} 
                     onValueChange={setTimeFilter} 
@@ -116,7 +100,7 @@ export function BrowseFilterBar() {
 
                 {/* Status Section */}
                 <div className="space-y-4">
-                  <h3 className="text-sm font-bold uppercase tracking-wider text-muted-foreground/70">Status</h3>
+                  <h3 className="text-xs font-bold uppercase tracking-wider text-muted-foreground/70">Status</h3>
                   <RadioGroup 
                     value={statusFilter} 
                     onValueChange={setStatusFilter} 
@@ -137,7 +121,7 @@ export function BrowseFilterBar() {
 
                 {/* Categories Section */}
                 <div className="space-y-4">
-                  <h3 className="text-sm font-bold uppercase tracking-wider text-muted-foreground/70">Categories</h3>
+                  <h3 className="text-xs font-bold uppercase tracking-wider text-muted-foreground/70">Categories</h3>
                   <div className="grid grid-cols-1 gap-4">
                     {/* All Categories Option */}
                     <div className="flex items-center space-x-3 group cursor-pointer">
@@ -175,12 +159,6 @@ export function BrowseFilterBar() {
                 </div>
               </div>
             </ScrollArea>
-
-            <div className="p-6 border-t bg-background/50 backdrop-blur-sm">
-              <CustomButton className="w-full rounded-xl h-12 text-base font-bold shadow-lg shadow-primary/20">
-                Apply Filters
-              </CustomButton>
-            </div>
           </SheetContent>
         </Sheet>
       </div>
