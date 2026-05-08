@@ -411,7 +411,7 @@ export default function NewFundraiserPage() {
               <div className="pt-6 md:pt-8 flex flex-col gap-3 md:gap-4">
                 <CustomButton 
                   type="submit" 
-                  className="w-full h-12 md:h-14 text-base md:text-lg font-bold rounded-full shadow-lg hover:shadow-primary/20"
+                  className="w-full h-10 md:h-14 text-sm md:text-lg font-bold rounded-full shadow-lg hover:shadow-primary/20"
                   isLoading={isSubmitting}
                 >
                   {isSubmitting ? (

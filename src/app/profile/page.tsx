@@ -24,8 +24,8 @@ export default function ProfilePage() {
           </span>
         </div>
         
-        {/* Primary action */}
-        <CustomButton className="rounded-full px-10 h-12 text-base font-bold shadow-lg shadow-primary/10">
+        {/* Primary action - Resized for mobile */}
+        <CustomButton className="rounded-full px-8 h-10 md:h-12 text-sm md:text-base font-bold shadow-lg shadow-primary/10">
           Connect Wallet
         </CustomButton>
       </div>
