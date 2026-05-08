@@ -18,7 +18,7 @@ const FAKE_CAMPAIGNS: CampaignCardProps[] = [
     targetAmount: 100000,
     contributors: 1450,
     deadline: "24 Oct 2024",
-    status: 'Urgent'
+    status: 'New'
   },
   {
     title: "Project Nightingale: Affordable Healthcare for Rural Communities",
@@ -60,7 +60,7 @@ const FAKE_CAMPAIGNS: CampaignCardProps[] = [
     targetAmount: 300000,
     contributors: 4200,
     deadline: "15 Oct 2024",
-    status: 'Urgent'
+    status: 'New'
   },
   {
     title: "Code for Tomorrow: Tech Education for Underprivileged Kids",

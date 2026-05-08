@@ -19,7 +19,7 @@ export interface CampaignCardProps {
   targetAmount: number;
   contributors: number;
   deadline: string;
-  status: 'Active' | 'Completed' | 'Urgent';
+  status: 'Active' | 'Completed' | 'New';
   className?: string;
 }
 
@@ -62,7 +62,7 @@ export function CampaignCard({
             <span className={cn(
               "px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider backdrop-blur-md border border-white/20",
               status === 'Active' ? "bg-white/80 text-primary" : 
-              status === 'Urgent' ? "bg-red-500/80 text-white" : 
+              status === 'New' ? "bg-blue-500/80 text-white" : 
               "bg-green-500/80 text-white"
             )}>
               {status}

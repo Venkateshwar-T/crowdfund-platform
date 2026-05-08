@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState } from 'react';
@@ -113,7 +114,7 @@ export function BrowseFilterBar() {
                     onValueChange={setStatusFilter} 
                     className="flex flex-col gap-3"
                   >
-                    {['all', 'active', 'completed'].map((val) => (
+                    {['all', 'new', 'active', 'completed'].map((val) => (
                       <div key={val} className="flex items-center space-x-3 group cursor-pointer">
                         <RadioGroupItem value={val} id={`status-${val}`} className="border-muted-foreground/30" />
                         <Label htmlFor={`status-${val}`} className="text-sm font-medium cursor-pointer group-hover:text-primary transition-colors capitalize">
