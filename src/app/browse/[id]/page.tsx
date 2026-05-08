@@ -290,7 +290,7 @@ function ContributorsList({ count }: { count: number }) {
 /**
  * Section 5: Static Contribution Box
  */
-function StaticContributionBox({ containerRef }: { containerRef: React.RefObject<HTMLDivElement> }) {
+function StaticContributionBox({ containerRef }: { containerRef: React.RefObject<HTMLDivElement | null> }) {
   return (
     <div 
       ref={containerRef}
@@ -406,7 +406,7 @@ export default function CampaignDetailsPage({ params }: { params: Promise<{ id: 
   }
 
   return (
-    <div className="flex flex-col min-h-screen pb-20 md:pb-32">
+    <div className="flex flex-col min-h-screen pb-12 md:pb-20">
       <main className="max-w-4xl mx-auto px-4 py-6 md:py-10 w-full flex flex-col gap-4 md:gap-8">
         <TitleSection title={campaign.title} status={campaign.status} />
         <MediaGallery media={campaign.media} title={campaign.title} />
