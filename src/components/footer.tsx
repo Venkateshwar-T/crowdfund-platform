@@ -1,10 +1,9 @@
-
 'use client';
 
 import Link from 'next/link';
-import Image from 'next/image';
 import { Facebook, Instagram, Twitter, Linkedin } from 'lucide-react';
 import { CustomButton } from './custom-button';
+import { BrandLogo } from './brand-logo';
 
 export function Footer() {
   return (
@@ -14,20 +13,7 @@ export function Footer() {
           
           {/* Brand Column */}
           <div className="flex flex-col gap-4 md:col-span-2 lg:col-span-2">
-            <div className="flex items-center gap-2">
-              <div className="relative w-10 h-10 overflow-hidden rounded-lg">
-                <Image 
-                  src="/logo.png" 
-                  alt="CrowdFund Logo" 
-                  fill 
-                  className="object-cover"
-                  data-ai-hint="company logo"
-                />
-              </div>
-              <span className="text-2xl font-bold tracking-tight text-primary">
-                CrowdFund
-              </span>
-            </div>
+            <BrandLogo />
             <div>
               <p className="text-sm font-medium text-muted-foreground uppercase tracking-wider">
                 Backed By Blockchain

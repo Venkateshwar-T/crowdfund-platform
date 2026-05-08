@@ -5,6 +5,7 @@ import { useState, useRef, useEffect } from 'react';
 import { ArrowLeft, Search, CircleHelp, Menu, X, Home, Compass } from 'lucide-react';
 import { CustomSearchBar } from './custom-search-bar';
 import { CustomButton } from './custom-button';
+import { BrandLogo } from './brand-logo';
 import { Input } from '@/components/ui/input';
 import { cn } from '@/lib/utils';
 
@@ -59,9 +60,7 @@ export function Navbar() {
         )}>
           {/* Left Section: Logo, Navigation, and Search Trigger */}
           <div className="flex items-center gap-4 md:gap-6 flex-1 min-w-0">
-            <Link href="/" className="text-2xl font-bold tracking-tight text-primary whitespace-nowrap shrink-0">
-              CrowdFund
-            </Link>
+            <BrandLogo />
             
             {/* Desktop Navigation */}
             <div className="hidden md:flex items-center gap-4 md:gap-6">
