@@ -2,6 +2,7 @@ import { type CampaignCardProps } from '@/components/campaign-card';
 
 export interface Campaign extends CampaignCardProps {
   description: string;
+  media: { type: 'image' | 'video'; url: string }[];
 }
 
 export const FAKE_CAMPAIGNS: Campaign[] = [
@@ -9,6 +10,12 @@ export const FAKE_CAMPAIGNS: Campaign[] = [
     id: "1",
     title: "Global Ocean Cleanup: Removing Plastic from Our Shores",
     image: "https://picsum.photos/seed/ocean/800/600",
+    media: [
+      { type: 'image', url: "https://picsum.photos/seed/ocean1/800/600" },
+      { type: 'image', url: "https://picsum.photos/seed/ocean2/800/600" },
+      { type: 'image', url: "https://picsum.photos/seed/ocean3/800/600" },
+      { type: 'image', url: "https://picsum.photos/seed/ocean4/800/600" },
+    ],
     user: {
       name: "Blue Horizon",
       avatar: "https://picsum.photos/seed/u1/100/100",
@@ -25,6 +32,11 @@ export const FAKE_CAMPAIGNS: Campaign[] = [
     id: "2",
     title: "Project Nightingale: Affordable Healthcare for Rural Communities",
     image: "https://picsum.photos/seed/med/800/600",
+    media: [
+      { type: 'image', url: "https://picsum.photos/seed/med1/800/600" },
+      { type: 'image', url: "https://picsum.photos/seed/med2/800/600" },
+      { type: 'image', url: "https://picsum.photos/seed/med3/800/600" },
+    ],
     user: {
       name: "Unity Health",
       avatar: "https://picsum.photos/seed/u2/100/100",
@@ -41,6 +53,10 @@ export const FAKE_CAMPAIGNS: Campaign[] = [
     id: "3",
     title: "Solar Village: Powering Schools with Renewable Energy",
     image: "https://picsum.photos/seed/solar/800/600",
+    media: [
+      { type: 'image', url: "https://picsum.photos/seed/solar1/800/600" },
+      { type: 'image', url: "https://picsum.photos/seed/solar2/800/600" },
+    ],
     user: {
       name: "EcoBright",
       avatar: "https://picsum.photos/seed/u3/100/100",
@@ -57,6 +73,10 @@ export const FAKE_CAMPAIGNS: Campaign[] = [
     id: "4",
     title: "Wildlife Sanctuary: Protecting Endangered Forest Species",
     image: "https://picsum.photos/seed/wildlife/800/600",
+    media: [
+      { type: 'image', url: "https://picsum.photos/seed/wild1/800/600" },
+      { type: 'image', url: "https://picsum.photos/seed/wild2/800/600" },
+    ],
     user: {
       name: "NatureGuard",
       avatar: "https://picsum.photos/seed/u4/100/100",
@@ -73,6 +93,9 @@ export const FAKE_CAMPAIGNS: Campaign[] = [
     id: "5",
     title: "Code for Tomorrow: Tech Education for Underprivileged Kids",
     image: "https://picsum.photos/seed/code/800/600",
+    media: [
+      { type: 'image', url: "https://picsum.photos/seed/code1/800/600" },
+    ],
     user: {
       name: "FutureMinds",
       avatar: "https://picsum.photos/seed/u5/100/100",
@@ -89,6 +112,10 @@ export const FAKE_CAMPAIGNS: Campaign[] = [
     id: "6",
     title: "Reforestation Project: Planting 1 Million Trees by 2025",
     image: "https://picsum.photos/seed/forest/800/600",
+    media: [
+      { type: 'image', url: "https://picsum.photos/seed/forest1/800/600" },
+      { type: 'image', url: "https://picsum.photos/seed/forest2/800/600" },
+    ],
     user: {
       name: "GreenRoots",
       avatar: "https://picsum.photos/seed/u6/100/100",
