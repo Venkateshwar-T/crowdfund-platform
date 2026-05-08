@@ -1,11 +1,10 @@
-
 'use client';
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { Compass, User } from 'lucide-react';
-import { AiFillHome } from "react-icons/ai";
+import { SlHome } from "react-icons/sl";
 import { cn } from '@/lib/utils';
 
 export function BottomNav() {
@@ -31,7 +30,7 @@ export function BottomNav() {
   }, [lastScrollY]);
 
   const navItems = [
-    { label: 'Home', href: '/', icon: AiFillHome },
+    { label: 'Home', href: '/', icon: SlHome },
     { label: 'Browse', href: '/browse', icon: Compass },
     { label: 'Profile', href: '/profile', icon: User },
   ];
