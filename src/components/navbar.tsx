@@ -1,35 +1,50 @@
+
 'use client';
 
 import Link from 'next/link';
 import { useState, useRef, useEffect } from 'react';
-import { ArrowLeft, Search, CircleHelp, Menu, X, Home, Compass } from 'lucide-react';
+import { ArrowLeft, Search, CircleHelp, Menu, X, Home, Compass, ChevronRight, Heart, Sprout, GraduationCap, Cat, Palette, Venus, Users, Cpu, Trophy, ShieldAlert, Building2 } from 'lucide-react';
 import { CustomSearchBar } from './custom-search-bar';
 import { CustomButton } from './custom-button';
 import { BrandLogo } from './brand-logo';
 import { Input } from '@/components/ui/input';
 import { cn } from '@/lib/utils';
 
+const BROWSE_CATEGORIES = [
+  { id: 'medical', label: 'Medical', icon: Heart },
+  { id: 'environment', label: 'Environment', icon: Sprout },
+  { id: 'education', label: 'Education', icon: GraduationCap },
+  { id: 'animals', label: 'Animals', icon: Cat },
+  { id: 'arts', label: 'Arts and Media', icon: Palette },
+  { id: 'women', label: 'Women', icon: Venus },
+  { id: 'elderly', label: 'Elderly', icon: Users },
+  { id: 'technology', label: 'Technology', icon: Cpu },
+  { id: 'sports', label: 'Sports', icon: Trophy },
+  { id: 'disaster', label: 'Disaster Relief', icon: ShieldAlert },
+];
+
 export function Navbar() {
   const [isSearching, setIsSearching] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isBrowseOpen, setIsBrowseOpen] = useState(false);
   const searchInputRef = useRef<HTMLInputElement>(null);
 
-  // Focus the input when search mode is activated
   useEffect(() => {
     if (isSearching && searchInputRef.current) {
       searchInputRef.current.focus();
     }
   }, [isSearching]);
 
-  // Close menu if searching starts
   useEffect(() => {
     if (isSearching) setIsMenuOpen(false);
   }, [isSearching]);
 
-  const NavLink = ({ href, children }: { href: string; children: React.ReactNode }) => (
+  const NavLink = ({ href, children, onMouseEnter, onMouseLeave }: { href: string; children: React.ReactNode; onMouseEnter?: () => void; onMouseLeave?: () => void }) => (
     <Link 
       href={href} 
       className="relative group py-1 px-1"
+      onMouseEnter={onMouseEnter}
+      onMouseLeave={onMouseLeave}
     >
       <span className="block text-sm font-medium transition-transform duration-300 ease-out group-hover:-translate-y-1 whitespace-nowrap">
         {children}
@@ -53,35 +68,60 @@ export function Navbar() {
     <nav className="sticky top-0 z-50 w-full border-b bg-background/80 backdrop-blur-md">
       <div className="relative flex h-16 items-center px-4 md:px-6">
         
-        {/* Normal Navbar Content */}
         <div className={cn(
           "flex items-center justify-between w-full transition-all duration-500 ease-in-out",
           isSearching ? "opacity-0 pointer-events-none scale-95" : "opacity-100 scale-100"
         )}>
-          {/* Left Section: Logo, Navigation, and Search Trigger */}
           <div className="flex items-center gap-4 md:gap-6 flex-1 min-w-0">
             <BrandLogo logoSize={48}/>
             
-            {/* Desktop Navigation */}
-            <div className="hidden md:flex items-center gap-4 md:gap-6">
+            <div className="hidden md:flex items-center gap-4 md:gap-6 h-16">
               <NavLink href="/">Home</NavLink>
-              <NavLink href="/browse">Browse</NavLink>
+              
+              {/* Browse with Hover Dropdown (lg+ only) */}
+              <div 
+                className="relative h-full flex items-center"
+                onMouseEnter={() => setIsBrowseOpen(true)}
+                onMouseLeave={() => setIsBrowseOpen(false)}
+              >
+                <NavLink href="/browse">Browse</NavLink>
+                
+                {/* Desktop Dropdown Grid */}
+                <div className={cn(
+                  "hidden lg:grid absolute top-full left-0 mt-0 pt-2 w-[480px] transition-all duration-200 ease-out origin-top-left",
+                  isBrowseOpen ? "opacity-100 scale-100 translate-y-0" : "opacity-0 scale-95 -translate-y-2 pointer-events-none"
+                )}>
+                  <div className="bg-white rounded-2xl shadow-xl border border-border p-4 grid grid-cols-2 gap-1 overflow-hidden">
+                    {BROWSE_CATEGORIES.map((cat) => (
+                      <Link
+                        key={cat.id}
+                        href={`/browse?category=${cat.id}`}
+                        className="flex items-center justify-between px-4 py-3 rounded-xl hover:bg-primary/5 group/item transition-colors"
+                      >
+                        <div className="flex items-center gap-3">
+                          <cat.icon className="h-4 w-4 text-muted-foreground group-hover/item:text-primary transition-colors" />
+                          <span className="text-sm font-medium text-foreground group-hover/item:text-primary transition-colors">
+                            {cat.label}
+                          </span>
+                        </div>
+                        <ChevronRight className="h-4 w-4 text-muted-foreground/30 group-hover/item:text-primary group-hover/item:translate-x-1 transition-all" />
+                      </Link>
+                    ))}
+                  </div>
+                </div>
+              </div>
             </div>
 
-            {/* Medium screen search bar */}
             <div className="hidden md:block lg:hidden w-full max-w-[120px] ml-4">
               <CustomSearchBar placeholder="Search" onClick={() => setIsSearching(true)} />
             </div>
 
-            {/* Large screen search bar */}
             <div className="hidden lg:block w-full max-w-[240px] ml-4">
               <CustomSearchBar placeholder="Search fundraisers" onClick={() => setIsSearching(true)} />
             </div>
           </div>
 
-          {/* Right Section: Actions */}
           <div className="flex items-center gap-2 md:gap-6 shrink-0 ml-4">
-            {/* Help icon - Hidden on mobile */}
             <Link 
               href="/how-it-works" 
               className="hidden md:flex p-2 hover:bg-accent rounded-full transition-colors"
@@ -90,12 +130,10 @@ export function Navbar() {
               <CircleHelp className="h-5 w-5 text-muted-foreground" />
             </Link>
 
-            {/* Connect Wallet - Hidden on mobile */}
             <CustomButton variant="default" className="hidden md:flex rounded-full px-4 md:px-6 whitespace-nowrap">
               Connect Wallet
             </CustomButton>
 
-            {/* Mobile Actions */}
             <div className="flex md:hidden items-center gap-1">
               <button 
                 onClick={() => setIsSearching(true)}
@@ -120,7 +158,6 @@ export function Navbar() {
           </div>
         </div>
 
-        {/* Expanded Search Bar Overlay */}
         <div className={cn(
           "absolute inset-0 flex items-center px-4 md:px-6 transition-all duration-500 ease-in-out bg-background",
           isSearching ? "opacity-100 translate-y-0" : "opacity-0 pointer-events-none translate-y-2"
@@ -150,7 +187,6 @@ export function Navbar() {
         </div>
       </div>
 
-      {/* Mobile Menu Dropdown */}
       <div className={cn(
         "md:hidden absolute top-full left-0 w-full bg-background border-b shadow-xl transition-all duration-300 ease-in-out overflow-hidden",
         isMenuOpen ? "max-height-60 opacity-100" : "max-h-0 opacity-0 pointer-events-none"
