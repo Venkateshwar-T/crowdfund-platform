@@ -37,7 +37,7 @@ export function BrowseCategoryBar() {
         {/* Left Arrow with Fade */}
         <button 
           onClick={() => scroll('left')}
-          className="absolute left-0 z-10 w-8 md:w-10 h-full flex items-center justify-start pl-1 bg-gradient-to-r from-background via-background/90 to-transparent hover:text-primary transition-colors"
+          className="absolute left-0 z-10 w-8 md:w-10 h-full flex items-center justify-start pl-2 bg-gradient-to-r from-background via-background/100 to-transparent hover:text-primary transition-colors"
           aria-label="Scroll Left"
         >
           <ChevronLeft className="h-4 w-4 md:h-5 md:w-5" />
@@ -46,7 +46,7 @@ export function BrowseCategoryBar() {
         {/* Scrollable Container */}
         <div 
           ref={scrollRef}
-          className="flex items-center gap-4 md:gap-8 overflow-x-auto no-scrollbar scroll-smooth px-8 md:px-10 w-full h-full"
+          className="flex items-center gap-4 md:gap-8 overflow-x-auto no-scrollbar scroll-smooth px-4 md:px-8 w-full h-full"
           style={{ msOverflowStyle: 'none', scrollbarWidth: 'none' }}
         >
           {CATEGORIES.map((category) => {
@@ -69,7 +69,7 @@ export function BrowseCategoryBar() {
         {/* Right Arrow with Fade */}
         <button 
           onClick={() => scroll('right')}
-          className="absolute right-0 z-10 w-8 md:w-10 h-full flex items-center justify-end pr-1 bg-gradient-to-l from-background via-background/90 to-transparent hover:text-primary transition-colors"
+          className="absolute right-0 z-10 w-8 md:w-10 h-full flex items-center justify-end pr-2 bg-gradient-to-l from-background via-background/100 to-transparent hover:text-primary transition-colors"
           aria-label="Scroll Right"
         >
           <ChevronRight className="h-4 w-4 md:h-5 md:w-5" />
