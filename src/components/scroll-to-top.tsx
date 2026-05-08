@@ -37,7 +37,7 @@ export function ScrollToTop() {
         onClick={scrollToTop}
         className="h-8 px-3 md:h-10 md:px-6 rounded-full shadow-xl border border-primary/20 bg-background/90 backdrop-blur-md text-primary hover:bg-primary hover:text-primary-foreground transition-all duration-300 group flex items-center gap-2"
       >
-        <ArrowUp className="h-3.5 w-3.5 md:h-4 md:w-4 transition-transform group-hover:-translate-y-0.5" />
+        <ArrowUp className="h-3 w-3 md:h-4 md:w-4 transition-transform group-hover:-translate-y-0.5" />
         <span className="text-[9px] md:text-xs font-bold uppercase tracking-widest">Back to top</span>
       </Button>
     </div>
