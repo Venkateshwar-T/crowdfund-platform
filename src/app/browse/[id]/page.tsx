@@ -96,11 +96,18 @@ function MediaGallery({ media, title }: { media: { type: string; url: string }[]
 
   return (
     <div className="relative w-full overflow-hidden rounded-2xl md:rounded-3xl border border-border/50 bg-muted aspect-video shadow-lg">
-      <Carousel setApi={setApi} className="w-full h-full">
-        <CarouselContent className="h-full ml-0">
+      <Carousel 
+        setApi={setApi} 
+        className="w-full h-full"
+        opts={{
+          align: "start",
+          loop: true,
+        }}
+      >
+        <CarouselContent className="ml-0">
           {media.map((item, index) => (
-            <CarouselItem key={index} className="pl-0 h-full">
-              <div className="relative w-full h-full">
+            <CarouselItem key={index} className="pl-0 h-full relative">
+              <div className="relative w-full h-full min-h-[200px] md:min-h-[400px]">
                 {item.type === 'image' ? (
                   <Image
                     src={item.url}
