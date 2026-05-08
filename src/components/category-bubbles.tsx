@@ -1,6 +1,8 @@
 'use client';
 
-import { Heart, GraduationCap, Cat, Palette, Cpu, Trophy, ShieldAlert, Venus, Users, Building2, Sprout } from 'lucide-react';
+import { Heart, GraduationCap, Cat, Palette, Cpu, Trophy, ShieldAlert, Building2, Sprout } from 'lucide-react';
+import { IoMdWoman } from "react-icons/io";
+import { MdElderly } from "react-icons/md";
 import { cn } from '@/lib/utils';
 
 const CATEGORIES = [
@@ -9,8 +11,8 @@ const CATEGORIES = [
   { id: 'education', label: 'Education', icon: GraduationCap, color: 'bg-blue-500/10 text-blue-600 border-blue-200' },
   { id: 'animals', label: 'Animals', icon: Cat, color: 'bg-orange-500/10 text-orange-600 border-orange-200' },
   { id: 'arts', label: 'Arts and Media', icon: Palette, color: 'bg-purple-500/10 text-purple-600 border-purple-200' },
-  { id: 'women', label: 'Women', icon: Venus, color: 'bg-pink-500/10 text-pink-600 border-pink-200' },
-  { id: 'elderly', label: 'Elderly', icon: Users, color: 'bg-red-500/10 text-red-600 border-red-200' },
+  { id: 'women', label: 'Women', icon: IoMdWoman, color: 'bg-pink-500/10 text-pink-600 border-pink-200' },
+  { id: 'elderly', label: 'Elderly', icon: MdElderly, color: 'bg-red-500/10 text-red-600 border-red-200' },
   { id: 'technology', label: 'Technology', icon: Cpu, color: 'bg-slate-500/10 text-slate-600 border-slate-200' },
   { id: 'sports', label: 'Sports', icon: Trophy, color: 'bg-yellow-500/10 text-yellow-600 border-yellow-200' },
   { id: 'disaster', label: 'Disaster Relief', icon: ShieldAlert, color: 'bg-rose-500/10 text-rose-600 border-rose-200' },
