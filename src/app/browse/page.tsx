@@ -36,10 +36,10 @@ export default function BrowsePage() {
       {/* Sticky Category Bar */}
       <div className="sticky top-16 md:top-16 z-30 w-full bg-background/95 backdrop-blur-sm border-b">
         <div className="max-w-7xl mx-auto px-4 flex items-center h-14 relative group/bar">
-          {/* Left Arrow with Wide Fade */}
+          {/* Left Arrow with Fade */}
           <button 
             onClick={() => scroll('left')}
-            className="absolute left-0 z-10 w-14 h-full flex items-center justify-start pl-1 bg-gradient-to-r from-background via-background/90 to-transparent hover:text-primary transition-colors"
+            className="absolute left-0 z-10 w-10 h-full flex items-center justify-start pl-1 bg-gradient-to-r from-background via-background/90 to-transparent hover:text-primary transition-colors"
             aria-label="Scroll Left"
           >
             <ChevronLeft className="h-6 w-6" />
@@ -48,7 +48,7 @@ export default function BrowsePage() {
           {/* Scrollable Container */}
           <div 
             ref={scrollRef}
-            className="flex items-center gap-4 md:gap-6 overflow-x-auto no-scrollbar scroll-smooth px-12 w-full h-full"
+            className="flex items-center gap-4 md:gap-6 overflow-x-auto no-scrollbar scroll-smooth px-8 w-full h-full"
             style={{ msOverflowStyle: 'none', scrollbarWidth: 'none' }}
           >
             {CATEGORIES.map((category) => {
@@ -68,10 +68,10 @@ export default function BrowsePage() {
             })}
           </div>
 
-          {/* Right Arrow with Wide Fade */}
+          {/* Right Arrow with Fade */}
           <button 
             onClick={() => scroll('right')}
-            className="absolute right-0 z-10 w-14 h-full flex items-center justify-end pr-1 bg-gradient-to-l from-background via-background/90 to-transparent hover:text-primary transition-colors"
+            className="absolute right-0 z-10 w-10 h-full flex items-center justify-end pr-1 bg-gradient-to-l from-background via-background/90 to-transparent hover:text-primary transition-colors"
             aria-label="Scroll Right"
           >
             <ChevronRight className="h-6 w-6" />
