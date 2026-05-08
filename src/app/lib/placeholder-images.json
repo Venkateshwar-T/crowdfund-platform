@@ -12,6 +12,48 @@
       "description": "CrowdFund Logo",
       "imageUrl": "/logo.png",
       "imageHint": "company logo"
+    },
+    {
+      "id": "campaign-1",
+      "description": "Medical research campaign",
+      "imageUrl": "https://picsum.photos/seed/med1/800/600",
+      "imageHint": "medical laboratory"
+    },
+    {
+      "id": "campaign-2",
+      "description": "Clean water project",
+      "imageUrl": "https://picsum.photos/seed/water1/800/600",
+      "imageHint": "clean water"
+    },
+    {
+      "id": "campaign-3",
+      "description": "Renewable energy startup",
+      "imageUrl": "https://picsum.photos/seed/energy1/800/600",
+      "imageHint": "solar panels"
+    },
+    {
+      "id": "campaign-4",
+      "description": "Education for all",
+      "imageUrl": "https://picsum.photos/seed/edu1/800/600",
+      "imageHint": "children studying"
+    },
+    {
+      "id": "user-1",
+      "description": "User avatar 1",
+      "imageUrl": "https://picsum.photos/seed/u1/100/100",
+      "imageHint": "person portrait"
+    },
+    {
+      "id": "user-2",
+      "description": "User avatar 2",
+      "imageUrl": "https://picsum.photos/seed/u2/100/100",
+      "imageHint": "person portrait"
+    },
+    {
+      "id": "user-3",
+      "description": "User avatar 3",
+      "imageUrl": "https://picsum.photos/seed/u3/100/100",
+      "imageHint": "person portrait"
     }
   ]
 }
