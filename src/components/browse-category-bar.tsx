@@ -2,7 +2,7 @@
 
 import { useRef } from 'react';
 import { ChevronLeft, ChevronRight, Heart, Sprout, GraduationCap, Cat, Palette, Cpu, Trophy, ShieldAlert, Building2 } from 'lucide-react';
-import { IoMdWoman } from "react-icons/io";
+import { IoWoman } from "react-icons/io5";
 import { MdElderly } from "react-icons/md";
 import { cn } from '@/lib/utils';
 
@@ -12,7 +12,7 @@ export const CATEGORIES = [
   { id: 'education', label: 'Education', icon: GraduationCap },
   { id: 'animals', label: 'Animals', icon: Cat },
   { id: 'arts', label: 'Arts and Media', icon: Palette },
-  { id: 'women', label: 'Women', icon: IoMdWoman },
+  { id: 'women', label: 'Women', icon: IoWoman },
   { id: 'elderly', label: 'Elderly', icon: MdElderly },
   { id: 'technology', label: 'Technology', icon: Cpu },
   { id: 'sports', label: 'Sports', icon: Trophy },
