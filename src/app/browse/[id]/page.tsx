@@ -7,7 +7,8 @@ import {
   Film, 
   Calendar,
   ChevronDown,
-  ChevronUp
+  ChevronUp,
+  Tag
 } from 'lucide-react';
 import { MdVerifiedUser } from 'react-icons/md';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
@@ -183,6 +184,16 @@ function DetailsCard({ campaign }: { campaign: any }) {
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-center">
         <div className="flex flex-col gap-6 order-2 md:order-1">
+          <div className="flex flex-col gap-2">
+            <h2 className="text-[10px] md:text-sm font-bold uppercase tracking-widest text-primary">Category</h2>
+            <div className="flex items-center gap-2">
+              <Tag className="h-4 w-4 text-primary" />
+              <span className="text-xs md:text-base font-bold text-foreground">
+                {campaign.category}
+              </span>
+            </div>
+          </div>
+
           <div className="flex flex-col gap-2">
             <h2 className="text-[10px] md:text-sm font-bold uppercase tracking-widest text-primary">About the Campaign</h2>
             <p className="text-xs md:text-base text-muted-foreground leading-relaxed">

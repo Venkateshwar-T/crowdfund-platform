@@ -2,6 +2,7 @@ import { type CampaignCardProps } from '@/components/campaign-card';
 
 export interface Campaign extends CampaignCardProps {
   description: string;
+  category: string;
   media: { type: 'image' | 'video'; url: string }[];
 }
 
@@ -10,6 +11,7 @@ export const FAKE_CAMPAIGNS: Campaign[] = [
     id: "1",
     title: "Global Ocean Cleanup: Removing Plastic from Our Shores",
     image: "https://picsum.photos/seed/ocean/800/600",
+    category: "Environment",
     media: [
       { type: 'image', url: "https://picsum.photos/seed/ocean1/800/600" },
       { type: 'image', url: "https://picsum.photos/seed/ocean2/800/600" },
@@ -32,6 +34,7 @@ export const FAKE_CAMPAIGNS: Campaign[] = [
     id: "2",
     title: "Project Nightingale: Affordable Healthcare for Rural Communities",
     image: "https://picsum.photos/seed/med/800/600",
+    category: "Medical",
     media: [
       { type: 'image', url: "https://picsum.photos/seed/med1/800/600" },
       { type: 'image', url: "https://picsum.photos/seed/med2/800/600" },
@@ -47,12 +50,13 @@ export const FAKE_CAMPAIGNS: Campaign[] = [
     contributors: 890,
     deadline: "12 Nov 2024",
     status: 'Active',
-    description: "We are building mobile medical clinics to reach villages that have no access to basic healthcare. Your funds will help us purchase medical supplies, pay for specialized staff, and maintain our fleet of health-vans. We are building mobile medical clinics to reach villages that have no access to basic healthcare. Your funds will help us purchase medical supplies, pay for specialized staff, and maintain our fleet of health-vans. We are building mobile medical clinics to reach villages that have no access to basic healthcare. Your funds will help us purchase medical supplies, pay for specialized staff, and maintain our fleet of health-vans. We are building mobile medical clinics to reach villages that have no access to basic healthcare. Your funds will help us purchase medical supplies, pay for specialized staff, and maintain our fleet of health-vans. We are building mobile medical clinics to reach villages that have no access to basic healthcare. Your funds will help us purchase medical supplies, pay for specialized staff, and maintain our fleet of health-vans. We are building mobile medical clinics to reach villages that have no access to basic healthcare. Your funds will help us purchase medical supplies, pay for specialized staff, and maintain our fleet of health-vans."
+    description: "We are building mobile medical clinics to reach villages that have no access to basic healthcare. Your funds will help us purchase medical supplies, pay for specialized staff, and maintain our fleet of health-vans."
   },
   {
     id: "3",
     title: "Solar Village: Powering Schools with Renewable Energy",
     image: "https://picsum.photos/seed/solar/800/600",
+    category: "Technology",
     media: [
       { type: 'image', url: "https://picsum.photos/seed/solar1/800/600" },
       { type: 'image', url: "https://picsum.photos/seed/solar2/800/600" },
@@ -73,6 +77,7 @@ export const FAKE_CAMPAIGNS: Campaign[] = [
     id: "4",
     title: "Wildlife Sanctuary: Protecting Endangered Forest Species",
     image: "https://picsum.photos/seed/wildlife/800/600",
+    category: "Animals",
     media: [
       { type: 'image', url: "https://picsum.photos/seed/wild1/800/600" },
       { type: 'image', url: "https://picsum.photos/seed/wild2/800/600" },
@@ -93,6 +98,7 @@ export const FAKE_CAMPAIGNS: Campaign[] = [
     id: "5",
     title: "Code for Tomorrow: Tech Education for Underprivileged Kids",
     image: "https://picsum.photos/seed/code/800/600",
+    category: "Education",
     media: [
       { type: 'image', url: "https://picsum.photos/seed/code1/800/600" },
     ],
@@ -112,6 +118,7 @@ export const FAKE_CAMPAIGNS: Campaign[] = [
     id: "6",
     title: "Reforestation Project: Planting 1 Million Trees by 2025",
     image: "https://picsum.photos/seed/forest/800/600",
+    category: "Environment",
     media: [
       { type: 'image', url: "https://picsum.photos/seed/forest1/800/600" },
       { type: 'image', url: "https://picsum.photos/seed/forest2/800/600" },
