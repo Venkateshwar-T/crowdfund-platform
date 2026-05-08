@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, use } from 'react';
+import { useState, useEffect, use, useRef } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { 
@@ -243,8 +243,8 @@ function ContributorsList({ count }: { count: number }) {
           <CollapsibleTrigger asChild>
             <CustomButton variant="ghost" size="sm" className="rounded-full h-8 w-8 p-0 hover:bg-primary/10">
               {isOpen ? <ChevronUp className="h-4 w-4 text-primary" /> : <ChevronDown className="h-4 w-4 text-primary" />}
-            </CustomButton>
-          </CollapsibleTrigger>
+            </CollapsibleTrigger>
+          </div>
         </div>
 
         <CollapsibleContent className="mt-6 space-y-4 animate-in slide-in-from-top-2 duration-300">
@@ -277,16 +277,46 @@ function ContributorsList({ count }: { count: number }) {
 }
 
 /**
- * Section 5: Contribution Box Component (Sticky Floating)
+ * Section 5: Static Contribution Box
  */
-function ContributionBox() {
+function StaticContributionBox({ containerRef }: { containerRef: React.RefObject<HTMLDivElement> }) {
+  return (
+    <div 
+      ref={containerRef}
+      className="p-5 md:p-8 bg-foreground rounded-2xl md:rounded-3xl text-white flex flex-col md:flex-row items-center justify-between gap-4 md:gap-6 shadow-2xl ring-1 ring-white/10"
+    >
+      <div className="text-center md:text-left">
+        <h3 className="text-base md:text-lg font-bold">Fund this Campaign</h3>
+        <p className="text-xs md:text-sm text-white/60">Help drive real impact</p>
+      </div>
+      
+      <div className="flex w-full md:w-auto items-center gap-3">
+        <div className="relative flex-grow md:w-32">
+          <span className="absolute left-3 top-1/2 -translate-y-1/2 text-white/40 font-bold text-sm">$</span>
+          <Input 
+            type="number" 
+            placeholder="0"
+            className="bg-white/10 border-white/20 text-white pl-7 h-10 md:h-12 rounded-xl focus-visible:ring-primary focus-visible:border-primary text-sm font-bold shadow-inner"
+          />
+        </div>
+        <CustomButton className="h-10 md:h-12 px-6 md:px-8 rounded-xl font-black text-xs md:text-sm shadow-lg shadow-primary/20 bg-primary hover:bg-primary/90">
+          Contribute
+        </CustomButton>
+      </div>
+    </div>
+  );
+}
+
+/**
+ * Section 6: Floating CTA
+ */
+function FloatingCTA({ onContribute, visible }: { onContribute: () => void, visible: boolean }) {
   const [isNavVisible, setIsNavVisible] = useState(true);
   const [lastScrollY, setLastScrollY] = useState(0);
 
   useEffect(() => {
     const handleScroll = () => {
       const currentScrollY = window.scrollY;
-      // Sync with BottomNav visibility logic
       if (currentScrollY > lastScrollY && currentScrollY > 50) {
         setIsNavVisible(false);
       } else {
@@ -302,32 +332,23 @@ function ContributionBox() {
   return (
     <div 
       className={cn(
-        "fixed left-0 right-0 z-40 px-4 transition-all duration-300 ease-in-out md:left-1/2 md:-translate-x-1/2 md:max-w-4xl md:px-0",
-        // Desktop positioning
+        "fixed left-0 right-0 z-40 px-4 transition-all duration-500 ease-in-out md:left-1/2 md:-translate-x-1/2 md:max-w-4xl md:px-0",
+        visible ? "translate-y-0 opacity-100" : "translate-y-10 opacity-0 pointer-events-none",
         "md:bottom-8",
-        // Mobile positioning - slides down when BottomNav slides down, moves up when it expands
         isNavVisible ? "bottom-[calc(4rem+1rem)]" : "bottom-4"
       )}
     >
-      <div className="p-5 md:p-8 bg-foreground rounded-2xl md:rounded-3xl text-white flex flex-col md:flex-row items-center justify-between gap-4 md:gap-6 shadow-2xl ring-1 ring-white/10">
-        <div className="text-center md:text-left">
-          <h3 className="text-base md:text-lg font-bold">Fund this Campaign</h3>
-          <p className="text-xs md:text-sm text-white/60">Help drive real impact</p>
+      <div className="p-3 md:p-4 bg-foreground/90 backdrop-blur-xl rounded-2xl md:rounded-3xl text-white flex items-center justify-between gap-4 shadow-2xl ring-1 ring-white/10">
+        <div className="pl-2">
+          <p className="text-[10px] md:text-xs text-white/60 font-bold uppercase tracking-widest">Drive Impact</p>
+          <p className="text-xs md:text-sm font-bold">Help this cause</p>
         </div>
-        
-        <div className="flex w-full md:w-auto items-center gap-3">
-          <div className="relative flex-grow md:w-32">
-            <span className="absolute left-3 top-1/2 -translate-y-1/2 text-white/40 font-bold text-sm">$</span>
-            <Input 
-              type="number" 
-              placeholder="0"
-              className="bg-white/10 border-white/20 text-white pl-7 h-10 md:h-12 rounded-xl focus-visible:ring-primary focus-visible:border-primary text-sm font-bold shadow-inner"
-            />
-          </div>
-          <CustomButton className="h-10 md:h-12 px-6 md:px-8 rounded-xl font-black text-xs md:text-sm shadow-lg shadow-primary/20 bg-primary hover:bg-primary/90">
-            Contribute
-          </CustomButton>
-        </div>
+        <CustomButton 
+          onClick={onContribute}
+          className="h-10 md:h-12 px-6 md:px-8 rounded-xl font-black text-xs md:text-sm shadow-lg shadow-primary/20 bg-primary hover:bg-primary/90"
+        >
+          Contribute Now
+        </CustomButton>
       </div>
     </div>
   );
@@ -336,6 +357,29 @@ function ContributionBox() {
 export default function CampaignDetailsPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params);
   const campaign = FAKE_CAMPAIGNS.find((c) => c.id === id);
+  const fundRef = useRef<HTMLDivElement>(null);
+  const [isFundInView, setIsFundInView] = useState(false);
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        setIsFundInView(entry.isIntersecting);
+      },
+      {
+        threshold: 0.1, // Trigger when 10% of the box is visible
+      }
+    );
+
+    if (fundRef.current) {
+      observer.observe(fundRef.current);
+    }
+
+    return () => observer.disconnect();
+  }, []);
+
+  const scrollToFund = () => {
+    fundRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  };
 
   if (!campaign) {
     return (
@@ -351,14 +395,19 @@ export default function CampaignDetailsPage({ params }: { params: Promise<{ id: 
   }
 
   return (
-    <div className="flex flex-col min-h-screen pb-40 md:pb-48">
+    <div className="flex flex-col min-h-screen pb-20 md:pb-32">
       <main className="max-w-4xl mx-auto px-4 py-6 md:py-10 w-full flex flex-col gap-4 md:gap-8">
         <TitleSection title={campaign.title} status={campaign.status} />
         <MediaGallery media={campaign.media} title={campaign.title} />
         <DetailsCard campaign={campaign} />
         <ContributorsList count={campaign.contributors} />
-        <ContributionBox />
+        <StaticContributionBox containerRef={fundRef} />
       </main>
+      
+      <FloatingCTA 
+        onContribute={scrollToFund} 
+        visible={!isFundInView} 
+      />
     </div>
   );
 }
