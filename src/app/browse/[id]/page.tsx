@@ -56,6 +56,7 @@ export default function CampaignDetailsPage({ params }: { params: Promise<{ id: 
       </div>
 
       <main className="max-w-4xl mx-auto px-4 -mt-12 relative z-10 pb-20">
+        {/* Main Details Card */}
         <div className="bg-white/70 backdrop-blur-xl rounded-3xl border border-white/20 p-6 md:p-10 shadow-2xl flex flex-col gap-8">
           
           {/* User & Title Section */}
@@ -132,29 +133,28 @@ export default function CampaignDetailsPage({ params }: { params: Promise<{ id: 
               </div>
             </div>
           </div>
+        </div>
 
-          {/* Contribution Box */}
-          <div className="mt-4 p-6 md:p-8 bg-foreground rounded-3xl text-white flex flex-col md:flex-row items-center justify-between gap-6 shadow-xl">
-            <div className="text-center md:text-left">
-              <h3 className="text-lg md:text-xl font-bold">Fund this Campaign</h3>
-              <p className="text-xs md:text-sm text-white/60">Enter amount to make a direct impact</p>
-            </div>
-            
-            <div className="flex w-full md:w-auto items-center gap-3">
-              <div className="relative flex-grow md:w-32">
-                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-white/40 font-bold">$</span>
-                <Input 
-                  type="number" 
-                  placeholder="0.00"
-                  className="bg-white/10 border-white/20 text-white pl-8 h-10 md:h-12 rounded-xl focus-visible:ring-primary focus-visible:border-primary text-sm md:text-base font-bold"
-                />
-              </div>
-              <CustomButton className="h-10 md:h-12 px-6 md:px-8 rounded-xl font-black text-sm md:text-base shadow-lg shadow-primary/20 bg-primary hover:bg-primary/90">
-                Contribute
-              </CustomButton>
-            </div>
+        {/* Contribution Box - Moved Outside */}
+        <div className="mt-6 p-6 md:p-8 bg-foreground rounded-3xl text-white flex flex-col md:flex-row items-center justify-between gap-6 shadow-xl relative z-20">
+          <div className="text-center md:text-left">
+            <h3 className="text-lg md:text-xl font-bold">Fund this Campaign</h3>
+            <p className="text-xs md:text-sm text-white/60">Enter amount to make a direct impact</p>
           </div>
-
+          
+          <div className="flex w-full md:w-auto items-center gap-3">
+            <div className="relative flex-grow md:w-32">
+              <span className="absolute left-3 top-1/2 -translate-y-1/2 text-white/40 font-bold">$</span>
+              <Input 
+                type="number" 
+                placeholder="0.00"
+                className="bg-white/10 border-white/20 text-white pl-8 h-10 md:h-12 rounded-xl focus-visible:ring-primary focus-visible:border-primary text-sm md:text-base font-bold"
+              />
+            </div>
+            <CustomButton className="h-10 md:h-12 px-6 md:px-8 rounded-xl font-black text-sm md:text-base shadow-lg shadow-primary/20 bg-primary hover:bg-primary/90">
+              Contribute
+            </CustomButton>
+          </div>
         </div>
       </main>
     </div>
