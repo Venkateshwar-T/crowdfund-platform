@@ -1,6 +1,6 @@
 'use client';
 
-import { use } from 'react';
+import { useState, useEffect, use } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { Film } from 'lucide-react';
@@ -9,9 +9,14 @@ import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { Input } from '@/components/ui/input';
 import { CustomButton } from '@/components/custom-button';
 import { FAKE_CAMPAIGNS } from '@/lib/mock-data';
-import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area';
 import { StatusBadge } from '@/components/status-badge';
 import { ContributorBadge } from '@/components/contributor-badge';
+import {
+  Carousel,
+  CarouselContent,
+  CarouselItem,
+  type CarouselApi,
+} from "@/components/ui/carousel";
 
 /**
  * Sub-component for the Progress Circle SVG
@@ -76,34 +81,59 @@ function TitleSection({ title, status }: { title: string; status: 'Active' | 'Co
  * Section 2: Media Gallery Component
  */
 function MediaGallery({ media, title }: { media: { type: string; url: string }[]; title: string }) {
+  const [api, setApi] = useState<CarouselApi>();
+  const [current, setCurrent] = useState(0);
+
+  useEffect(() => {
+    if (!api) return;
+
+    setCurrent(api.selectedScrollSnap());
+
+    api.on("select", () => {
+      setCurrent(api.selectedScrollSnap());
+    });
+  }, [api]);
+
   return (
-    <div className="relative w-full">
-      <ScrollArea className="w-full whitespace-nowrap rounded-2xl md:rounded-3xl border border-border/50">
-        <div className="flex w-max space-x-3 p-1">
+    <div className="relative w-full overflow-hidden rounded-2xl md:rounded-3xl border border-border/50 bg-muted aspect-video shadow-lg">
+      <Carousel setApi={setApi} className="w-full h-full">
+        <CarouselContent className="h-full ml-0">
           {media.map((item, index) => (
-            <div 
-              key={index} 
-              className="relative aspect-video w-[280px] md:w-[600px] overflow-hidden rounded-xl md:rounded-2xl shrink-0 bg-muted"
-            >
-              {item.type === 'image' ? (
-                <Image
-                  src={item.url}
-                  alt={`${title} media ${index}`}
-                  fill
-                  className="object-cover"
-                  priority={index === 0}
-                  data-ai-hint="campaign gallery image"
-                />
-              ) : (
-                <div className="absolute inset-0 flex items-center justify-center bg-black/5">
-                  <Film className="h-8 w-8 text-muted-foreground" />
-                </div>
-              )}
-            </div>
+            <CarouselItem key={index} className="pl-0 h-full">
+              <div className="relative w-full h-full">
+                {item.type === 'image' ? (
+                  <Image
+                    src={item.url}
+                    alt={`${title} media ${index}`}
+                    fill
+                    className="object-cover"
+                    priority={index === 0}
+                    data-ai-hint="campaign gallery image"
+                  />
+                ) : (
+                  <div className="absolute inset-0 flex items-center justify-center bg-black/5">
+                    <Film className="h-12 w-12 text-muted-foreground" />
+                  </div>
+                )}
+              </div>
+            </CarouselItem>
+          ))}
+        </CarouselContent>
+      </Carousel>
+      
+      {/* Position Indicators */}
+      {media.length > 1 && (
+        <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex items-center gap-1.5 z-10 px-3 py-1.5 rounded-full bg-black/30 backdrop-blur-md border border-white/10">
+          {media.map((_, index) => (
+            <div
+              key={index}
+              className={`h-1 rounded-full transition-all duration-300 ${
+                current === index ? 'w-4 bg-white' : 'w-1 bg-white/50'
+              }`}
+            />
           ))}
         </div>
-        <ScrollBar orientation="horizontal" />
-      </ScrollArea>
+      )}
     </div>
   );
 }
