@@ -17,6 +17,7 @@ import { FAKE_CAMPAIGNS } from '@/lib/mock-data';
 import { StatusBadge } from '@/components/status-badge';
 import { ContributorBadge } from '@/components/contributor-badge';
 import { ShareButton } from '@/components/share-button';
+import { cn } from '@/lib/utils';
 import {
   Carousel,
   CarouselContent,
@@ -221,7 +222,6 @@ function DetailsCard({ campaign }: { campaign: any }) {
 function ContributorsList({ count }: { count: number }) {
   const [isOpen, setIsOpen] = useState(false);
   
-  // Mock data for contributors
   const contributors = [
     { name: 'Alex Johnson', amount: 500, avatar: 'https://picsum.photos/seed/c1/100/100', time: '2 hours ago' },
     { name: 'Sarah Williams', amount: 250, avatar: 'https://picsum.photos/seed/c2/100/100', time: '5 hours ago' },
@@ -277,28 +277,57 @@ function ContributorsList({ count }: { count: number }) {
 }
 
 /**
- * Section 5: Contribution Box Component
+ * Section 5: Contribution Box Component (Sticky Floating)
  */
 function ContributionBox() {
+  const [isNavVisible, setIsNavVisible] = useState(true);
+  const [lastScrollY, setLastScrollY] = useState(0);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      const currentScrollY = window.scrollY;
+      // Sync with BottomNav visibility logic
+      if (currentScrollY > lastScrollY && currentScrollY > 50) {
+        setIsNavVisible(false);
+      } else {
+        setIsNavVisible(true);
+      }
+      setLastScrollY(currentScrollY);
+    };
+
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, [lastScrollY]);
+
   return (
-    <div className="p-5 md:p-8 bg-foreground rounded-2xl md:rounded-3xl text-white flex flex-col md:flex-row items-center justify-between gap-4 md:gap-6 shadow-xl">
-      <div className="text-center md:text-left">
-        <h3 className="text-base md:text-lg font-bold">Fund this Campaign</h3>
-        <p className="text-xs md:text-sm text-white/60">Help drive real impact</p>
-      </div>
-      
-      <div className="flex w-full md:w-auto items-center gap-3">
-        <div className="relative flex-grow md:w-32">
-          <span className="absolute left-3 top-1/2 -translate-y-1/2 text-white/40 font-bold text-sm">$</span>
-          <Input 
-            type="number" 
-            placeholder="0"
-            className="bg-white/10 border-white/20 text-white pl-7 h-10 md:h-12 rounded-xl focus-visible:ring-primary focus-visible:border-primary text-sm font-bold shadow-inner"
-          />
+    <div 
+      className={cn(
+        "fixed left-0 right-0 z-40 px-4 transition-all duration-300 ease-in-out md:left-1/2 md:-translate-x-1/2 md:max-w-4xl md:px-0",
+        // Desktop positioning
+        "md:bottom-8",
+        // Mobile positioning - slides down when BottomNav slides down, moves up when it expands
+        isNavVisible ? "bottom-[calc(4rem+1rem)]" : "bottom-4"
+      )}
+    >
+      <div className="p-5 md:p-8 bg-foreground rounded-2xl md:rounded-3xl text-white flex flex-col md:flex-row items-center justify-between gap-4 md:gap-6 shadow-2xl ring-1 ring-white/10">
+        <div className="text-center md:text-left">
+          <h3 className="text-base md:text-lg font-bold">Fund this Campaign</h3>
+          <p className="text-xs md:text-sm text-white/60">Help drive real impact</p>
         </div>
-        <CustomButton className="h-10 md:h-12 px-6 md:px-8 rounded-xl font-black text-xs md:text-sm shadow-lg shadow-primary/20 bg-primary hover:bg-primary/90">
-          Contribute
-        </CustomButton>
+        
+        <div className="flex w-full md:w-auto items-center gap-3">
+          <div className="relative flex-grow md:w-32">
+            <span className="absolute left-3 top-1/2 -translate-y-1/2 text-white/40 font-bold text-sm">$</span>
+            <Input 
+              type="number" 
+              placeholder="0"
+              className="bg-white/10 border-white/20 text-white pl-7 h-10 md:h-12 rounded-xl focus-visible:ring-primary focus-visible:border-primary text-sm font-bold shadow-inner"
+            />
+          </div>
+          <CustomButton className="h-10 md:h-12 px-6 md:px-8 rounded-xl font-black text-xs md:text-sm shadow-lg shadow-primary/20 bg-primary hover:bg-primary/90">
+            Contribute
+          </CustomButton>
+        </div>
       </div>
     </div>
   );
@@ -322,7 +351,7 @@ export default function CampaignDetailsPage({ params }: { params: Promise<{ id: 
   }
 
   return (
-    <div className="flex flex-col min-h-screen pb-12">
+    <div className="flex flex-col min-h-screen pb-40 md:pb-48">
       <main className="max-w-4xl mx-auto px-4 py-6 md:py-10 w-full flex flex-col gap-4 md:gap-8">
         <TitleSection title={campaign.title} status={campaign.status} />
         <MediaGallery media={campaign.media} title={campaign.title} />
