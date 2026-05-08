@@ -3,7 +3,8 @@
 import { use } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { ArrowLeft, Users, MdVerifiedUser } from 'react-icons/md';
+import { ArrowLeft, Users } from 'lucide-react';
+import { MdVerifiedUser } from 'react-icons/md';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { Input } from '@/components/ui/input';
 import { CustomButton } from '@/components/custom-button';
