@@ -28,6 +28,12 @@ export function HeroSection() {
             >
               Start a Fundraiser
             </CustomButton>
+            <CustomButton 
+              variant="outline"
+              className="rounded-full px-6 h-10 text-base sm:px-10 sm:h-14 sm:text-lg font-bold"
+            >
+              Explore Campaigns
+            </CustomButton>
           </div>
         </div>
 
