@@ -1,8 +1,8 @@
-
 'use client';
 
 import Link from 'next/link';
 import { useState, useRef, useEffect } from 'react';
+import { usePathname } from 'next/navigation';
 import { 
   ArrowLeft, 
   Search, 
@@ -44,6 +44,7 @@ const BROWSE_CATEGORIES = [
 ];
 
 export function Navbar() {
+  const pathname = usePathname();
   const [isSearching, setIsSearching] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isBrowseOpen, setIsBrowseOpen] = useState(false);
@@ -59,30 +60,46 @@ export function Navbar() {
     if (isSearching) setIsMenuOpen(false);
   }, [isSearching]);
 
-  const NavLink = ({ href, children, onMouseEnter, onMouseLeave }: { href: string; children: React.ReactNode; onMouseEnter?: () => void; onMouseLeave?: () => void }) => (
-    <Link 
-      href={href} 
-      className="relative group py-1 px-1"
-      onMouseEnter={onMouseEnter}
-      onMouseLeave={onMouseLeave}
-    >
-      <span className="block text-sm font-medium transition-transform duration-300 ease-out group-hover:-translate-y-1 whitespace-nowrap">
-        {children}
-      </span>
-      <span className="absolute bottom-0 left-0 h-[2px] w-full bg-primary rounded-full origin-left scale-x-0 opacity-0 transition-[transform,opacity] duration-300 ease-out group-hover:scale-x-100 group-hover:opacity-100" />
-    </Link>
-  );
+  const NavLink = ({ href, children, onMouseEnter, onMouseLeave }: { href: string; children: React.ReactNode; onMouseEnter?: () => void; onMouseLeave?: () => void }) => {
+    const isActive = pathname === href;
+    
+    return (
+      <Link 
+        href={href} 
+        className="relative group py-1 px-1"
+        onMouseEnter={onMouseEnter}
+        onMouseLeave={onMouseLeave}
+      >
+        <span className={cn(
+          "block text-sm font-medium transition-transform duration-300 ease-out whitespace-nowrap",
+          isActive ? "-translate-y-1 text-primary" : "group-hover:-translate-y-1"
+        )}>
+          {children}
+        </span>
+        <span className={cn(
+          "absolute bottom-0 left-0 h-[2px] w-full bg-primary rounded-full origin-left transition-[transform,opacity] duration-300 ease-out",
+          isActive ? "scale-x-100 opacity-100" : "scale-x-0 opacity-0 group-hover:scale-x-100 group-hover:opacity-100"
+        )} />
+      </Link>
+    );
+  };
 
-  const MobileNavLink = ({ href, icon: Icon, children }: { href: string; icon: any; children: React.ReactNode }) => (
-    <Link 
-      href={href} 
-      onClick={() => setIsMenuOpen(false)}
-      className="flex items-center gap-4 px-6 py-4 hover:bg-accent transition-colors border-b last:border-0"
-    >
-      <Icon className="h-5 w-5 text-primary" />
-      <span className="text-base font-medium">{children}</span>
-    </Link>
-  );
+  const MobileNavLink = ({ href, icon: Icon, children }: { href: string; icon: any; children: React.ReactNode }) => {
+    const isActive = pathname === href;
+    return (
+      <Link 
+        href={href} 
+        onClick={() => setIsMenuOpen(false)}
+        className={cn(
+          "flex items-center gap-4 px-6 py-4 transition-colors border-b last:border-0",
+          isActive ? "bg-primary/5 text-primary" : "hover:bg-accent"
+        )}
+      >
+        <Icon className={cn("h-5 w-5", isActive ? "text-primary" : "text-muted-foreground")} />
+        <span className="text-base font-medium">{children}</span>
+      </Link>
+    );
+  };
 
   return (
     <nav className="sticky top-0 z-50 w-full border-b bg-background/80 backdrop-blur-md">
