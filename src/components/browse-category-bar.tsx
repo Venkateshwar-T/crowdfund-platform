@@ -33,7 +33,7 @@ export function BrowseCategoryBar() {
 
   return (
     <div className="sticky top-16 z-30 w-full bg-background/95 backdrop-blur-sm border-b">
-      <div className="max-w-7xl mx-auto px-4 flex items-center h-14 relative group/bar">
+      <div className="max-w-7xl auto px-4 flex items-center h-14 relative group/bar">
         {/* Left Arrow with Fade */}
         <button 
           onClick={() => scroll('left')}
@@ -55,7 +55,7 @@ export function BrowseCategoryBar() {
               <button
                 key={category.id}
                 className={cn(
-                  "flex items-center gap-1.5 md:gap-2 whitespace-nowrap text-[10px] md:text-sm font-medium text-muted-foreground",
+                  "flex items-center gap-1.5 md:gap-2 whitespace-nowrap text-xs md:text-sm font-medium text-muted-foreground",
                   "hover:text-primary transition-colors py-2 border-b-2 border-transparent hover:border-primary/30"
                 )}
               >
