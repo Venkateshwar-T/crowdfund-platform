@@ -10,7 +10,6 @@ import { Input } from '@/components/ui/input';
 import { CustomButton } from '@/components/custom-button';
 import { Badge } from '@/components/ui/badge';
 import { FAKE_CAMPAIGNS } from '@/lib/mock-data';
-import { cn } from '@/lib/utils';
 
 export default function CampaignDetailsPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params);
@@ -39,7 +38,7 @@ export default function CampaignDetailsPage({ params }: { params: Promise<{ id: 
 
   return (
     <div className="flex flex-col min-h-screen">
-      {/* Header Image */}
+      {/* Independent Image Section */}
       <div className="relative w-full aspect-video md:aspect-[21/9] max-h-[500px] overflow-hidden">
         <Image
           src={campaign.image}
@@ -49,13 +48,15 @@ export default function CampaignDetailsPage({ params }: { params: Promise<{ id: 
           priority
           data-ai-hint="campaign main image"
         />
-        <div className="absolute inset-0 bg-gradient-to-t from-background via-transparent to-transparent" />
-        <Link href="/browse" className="absolute top-4 left-4 p-2 bg-black/20 backdrop-blur-md rounded-full text-white hover:bg-black/40 transition-colors">
+        <Link 
+          href="/browse" 
+          className="absolute top-4 left-4 p-2 bg-black/20 backdrop-blur-md rounded-full text-white hover:bg-black/40 transition-colors"
+        >
           <ArrowLeft size={20} />
         </Link>
       </div>
 
-      <main className="max-w-4xl mx-auto px-4 -mt-12 relative z-10 pb-20">
+      <main className="max-w-4xl mx-auto px-4 py-8 relative z-10 pb-20 w-full">
         {/* Main Details Card */}
         <div className="bg-white/70 backdrop-blur-xl rounded-3xl border border-white/20 p-6 md:p-10 shadow-2xl flex flex-col gap-8">
           
@@ -135,7 +136,7 @@ export default function CampaignDetailsPage({ params }: { params: Promise<{ id: 
           </div>
         </div>
 
-        {/* Contribution Box - Moved Outside */}
+        {/* Contribution Box - Positioned below the card */}
         <div className="mt-6 p-6 md:p-8 bg-foreground rounded-3xl text-white flex flex-col md:flex-row items-center justify-between gap-6 shadow-xl relative z-20">
           <div className="text-center md:text-left">
             <h3 className="text-lg md:text-xl font-bold">Fund this Campaign</h3>
