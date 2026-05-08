@@ -71,7 +71,7 @@ export function BrowseFilterBar() {
             </CustomButton>
           </SheetTrigger>
           <SheetContent 
-            className="w-[85vw] sm:max-w-md flex flex-col h-full p-0 gap-0 border-l border-border/50"
+            className="w-[75vw] sm:max-w-xs flex flex-col h-full p-0 gap-0 border-l border-border/50"
             style={{
               background: `radial-gradient(circle at top left, hsl(var(--secondary) / 0.4), transparent),
                           radial-gradient(circle at bottom right, hsl(var(--accent) / 0.5), transparent),
@@ -79,14 +79,14 @@ export function BrowseFilterBar() {
             }}
           >
             <SheetHeader className="p-6 text-left border-b bg-background/50 backdrop-blur-sm">
-              <SheetTitle className="text-xl font-bold">Filters</SheetTitle>
+              <SheetTitle className="text-lg font-bold">Filters</SheetTitle>
             </SheetHeader>
             
             <ScrollArea className="flex-grow">
-              <div className="flex flex-col gap-8 p-6 pb-12">
+              <div className="flex flex-col gap-6 p-6 pb-12">
                 {/* Time Section */}
                 <div className="space-y-4">
-                  <h3 className="text-xs font-bold uppercase tracking-wider text-muted-foreground/70">Time</h3>
+                  <h3 className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground/70">Time</h3>
                   <RadioGroup 
                     value={timeFilter} 
                     onValueChange={setTimeFilter} 
@@ -107,7 +107,7 @@ export function BrowseFilterBar() {
 
                 {/* Status Section */}
                 <div className="space-y-4">
-                  <h3 className="text-xs font-bold uppercase tracking-wider text-muted-foreground/70">Status</h3>
+                  <h3 className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground/70">Status</h3>
                   <RadioGroup 
                     value={statusFilter} 
                     onValueChange={setStatusFilter} 
@@ -128,7 +128,7 @@ export function BrowseFilterBar() {
 
                 {/* Categories Section */}
                 <div className="space-y-4">
-                  <h3 className="text-xs font-bold uppercase tracking-wider text-muted-foreground/70">Categories</h3>
+                  <h3 className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground/70">Categories</h3>
                   <div className="grid grid-cols-1 gap-4">
                     {/* All Categories Option */}
                     <div className="flex items-center space-x-3 group cursor-pointer">
