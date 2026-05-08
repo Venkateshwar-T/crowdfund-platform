@@ -27,31 +27,31 @@ const ADVANTAGES = [
 
 export function WhyChooseUs() {
   return (
-    <section className="w-full bg-primary/5 py-16 md:py-24">
+    <section className="w-full bg-primary/5 py-10 md:py-24">
       <div className="max-w-7xl mx-auto px-4">
-        <div className="flex flex-col gap-12">
-          <div className="text-center max-w-3xl mx-auto flex flex-col gap-4">
-            <h2 className="text-3xl md:text-4xl font-bold tracking-tight">
+        <div className="flex flex-col gap-8 md:gap-12">
+          <div className="text-center max-w-3xl mx-auto flex flex-col gap-3 md:gap-4">
+            <h2 className="text-2xl md:text-4xl font-bold tracking-tight">
               The Blockchain Advantage
             </h2>
-            <p className="text-muted-foreground text-lg">
+            <p className="text-muted-foreground text-base md:text-lg">
               We leverage decentralized technology to solve the biggest trust issues in traditional crowdfunding.
             </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-8">
             {ADVANTAGES.map((item, index) => {
               const Icon = item.icon;
               return (
                 <div 
                   key={index}
-                  className="bg-white p-8 rounded-3xl shadow-sm border border-primary/10 hover:shadow-md transition-shadow flex flex-col gap-4"
+                  className="bg-white p-5 md:p-8 rounded-2xl md:rounded-3xl shadow-sm border border-primary/10 hover:shadow-md transition-shadow flex flex-col gap-3 md:gap-4"
                 >
-                  <div className="h-12 w-12 rounded-2xl bg-primary/10 flex items-center justify-center text-primary">
-                    <Icon className="h-6 w-6" />
+                  <div className="h-10 w-10 md:h-12 md:w-12 rounded-xl md:rounded-2xl bg-primary/10 flex items-center justify-center text-primary">
+                    <Icon className="h-5 w-5 md:h-6 md:w-6" />
                   </div>
-                  <h3 className="text-xl font-bold">{item.title}</h3>
-                  <p className="text-muted-foreground text-sm leading-relaxed">
+                  <h3 className="text-lg md:text-xl font-bold">{item.title}</h3>
+                  <p className="text-muted-foreground text-xs md:text-sm leading-relaxed">
                     {item.description}
                   </p>
                 </div>
