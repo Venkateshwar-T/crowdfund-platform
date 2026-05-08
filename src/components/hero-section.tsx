@@ -25,9 +25,10 @@ export function HeroSection() {
 
           <div className="flex flex-wrap gap-4 justify-center lg:justify-start">
             <CustomButton 
+              asChild
               className="rounded-full px-6 h-10 text-base sm:px-10 sm:h-14 sm:text-lg font-bold"
             >
-              Start a Fundraiser
+              <Link href="/fundraisers/new">Start a Fundraiser</Link>
             </CustomButton>
             
             <CustomButton 
