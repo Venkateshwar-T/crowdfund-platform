@@ -323,20 +323,20 @@ export default function NewFundraiserPage() {
                               <CustomButton
                                 variant={"outline"}
                                 className={cn(
-                                  "h-12 w-full pl-3 text-left font-normal rounded-xl border-muted-foreground/20 bg-background hover:bg-background",
+                                  "h-12 w-full pl-4 text-left font-medium rounded-xl border-muted-foreground/20 bg-background hover:bg-background hover:border-primary/50 transition-all",
                                   !field.value && "text-muted-foreground"
                                 )}
                               >
                                 {field.value ? (
                                   format(field.value, "PPP")
                                 ) : (
-                                  <span>Pick a date</span>
+                                  <span>Select campaign end date</span>
                                 )}
-                                <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                                <CalendarIcon className="ml-auto h-5 w-5 text-primary opacity-70" />
                               </CustomButton>
                             </FormControl>
                           </PopoverTrigger>
-                          <PopoverContent className="w-auto p-0 rounded-xl shadow-xl" align="start">
+                          <PopoverContent className="w-auto p-0 rounded-2xl shadow-2xl border-none overflow-hidden" align="start">
                             <Calendar
                               mode="single"
                               selected={field.value}
