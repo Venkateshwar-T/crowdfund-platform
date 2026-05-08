@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { Filter } from 'lucide-react';
+import { Filter, RotateCcw } from 'lucide-react';
 import { CustomButton } from './custom-button';
 import {
   Sheet,
@@ -44,7 +44,6 @@ export function BrowseFilterBar() {
         ? prev.filter((id) => id !== categoryId) 
         : [...prev, categoryId];
       
-      // If nothing is selected after toggling, default back to "All"
       if (next.length === 0) {
         setIsAllCategories(true);
       }
@@ -65,123 +64,120 @@ export function BrowseFilterBar() {
   };
 
   return (
-    <div className="sticky top-16 md:top-16 z-30 w-full bg-background/95 backdrop-blur-sm border-b shadow-sm">
+    <div className="sticky top-16 z-30 w-full bg-background/95 backdrop-blur-sm border-b shadow-sm">
       <div className="max-w-7xl mx-auto px-4 h-11 md:h-16 flex items-center justify-between">
-        <h1 className="text-sm md:text-2xl font-semibold md:font-bold text-foreground">
+        <h1 className="text-sm md:text-xl font-semibold text-foreground">
           Browse campaigns
         </h1>
 
         <Sheet>
           <SheetTrigger asChild>
-            <CustomButton variant="outline" size="sm" className="rounded-full gap-2 h-7 md:h-10 px-3 md:px-4 border-muted-foreground/20">
-              <Filter className="h-3 w-3 md:h-4 md:w-4" />
-              <span className="text-[10px] md:text-sm">Filter</span>
+            <CustomButton variant="outline" size="sm" className="rounded-full gap-2 h-8 md:h-10 px-3 md:px-4 border-muted-foreground/20 hover:bg-primary/5 hover:text-primary transition-all">
+              <Filter className="h-3.5 w-3.5 md:h-4 md:w-4" />
+              <span className="text-xs md:text-sm font-medium">Filter</span>
             </CustomButton>
           </SheetTrigger>
-          <SheetContent className="w-full sm:max-w-md flex flex-col h-full">
-            <SheetHeader className="px-1 text-left">
-              <SheetTitle className="text-xl md:text-2xl font-bold">Filters</SheetTitle>
+          <SheetContent className="w-[85vw] sm:max-w-md flex flex-col h-full p-0 gap-0">
+            <SheetHeader className="p-6 text-left border-b">
+              <div className="flex items-center justify-between">
+                <SheetTitle className="text-xl font-bold">Filters</SheetTitle>
+                <button 
+                  onClick={handleReset}
+                  className="flex items-center gap-1.5 text-xs font-medium text-muted-foreground hover:text-primary transition-colors"
+                >
+                  <RotateCcw className="h-3 w-3" />
+                  Reset all
+                </button>
+              </div>
             </SheetHeader>
             
-            <ScrollArea className="flex-grow pr-4 -mr-4 mt-6">
-              <div className="flex flex-col gap-6 pb-8">
+            <ScrollArea className="flex-grow p-6">
+              <div className="flex flex-col gap-8 pb-8">
                 {/* Time Section */}
-                <div className="flex flex-col gap-4">
-                  <h3 className="font-bold text-base md:text-lg">Time</h3>
+                <div className="space-y-4">
+                  <h3 className="text-sm font-bold uppercase tracking-wider text-muted-foreground/70">Time</h3>
                   <RadioGroup 
                     value={timeFilter} 
                     onValueChange={setTimeFilter} 
                     className="flex flex-col gap-3"
                   >
-                    <div className="flex items-center space-x-3">
-                      <RadioGroupItem value="any" id="time-any" />
-                      <Label htmlFor="time-any" className="text-sm font-medium">Any</Label>
-                    </div>
-                    <div className="flex items-center space-x-3">
-                      <RadioGroupItem value="newest" id="time-newest" />
-                      <Label htmlFor="time-newest" className="text-sm font-medium">Newest First</Label>
-                    </div>
-                    <div className="flex items-center space-x-3">
-                      <RadioGroupItem value="oldest" id="time-oldest" />
-                      <Label htmlFor="time-oldest" className="text-sm font-medium">Oldest First</Label>
-                    </div>
+                    {['any', 'newest', 'oldest'].map((val) => (
+                      <div key={val} className="flex items-center space-x-3 group cursor-pointer">
+                        <RadioGroupItem value={val} id={`time-${val}`} className="border-muted-foreground/30" />
+                        <Label htmlFor={`time-${val}`} className="text-sm font-medium cursor-pointer group-hover:text-primary transition-colors capitalize">
+                          {val === 'any' ? 'Any time' : `${val} first`}
+                        </Label>
+                      </div>
+                    ))}
                   </RadioGroup>
                 </div>
 
-                <Separator />
+                <Separator className="bg-border/50" />
 
                 {/* Status Section */}
-                <div className="flex flex-col gap-4">
-                  <h3 className="font-bold text-base md:text-lg">Status</h3>
+                <div className="space-y-4">
+                  <h3 className="text-sm font-bold uppercase tracking-wider text-muted-foreground/70">Status</h3>
                   <RadioGroup 
                     value={statusFilter} 
                     onValueChange={setStatusFilter} 
                     className="flex flex-col gap-3"
                   >
-                    <div className="flex items-center space-x-3">
-                      <RadioGroupItem value="all" id="status-all" />
-                      <Label htmlFor="status-all" className="text-sm font-medium">All</Label>
-                    </div>
-                    <div className="flex items-center space-x-3">
-                      <RadioGroupItem value="active" id="status-active" />
-                      <Label htmlFor="status-active" className="text-sm font-medium">Active</Label>
-                    </div>
-                    <div className="flex items-center space-x-3">
-                      <RadioGroupItem value="completed" id="status-completed" />
-                      <Label htmlFor="status-completed" className="text-sm font-medium">Completed</Label>
-                    </div>
-                  </RadioGroup>
-                </div>
-
-                <Separator />
-
-                {/* Categories Section */}
-                <div className="flex flex-col gap-4">
-                  <h3 className="font-bold text-base md:text-lg">Categories</h3>
-                  <div className="grid grid-cols-1 gap-3">
-                    {/* All Categories - Radio Style Toggle */}
-                    <div className="flex items-center space-x-3">
-                      <div className="flex items-center justify-center">
-                        <RadioGroup 
-                          value={isAllCategories ? "all" : ""} 
-                          onValueChange={handleAllCategoriesToggle}
-                        >
-                          <RadioGroupItem value="all" id="cat-all" />
-                        </RadioGroup>
-                      </div>
-                      <Label htmlFor="cat-all" className="text-sm font-medium">All</Label>
-                    </div>
-
-                    {/* Specific Domain Categories - Multi Checkboxes */}
-                    {CATEGORIES.map((category) => (
-                      <div key={category.id} className="flex items-center space-x-3">
-                        <Checkbox 
-                          id={`cat-${category.id}`} 
-                          checked={selectedCategories.includes(category.id)}
-                          onCheckedChange={() => handleCategoryToggle(category.id)}
-                        />
-                        <Label
-                          htmlFor={`cat-${category.id}`}
-                          className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-                        >
-                          {category.label}
+                    {['all', 'active', 'completed'].map((val) => (
+                      <div key={val} className="flex items-center space-x-3 group cursor-pointer">
+                        <RadioGroupItem value={val} id={`status-${val}`} className="border-muted-foreground/30" />
+                        <Label htmlFor={`status-${val}`} className="text-sm font-medium cursor-pointer group-hover:text-primary transition-colors capitalize">
+                          {val}
                         </Label>
                       </div>
                     ))}
+                  </RadioGroup>
+                </div>
+
+                <Separator className="bg-border/50" />
+
+                {/* Categories Section */}
+                <div className="space-y-4">
+                  <h3 className="text-sm font-bold uppercase tracking-wider text-muted-foreground/70">Categories</h3>
+                  <div className="grid grid-cols-1 gap-4">
+                    {/* All Categories Option */}
+                    <div className="flex items-center space-x-3 group cursor-pointer">
+                      <RadioGroup 
+                        value={isAllCategories ? "all" : ""} 
+                        onValueChange={handleAllCategoriesToggle}
+                      >
+                        <RadioGroupItem value="all" id="cat-all" className="border-muted-foreground/30" />
+                      </RadioGroup>
+                      <Label htmlFor="cat-all" className="text-sm font-medium cursor-pointer group-hover:text-primary transition-colors">
+                        All Categories
+                      </Label>
+                    </div>
+
+                    {/* Specific Categories */}
+                    <div className="grid grid-cols-1 gap-3 pl-0.5">
+                      {CATEGORIES.map((category) => (
+                        <div key={category.id} className="flex items-center space-x-3 group cursor-pointer">
+                          <Checkbox 
+                            id={`cat-${category.id}`} 
+                            checked={selectedCategories.includes(category.id)}
+                            onCheckedChange={() => handleCategoryToggle(category.id)}
+                            className="border-muted-foreground/30 data-[state=checked]:bg-primary data-[state=checked]:border-primary"
+                          />
+                          <Label
+                            htmlFor={`cat-${category.id}`}
+                            className="text-sm font-medium leading-none cursor-pointer group-hover:text-primary transition-colors"
+                          >
+                            {category.label}
+                          </Label>
+                        </div>
+                      ))}
+                    </div>
                   </div>
                 </div>
               </div>
             </ScrollArea>
 
-            <div className="mt-auto pt-4 border-t flex gap-3">
-              <CustomButton 
-                variant="outline" 
-                className="flex-1 rounded-full h-10"
-                onClick={handleReset}
-              >
-                Reset
-              </CustomButton>
-              <CustomButton className="flex-1 rounded-full h-10">
+            <div className="p-6 border-t bg-background/50 backdrop-blur-sm">
+              <CustomButton className="w-full rounded-xl h-12 text-base font-bold shadow-lg shadow-primary/20">
                 Apply Filters
               </CustomButton>
             </div>
