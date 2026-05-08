@@ -2,7 +2,6 @@
 'use client';
 
 import { BrowseFilterBar } from '@/components/browse-filter-bar';
-import { BrowseCategoryBar } from '@/components/browse-category-bar';
 import { CampaignCard, type CampaignCardProps } from '@/components/campaign-card';
 
 const FAKE_CAMPAIGNS: CampaignCardProps[] = [
@@ -95,7 +94,6 @@ const FAKE_CAMPAIGNS: CampaignCardProps[] = [
 export default function BrowsePage() {
   return (
     <div className="flex flex-col min-h-screen">
-      <BrowseCategoryBar />
       <BrowseFilterBar />
       <main className="flex-grow p-4 md:p-8">
         <div className="max-w-7xl mx-auto">
