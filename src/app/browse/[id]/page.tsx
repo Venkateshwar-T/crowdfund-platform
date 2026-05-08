@@ -10,7 +10,7 @@ import {
   ChevronUp,
   Tag
 } from 'lucide-react';
-import { MdVerifiedUser } from 'react-icons/md';
+import { MdVerifiedUser, MdOutlineReportProblem } from 'react-icons/md';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { Input } from '@/components/ui/input';
 import { CustomButton } from '@/components/custom-button';
@@ -82,7 +82,12 @@ function TitleSection({ title, status }: { title: string; status: 'Active' | 'Co
     <div className="flex flex-col gap-2">
       <div className="flex items-center justify-between">
         <StatusBadge status={status} />
-        <ShareButton />
+        <div className='flex flex-row gap-2'>
+          <button className='w-8 h-8 md:w-10 md:h-10 flex items-center justify-center bg-white border border-border rounded-full shadow-sm hover:shadow-md hover:border-primary/50 transition-all active:scale-90 group'>
+            <MdOutlineReportProblem size={24} className="text-muted-foreground group-hover:text-primary transition-colors w-4 h-4 md:w-5 md:h-5"/>
+          </button>
+          <ShareButton />
+        </div>
       </div>
       <h1 className="text-xl md:text-3xl font-black leading-tight tracking-tight text-foreground">
         {title}
@@ -184,6 +189,14 @@ function DetailsCard({ campaign }: { campaign: any }) {
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-center">
         <div className="flex flex-col gap-6 order-2 md:order-1">
+
+          <div className="flex flex-col gap-2">
+            <h2 className="text-[10px] md:text-sm font-bold uppercase tracking-widest text-primary">About the Campaign</h2>
+            <p className="text-xs md:text-base text-muted-foreground leading-relaxed">
+              {campaign.description}
+            </p>
+          </div>
+
           <div className="flex flex-col gap-2">
             <h2 className="text-[10px] md:text-sm font-bold uppercase tracking-widest text-primary">Category</h2>
             <div className="flex items-center gap-2">
@@ -192,13 +205,6 @@ function DetailsCard({ campaign }: { campaign: any }) {
                 {campaign.category}
               </span>
             </div>
-          </div>
-
-          <div className="flex flex-col gap-2">
-            <h2 className="text-[10px] md:text-sm font-bold uppercase tracking-widest text-primary">About the Campaign</h2>
-            <p className="text-xs md:text-base text-muted-foreground leading-relaxed">
-              {campaign.description}
-            </p>
           </div>
 
           <div className="flex flex-col gap-2">
