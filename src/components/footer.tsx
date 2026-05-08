@@ -1,7 +1,11 @@
 'use client';
 
 import Link from 'next/link';
-import { Facebook, Instagram, Twitter, Linkedin, type LucideIcon } from 'lucide-react';
+import { FiFacebook } from "react-icons/fi";
+import { FaInstagram } from "react-icons/fa";
+import { FaXTwitter } from "react-icons/fa6";
+import { SlSocialLinkedin } from "react-icons/sl";
+import { type IconType } from "react-icons";
 import { CustomButton } from './custom-button';
 import { BrandLogo } from './brand-logo';
 
@@ -13,16 +17,16 @@ const FOOTER_LINKS = [
 ] as const;
 
 interface SocialLink {
-  icon: LucideIcon;
+  icon: IconType;
   href: string;
   label: string;
 }
 
 const SOCIAL_LINKS: SocialLink[] = [
-  { icon: Facebook, href: 'https://facebook.com', label: 'Facebook' },
-  { icon: Instagram, href: 'https://instagram.com', label: 'Instagram' },
-  { icon: Twitter, href: 'https://twitter.com', label: 'Twitter' },
-  { icon: Linkedin, href: 'https://linkedin.com', label: 'LinkedIn' },
+  { icon: FiFacebook, href: 'https://facebook.com', label: 'Facebook' },
+  { icon: FaInstagram, href: 'https://instagram.com', label: 'Instagram' },
+  { icon: FaXTwitter, href: 'https://twitter.com', label: 'Twitter' },
+  { icon: SlSocialLinkedin, href: 'https://linkedin.com', label: 'LinkedIn' },
 ];
 
 // Sub-components
