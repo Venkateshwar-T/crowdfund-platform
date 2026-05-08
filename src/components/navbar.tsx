@@ -126,7 +126,7 @@ export function Navbar() {
                   "hidden lg:grid absolute top-full left-0 mt-0 pt-2 w-[480px] transition-all duration-200 ease-out origin-top-left",
                   isBrowseOpen ? "opacity-100 scale-100 translate-y-0" : "opacity-0 scale-95 -translate-y-2 pointer-events-none"
                 )}>
-                  <div className="bg-white rounded-2xl shadow-xl border border-border p-4 grid grid-cols-2 gap-1 overflow-hidden">
+                  <div className="bg-white rounded-2xl shadow-xl border border-border p-4 grid grid-cols-2 gap-1 overflow-hidden z-100">
                     {BROWSE_CATEGORIES.map((cat) => (
                       <Link
                         key={cat.id}

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { ArrowLeft, Upload, X, Loader2, Film, Image as ImageIcon } from 'lucide-react';
 import { useForm } from 'react-hook-form';
@@ -77,6 +77,7 @@ export default function NewFundraiserPage() {
   const router = useRouter();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [files, setFiles] = useState<File[]>([]);
+  const [previews, setPreviews] = useState<string[]>([]);
   const [dragActive, setDragActive] = useState(false);
 
   const form = useForm<FormValues>({
@@ -93,6 +94,24 @@ export default function NewFundraiserPage() {
   });
 
   const categoryValue = form.watch('category');
+
+  useEffect(() => {
+    // Generate previews for images
+    const newPreviews = files.map(file => {
+      if (file.type.startsWith('image/')) {
+        return URL.createObjectURL(file);
+      }
+      return ''; // No preview for videos/other
+    });
+    setPreviews(newPreviews);
+
+    // Cleanup URLs on unmount or file change
+    return () => {
+      newPreviews.forEach(url => {
+        if (url) URL.revokeObjectURL(url);
+      });
+    };
+  }, [files]);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {
@@ -181,7 +200,7 @@ export default function NewFundraiserPage() {
                       <FormControl>
                         <Input 
                           placeholder="e.g. Help Sarah's Medical Recovery" 
-                          className="h-12 text-base rounded-xl border-muted-foreground/20 focus:border-primary transition-all"
+                          className="h-12 text-base rounded-xl border-muted-foreground/20 transition-all"
                           {...field} 
                         />
                       </FormControl>
@@ -200,7 +219,7 @@ export default function NewFundraiserPage() {
                       <FormControl>
                         <Textarea 
                           placeholder="Tell your story. What happened? Why do you need help? How will the funds be used?" 
-                          className="min-h-[150px] text-base rounded-xl border-muted-foreground/20 focus:border-primary transition-all resize-none"
+                          className="min-h-[150px] text-base rounded-xl border-muted-foreground/20 transition-all resize-none"
                           {...field} 
                         />
                       </FormControl>
@@ -290,7 +309,7 @@ export default function NewFundraiserPage() {
                               <Input 
                                 type="number"
                                 placeholder="0.00" 
-                                className="h-12 text-base rounded-xl border-muted-foreground/20 focus:border-primary transition-all bg-background"
+                                className="h-12 text-base rounded-xl border-muted-foreground/20 transition-all bg-background"
                                 {...field} 
                               />
                             </FormControl>
@@ -355,23 +374,30 @@ export default function NewFundraiserPage() {
 
                 {files.length > 0 && (
                   <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-4">
-                    {files.map((file, i) => (
-                      <div key={i} className="group relative aspect-square rounded-2xl bg-muted border overflow-hidden">
-                        <div className="absolute inset-0 flex items-center justify-center text-muted-foreground">
-                          {file.type.startsWith('video/') ? <Film className="h-6 w-6" /> : <ImageIcon className="h-6 w-6" />}
+                    {files.map((file, i) => {
+                      const isImage = file.type.startsWith('image/');
+                      return (
+                        <div key={i} className="group relative aspect-square rounded-2xl bg-muted border overflow-hidden">
+                          {isImage && previews[i] ? (
+                            <img src={previews[i]} alt="Preview" className="h-full w-full object-cover" />
+                          ) : (
+                            <div className="absolute inset-0 flex items-center justify-center text-muted-foreground">
+                              {file.type.startsWith('video/') ? <Film className="h-6 w-6" /> : <ImageIcon className="h-6 w-6" />}
+                            </div>
+                          )}
+                          <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col items-center justify-center p-2">
+                            <p className="text-[10px] text-white font-medium truncate w-full text-center mb-2">{file.name}</p>
+                            <button 
+                              type="button"
+                              onClick={(e) => { e.stopPropagation(); removeFile(i); }}
+                              className="bg-destructive text-destructive-foreground p-1 rounded-full hover:scale-110 transition-transform"
+                            >
+                              <X className="h-3 w-3" />
+                            </button>
+                          </div>
                         </div>
-                        <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col items-center justify-center p-2">
-                          <p className="text-[10px] text-white font-medium truncate w-full text-center mb-2">{file.name}</p>
-                          <button 
-                            type="button"
-                            onClick={(e) => { e.stopPropagation(); removeFile(i); }}
-                            className="bg-destructive text-destructive-foreground p-1 rounded-full hover:scale-110 transition-transform"
-                          >
-                            <X className="h-3 w-3" />
-                          </button>
-                        </div>
-                      </div>
-                    ))}
+                      );
+                    })}
                   </div>
                 )}
               </div>
@@ -385,7 +411,7 @@ export default function NewFundraiserPage() {
                     <FormControl>
                       <Textarea 
                         placeholder="Any extra details or messages for your supporters?" 
-                        className="min-h-[100px] text-base rounded-xl border-muted-foreground/20 focus:border-primary transition-all resize-none"
+                        className="min-h-[100px] text-base rounded-xl border-muted-foreground/20 transition-all resize-none"
                         {...field} 
                       />
                     </FormControl>
