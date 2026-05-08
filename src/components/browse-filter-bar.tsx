@@ -1,5 +1,6 @@
 'use client';
 
+import { useState } from 'react';
 import { Filter } from 'lucide-react';
 import { CustomButton } from './custom-button';
 import {
@@ -30,6 +31,39 @@ const CATEGORIES = [
 ];
 
 export function BrowseFilterBar() {
+  const [timeFilter, setTimeFilter] = useState('any');
+  const [statusFilter, setStatusFilter] = useState('all');
+  const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
+  const [isAllCategories, setIsAllCategories] = useState(true);
+
+  const handleCategoryToggle = (categoryId: string) => {
+    setIsAllCategories(false);
+    setSelectedCategories((prev) => {
+      const isSelected = prev.includes(categoryId);
+      const next = isSelected 
+        ? prev.filter((id) => id !== categoryId) 
+        : [...prev, categoryId];
+      
+      // If nothing is selected after toggling, default back to "All"
+      if (next.length === 0) {
+        setIsAllCategories(true);
+      }
+      return next;
+    });
+  };
+
+  const handleAllCategoriesToggle = () => {
+    setIsAllCategories(true);
+    setSelectedCategories([]);
+  };
+
+  const handleReset = () => {
+    setTimeFilter('any');
+    setStatusFilter('all');
+    setIsAllCategories(true);
+    setSelectedCategories([]);
+  };
+
   return (
     <div className="sticky top-16 md:top-16 z-30 w-full bg-background/95 backdrop-blur-sm border-b shadow-sm">
       <div className="max-w-7xl mx-auto px-4 h-11 md:h-16 flex items-center justify-between">
@@ -54,7 +88,11 @@ export function BrowseFilterBar() {
                 {/* Time Section */}
                 <div className="flex flex-col gap-4">
                   <h3 className="font-bold text-base md:text-lg">Time</h3>
-                  <RadioGroup defaultValue="any" className="flex flex-col gap-3">
+                  <RadioGroup 
+                    value={timeFilter} 
+                    onValueChange={setTimeFilter} 
+                    className="flex flex-col gap-3"
+                  >
                     <div className="flex items-center space-x-3">
                       <RadioGroupItem value="any" id="time-any" />
                       <Label htmlFor="time-any" className="text-sm font-medium">Any</Label>
@@ -75,7 +113,11 @@ export function BrowseFilterBar() {
                 {/* Status Section */}
                 <div className="flex flex-col gap-4">
                   <h3 className="font-bold text-base md:text-lg">Status</h3>
-                  <RadioGroup defaultValue="all" className="flex flex-col gap-3">
+                  <RadioGroup 
+                    value={statusFilter} 
+                    onValueChange={setStatusFilter} 
+                    className="flex flex-col gap-3"
+                  >
                     <div className="flex items-center space-x-3">
                       <RadioGroupItem value="all" id="status-all" />
                       <Label htmlFor="status-all" className="text-sm font-medium">All</Label>
@@ -97,9 +139,27 @@ export function BrowseFilterBar() {
                 <div className="flex flex-col gap-4">
                   <h3 className="font-bold text-base md:text-lg">Categories</h3>
                   <div className="grid grid-cols-1 gap-3">
+                    {/* All Categories - Radio Style Toggle */}
+                    <div className="flex items-center space-x-3">
+                      <div className="flex items-center justify-center">
+                        <RadioGroup 
+                          value={isAllCategories ? "all" : ""} 
+                          onValueChange={handleAllCategoriesToggle}
+                        >
+                          <RadioGroupItem value="all" id="cat-all" />
+                        </RadioGroup>
+                      </div>
+                      <Label htmlFor="cat-all" className="text-sm font-medium">All</Label>
+                    </div>
+
+                    {/* Specific Domain Categories - Multi Checkboxes */}
                     {CATEGORIES.map((category) => (
                       <div key={category.id} className="flex items-center space-x-3">
-                        <Checkbox id={`cat-${category.id}`} />
+                        <Checkbox 
+                          id={`cat-${category.id}`} 
+                          checked={selectedCategories.includes(category.id)}
+                          onCheckedChange={() => handleCategoryToggle(category.id)}
+                        />
                         <Label
                           htmlFor={`cat-${category.id}`}
                           className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
@@ -114,7 +174,11 @@ export function BrowseFilterBar() {
             </ScrollArea>
 
             <div className="mt-auto pt-4 border-t flex gap-3">
-              <CustomButton variant="outline" className="flex-1 rounded-full h-10">
+              <CustomButton 
+                variant="outline" 
+                className="flex-1 rounded-full h-10"
+                onClick={handleReset}
+              >
                 Reset
               </CustomButton>
               <CustomButton className="flex-1 rounded-full h-10">
