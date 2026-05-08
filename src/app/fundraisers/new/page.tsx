@@ -172,7 +172,7 @@ export default function NewFundraiserPage() {
   }
 
   return (
-    <div className="flex flex-col min-h-screen bg-background">
+    <div className="flex flex-col min-h-screen bg-transparent">
       <main className="flex-grow py-6 md:py-8 px-4">
         <div className="max-w-3xl mx-auto">
           <Form {...form}>
