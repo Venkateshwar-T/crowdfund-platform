@@ -123,7 +123,7 @@ function Copyright() {
 export function Footer() {
   return (
     <footer className="w-full border-t bg-background mt-auto">
-      <div className="max-w-7xl mx-auto px-4 pt-4 md:pt-10 pb-6">
+      <div className="max-w-7xl mx-auto px-4 md:px-8 lg:px-0 pt-4 md:pt-10 pb-6">
         {/* Navigation Grid */}
         <div className="grid grid-cols-1 gap-6 md:gap-8 md:grid-cols-3 lg:grid-cols-4 mb-8">
           <div className="lg:col-span-2">

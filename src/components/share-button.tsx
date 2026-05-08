@@ -5,11 +5,9 @@ import {
   Share2, 
   Copy, 
   Check, 
-  Facebook, 
-  Twitter, 
-  Instagram, 
-  MessageCircle 
 } from 'lucide-react';
+import { FaWhatsapp, FaFacebook, FaInstagram } from "react-icons/fa";
+import { FaXTwitter } from "react-icons/fa6";
 import { cn } from '@/lib/utils';
 
 interface ShareButtonProps {
@@ -35,23 +33,23 @@ export function ShareButton({ className }: ShareButtonProps) {
   const shareOptions = [
     { 
       name: 'WhatsApp',
-      icon: <MessageCircle size={20} className="text-emerald-500 md:w-6 md:h-6" />, 
+      icon: <FaWhatsapp size={20} className="text-emerald-500 md:w-6 md:h-6" />, 
       url: `https://wa.me/?text=${encodeURIComponent(shareUrl)}` 
     },
     { 
-      name: 'X',
-      icon: <Twitter size={20} className="text-slate-900 md:w-6 md:h-6" />, 
-      url: `https://twitter.com/intent/tweet?url=${encodeURIComponent(shareUrl)}` 
+      name: 'Instagram',
+      icon: <FaInstagram size={20} className="text-pink-600 md:w-6 md:h-6" />, 
+      url: `https://instagram.com` 
     },
     { 
       name: 'Facebook',
-      icon: <Facebook size={20} className="text-blue-600 md:w-6 md:h-6" />, 
+      icon: <FaFacebook size={20} className="text-blue-600 md:w-6 md:h-6" />, 
       url: `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(shareUrl)}` 
     },
     { 
-      name: 'Instagram',
-      icon: <Instagram size={20} className="text-pink-600 md:w-6 md:h-6" />, 
-      url: `https://instagram.com` 
+      name: 'X',
+      icon: <FaXTwitter size={20} className="text-slate-900 md:w-6 md:h-6" />, 
+      url: `https://twitter.com/intent/tweet?url=${encodeURIComponent(shareUrl)}` 
     }
   ];
 
@@ -77,9 +75,9 @@ export function ShareButton({ className }: ShareButtonProps) {
     <div className={cn("relative", className)}>
       <button
         onClick={() => setIsOpen(true)}
-        className="w-10 h-10 md:w-12 md:h-12 flex items-center justify-center bg-white border border-border rounded-full shadow-sm hover:shadow-md hover:border-primary/50 transition-all active:scale-90 group"
+        className="w-8 h-8 md:w-10 md:h-10 flex items-center justify-center bg-white border border-border rounded-full shadow-sm hover:shadow-md hover:border-primary/50 transition-all active:scale-90 group"
       >
-        <Share2 size={20} className="text-muted-foreground group-hover:text-primary transition-colors md:w-6 md:h-6" />
+        <Share2 size={20} className="text-muted-foreground group-hover:text-primary transition-colors w-4 h-4 md:w-5 md:h-5" />
       </button>
 
       {isOpen && (
@@ -89,7 +87,7 @@ export function ShareButton({ className }: ShareButtonProps) {
             onClick={() => setIsOpen(false)} 
           />
           
-          <div className="relative bg-white rounded-[2rem] p-6 md:p-8 shadow-2xl animate-in zoom-in-95 duration-200 max-w-sm w-full">
+          <div className="relative bg-white rounded-2xl p-6 md:p-8 shadow-2xl animate-in zoom-in-95 duration-200 max-w-sm w-full">
             <div className="flex flex-col items-center gap-8">
               <h2 className="text-[10px] md:text-xs font-black uppercase tracking-[0.2em] text-muted-foreground/60">Share Link</h2>
               
@@ -119,7 +117,7 @@ export function ShareButton({ className }: ShareButtonProps) {
                     {copied ? <Check size={20} className="text-emerald-500 md:w-6 md:h-6" /> : <Copy size={20} className="md:w-6 md:h-6" />}
                   </div>
                   <span className="text-[9px] md:text-[10px] font-bold text-muted-foreground uppercase tracking-widest text-center">
-                    {copied ? 'Copied' : 'Copy Link'}
+                    {copied ? 'Copied' : 'Link'}
                   </span>
                 </button>
               </div>

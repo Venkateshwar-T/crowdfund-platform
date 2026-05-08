@@ -47,7 +47,7 @@ export const FAKE_CAMPAIGNS: Campaign[] = [
     contributors: 890,
     deadline: "12 Nov 2024",
     status: 'Active',
-    description: "We are building mobile medical clinics to reach villages that have no access to basic healthcare. Your funds will help us purchase medical supplies, pay for specialized staff, and maintain our fleet of health-vans."
+    description: "We are building mobile medical clinics to reach villages that have no access to basic healthcare. Your funds will help us purchase medical supplies, pay for specialized staff, and maintain our fleet of health-vans. We are building mobile medical clinics to reach villages that have no access to basic healthcare. Your funds will help us purchase medical supplies, pay for specialized staff, and maintain our fleet of health-vans. We are building mobile medical clinics to reach villages that have no access to basic healthcare. Your funds will help us purchase medical supplies, pay for specialized staff, and maintain our fleet of health-vans. We are building mobile medical clinics to reach villages that have no access to basic healthcare. Your funds will help us purchase medical supplies, pay for specialized staff, and maintain our fleet of health-vans. We are building mobile medical clinics to reach villages that have no access to basic healthcare. Your funds will help us purchase medical supplies, pay for specialized staff, and maintain our fleet of health-vans. We are building mobile medical clinics to reach villages that have no access to basic healthcare. Your funds will help us purchase medical supplies, pay for specialized staff, and maintain our fleet of health-vans."
   },
   {
     id: "3",

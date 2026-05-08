@@ -5,7 +5,9 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { 
   Film, 
-  Calendar 
+  Calendar,
+  ChevronDown,
+  ChevronUp
 } from 'lucide-react';
 import { MdVerifiedUser } from 'react-icons/md';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
@@ -21,6 +23,11 @@ import {
   CarouselItem,
   type CarouselApi,
 } from "@/components/ui/carousel";
+import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from "@/components/ui/collapsible";
 
 /**
  * Sub-component for the Progress Circle SVG
@@ -109,7 +116,7 @@ function MediaGallery({ media, title }: { media: { type: string; url: string }[]
           loop: true,
         }}
       >
-        <CarouselContent className="ml-0">
+        <CarouselContent className="ml-0 h-full">
           {media.map((item, index) => (
             <CarouselItem key={index} className="pl-0 h-full relative">
               <div className="relative w-full h-full min-h-[200px] md:min-h-[400px]">
@@ -193,7 +200,7 @@ function DetailsCard({ campaign }: { campaign: any }) {
           </div>
         </div>
 
-        <div className="flex flex-col items-center justify-center gap-4 order-1 md:order-2 p-4 md:p-6 bg-primary/5 rounded-2xl border border-primary/10">
+        <div className="flex flex-col h-full items-center justify-center gap-4 order-1 md:order-2 p-4 md:p-6 bg-primary/5 rounded-2xl border border-primary/10">
           <ProgressCircle progress={progress} />
 
           <div className="text-center flex flex-col gap-2">
@@ -209,7 +216,68 @@ function DetailsCard({ campaign }: { campaign: any }) {
 }
 
 /**
- * Section 4: Contribution Box Component
+ * Section 4: Contributors List Component
+ */
+function ContributorsList({ count }: { count: number }) {
+  const [isOpen, setIsOpen] = useState(false);
+  
+  // Mock data for contributors
+  const contributors = [
+    { name: 'Alex Johnson', amount: 500, avatar: 'https://picsum.photos/seed/c1/100/100', time: '2 hours ago' },
+    { name: 'Sarah Williams', amount: 250, avatar: 'https://picsum.photos/seed/c2/100/100', time: '5 hours ago' },
+    { name: 'Michael Chen', amount: 1000, avatar: 'https://picsum.photos/seed/c3/100/100', time: 'Yesterday' },
+    { name: 'Emily Davis', amount: 50, avatar: 'https://picsum.photos/seed/c4/100/100', time: '2 days ago' },
+    { name: 'Robert Wilson', amount: 150, avatar: 'https://picsum.photos/seed/c5/100/100', time: '3 days ago' },
+  ];
+
+  return (
+    <div className="bg-white/70 backdrop-blur-xl rounded-2xl md:rounded-3xl border border-white/20 p-5 md:p-8 shadow-xl">
+      <Collapsible open={isOpen} onOpenChange={setIsOpen}>
+        <div className="flex items-center justify-between">
+          <div className="flex flex-col gap-1">
+            <h2 className="text-[10px] md:text-sm font-bold uppercase tracking-widest text-primary">Supporters</h2>
+            <p className="text-xs md:text-base font-bold text-foreground">
+              {count.toLocaleString()} people have supported this cause
+            </p>
+          </div>
+          <CollapsibleTrigger asChild>
+            <CustomButton variant="ghost" size="sm" className="rounded-full h-8 w-8 p-0 hover:bg-primary/10">
+              {isOpen ? <ChevronUp className="h-4 w-4 text-primary" /> : <ChevronDown className="h-4 w-4 text-primary" />}
+            </CustomButton>
+          </CollapsibleTrigger>
+        </div>
+
+        <CollapsibleContent className="mt-6 space-y-4 animate-in slide-in-from-top-2 duration-300">
+          <div className="flex flex-col gap-4">
+            {contributors.map((contributor, index) => (
+              <div key={index} className="flex items-center justify-between pb-4 border-b border-border/50 last:border-0 last:pb-0">
+                <div className="flex items-center gap-3">
+                  <Avatar className="h-8 w-8 md:h-10 md:w-10 border border-background ring-1 ring-border/10">
+                    <AvatarImage src={contributor.avatar} />
+                    <AvatarFallback>{contributor.name[0]}</AvatarFallback>
+                  </Avatar>
+                  <div className="flex flex-col">
+                    <span className="text-xs md:text-sm font-bold text-foreground">{contributor.name}</span>
+                    <span className="text-[10px] text-muted-foreground">{contributor.time}</span>
+                  </div>
+                </div>
+                <div className="text-right">
+                  <span className="text-xs md:text-sm font-black text-primary">${contributor.amount}</span>
+                </div>
+              </div>
+            ))}
+          </div>
+          <CustomButton variant="outline" className="w-full rounded-xl text-xs font-bold mt-2 border-primary/20 hover:bg-primary/5 hover:text-primary">
+            View All Contributors
+          </CustomButton>
+        </CollapsibleContent>
+      </Collapsible>
+    </div>
+  );
+}
+
+/**
+ * Section 5: Contribution Box Component
  */
 function ContributionBox() {
   return (
@@ -259,6 +327,7 @@ export default function CampaignDetailsPage({ params }: { params: Promise<{ id: 
         <TitleSection title={campaign.title} status={campaign.status} />
         <MediaGallery media={campaign.media} title={campaign.title} />
         <DetailsCard campaign={campaign} />
+        <ContributorsList count={campaign.contributors} />
         <ContributionBox />
       </main>
     </div>
