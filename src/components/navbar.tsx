@@ -3,7 +3,27 @@
 
 import Link from 'next/link';
 import { useState, useRef, useEffect } from 'react';
-import { ArrowLeft, Search, CircleHelp, Menu, X, Home, Compass, ChevronRight, Heart, Sprout, GraduationCap, Cat, Palette, Venus, Users, Cpu, Trophy, ShieldAlert, Building2 } from 'lucide-react';
+import { 
+  ArrowLeft, 
+  Search, 
+  CircleHelp, 
+  Menu, 
+  X, 
+  Home, 
+  Compass, 
+  ChevronRight, 
+  Heart, 
+  Sprout, 
+  GraduationCap, 
+  Cat, 
+  Palette, 
+  Venus, 
+  Users, 
+  Cpu, 
+  Trophy, 
+  ShieldAlert,
+  LayoutGrid
+} from 'lucide-react';
 import { CustomSearchBar } from './custom-search-bar';
 import { CustomButton } from './custom-button';
 import { BrandLogo } from './brand-logo';
@@ -78,7 +98,6 @@ export function Navbar() {
             <div className="hidden md:flex items-center gap-4 md:gap-6 h-16">
               <NavLink href="/">Home</NavLink>
               
-              {/* Browse with Hover Dropdown (lg+ only) */}
               <div 
                 className="relative h-full flex items-center"
                 onMouseEnter={() => setIsBrowseOpen(true)}
@@ -86,7 +105,6 @@ export function Navbar() {
               >
                 <NavLink href="/browse">Browse</NavLink>
                 
-                {/* Desktop Dropdown Grid */}
                 <div className={cn(
                   "hidden lg:grid absolute top-full left-0 mt-0 pt-2 w-[480px] transition-all duration-200 ease-out origin-top-left",
                   isBrowseOpen ? "opacity-100 scale-100 translate-y-0" : "opacity-0 scale-95 -translate-y-2 pointer-events-none"
@@ -107,6 +125,21 @@ export function Navbar() {
                         <ChevronRight className="h-4 w-4 text-muted-foreground/30 group-hover/item:text-primary group-hover/item:translate-x-1 transition-all" />
                       </Link>
                     ))}
+                    
+                    <div className="col-span-2 mt-2 pt-2 border-t border-border/50">
+                      <Link
+                        href="/browse"
+                        className="flex items-center justify-between px-4 py-3 rounded-xl hover:bg-primary/5 group/item transition-colors"
+                      >
+                        <div className="flex items-center gap-3">
+                          <LayoutGrid className="h-4 w-4 text-primary" />
+                          <span className="text-sm font-bold text-primary">
+                            View All Categories
+                          </span>
+                        </div>
+                        <ChevronRight className="h-4 w-4 text-primary group-hover/item:translate-x-1 transition-all" />
+                      </Link>
+                    </div>
                   </div>
                 </div>
               </div>
