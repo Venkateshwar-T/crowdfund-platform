@@ -70,8 +70,15 @@ export function BrowseFilterBar() {
               <span className="text-xs md:text-sm font-medium">Filter</span>
             </CustomButton>
           </SheetTrigger>
-          <SheetContent className="w-[85vw] sm:max-w-md flex flex-col h-full p-0 gap-0">
-            <SheetHeader className="p-6 text-left border-b">
+          <SheetContent 
+            className="w-[85vw] sm:max-w-md flex flex-col h-full p-0 gap-0 border-l border-border/50"
+            style={{
+              background: `radial-gradient(circle at top left, hsl(var(--secondary) / 0.4), transparent),
+                          radial-gradient(circle at bottom right, hsl(var(--accent) / 0.5), transparent),
+                          hsl(var(--background))`
+            }}
+          >
+            <SheetHeader className="p-6 text-left border-b bg-background/50 backdrop-blur-sm">
               <SheetTitle className="text-xl font-bold">Filters</SheetTitle>
             </SheetHeader>
             
