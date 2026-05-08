@@ -58,7 +58,7 @@ export function BrowseFilterBar() {
   };
 
   return (
-    <div className="sticky top-16 z-30 w-full bg-background/95 backdrop-blur-sm border-b shadow-sm">
+    <div className="sticky top-16 z-30 w-full bg-background/90 backdrop-blur-md border-b shadow-sm">
       <div className="max-w-7xl mx-auto px-4 h-11 md:h-14 flex items-center justify-between">
         <h1 className="text-sm md:text-lg font-semibold text-foreground">
           Browse campaigns

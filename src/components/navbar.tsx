@@ -100,7 +100,7 @@ export function Navbar() {
   };
 
   return (
-    <nav className="sticky top-0 z-50 w-full border-b bg-background/80 backdrop-blur-md">
+    <nav className="sticky top-0 z-50 w-full border-b bg-background/90 backdrop-blur-md">
       <div className="relative flex h-16 items-center px-4 md:px-6">
         
         <div className={cn(

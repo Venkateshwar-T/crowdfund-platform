@@ -24,7 +24,7 @@ export function CategoryBubbles() {
   return (
     <section className="w-full max-w-7xl px-4 py-16 mx-auto">
       <div className="flex flex-col gap-10">
-        <div className="text-center md:text-left">
+        <div className="text-center">
           <h2 className="text-2xl md:text-3xl font-bold tracking-tight">
             Browse from variety of domains
           </h2>
