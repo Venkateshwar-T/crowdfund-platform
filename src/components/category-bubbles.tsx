@@ -17,7 +17,7 @@ const CATEGORIES = [
   { id: 'technology', label: 'Technology', icon: Cpu, color: 'bg-slate-500/10 text-slate-600 border-slate-200' },
   { id: 'sports', label: 'Sports', icon: Trophy, color: 'bg-yellow-500/10 text-yellow-600 border-yellow-200' },
   { id: 'disaster', label: 'Disaster Relief', icon: ShieldAlert, color: 'bg-rose-500/10 text-rose-600 border-rose-200' },
-  { id: 'development', label: 'Urban/Rural Development', icon: GiProgression, color: 'bg-blue-500/10 text-blue-600 border-blue-200' },
+  { id: 'development', label: 'Development', icon: GiProgression, color: 'bg-blue-500/10 text-blue-600 border-blue-200' },
 ];
 
 export function CategoryBubbles() {

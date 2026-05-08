@@ -18,7 +18,7 @@ export const CATEGORIES = [
   { id: 'technology', label: 'Technology', icon: Cpu },
   { id: 'sports', label: 'Sports', icon: Trophy },
   { id: 'disaster', label: 'Disaster Relief', icon: ShieldAlert },
-  { id: 'development', label: 'Urban/Rural Development', icon: GiProgression },
+  { id: 'development', label: 'Development', icon: GiProgression },
 ];
 
 export function BrowseCategoryBar() {

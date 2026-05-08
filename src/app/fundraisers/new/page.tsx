@@ -69,7 +69,7 @@ const PREDEFINED_CATEGORIES = [
   { id: 'technology', label: 'Technology' },
   { id: 'sports', label: 'Sports' },
   { id: 'disaster', label: 'Disaster Relief' },
-  { id: 'development', label: 'Urban/Rural Development' },
+  { id: 'development', label: 'Development' },
   { id: 'other', label: 'Other' },
 ];
 
