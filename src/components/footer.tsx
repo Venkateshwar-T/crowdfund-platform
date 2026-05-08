@@ -8,11 +8,11 @@ import { BrandLogo } from './brand-logo';
 export function Footer() {
   return (
     <footer className="w-full border-t bg-background mt-auto">
-      <div className="max-w-7xl mx-auto px-4 py-12 md:py-16">
+      <div className="max-w-7xl mx-auto px-4 py-12">
         <div className="grid grid-cols-1 gap-12 md:grid-cols-4 lg:grid-cols-5">
           
           {/* Brand Column */}
-          <div className="flex flex-col gap-4 md:col-span-2 lg:col-span-2">
+          <div className="flex flex-col gap-2 md:col-span-2 lg:col-span-2">
             <BrandLogo />
             <div>
               <p className="text-sm font-medium text-muted-foreground uppercase tracking-wider">
@@ -54,8 +54,8 @@ export function Footer() {
           </div>
 
           {/* CTA Column */}
-          <div className="flex flex-col gap-4 items-start md:items-end md:col-span-4 lg:col-span-1">
-            <h3 className="font-bold text-lg lg:hidden">Get Started</h3>
+          <div className="flex flex-col gap-4">
+            <h3 className="font-bold text-lg">Get Started</h3>
             <CustomButton className="rounded-full w-full lg:w-auto">
               Start a Fundraiser
             </CustomButton>

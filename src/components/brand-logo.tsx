@@ -24,6 +24,7 @@ export function BrandLogo({ className, textClassName, logoSize = 32 }: BrandLogo
           priority
           className="object-contain"
           data-ai-hint="company logo"
+          draggable="false"
         />
       </div>
       <span className={cn("text-2xl font-bold tracking-tight text-primary whitespace-nowrap", textClassName)}>
