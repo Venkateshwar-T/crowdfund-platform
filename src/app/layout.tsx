@@ -1,9 +1,9 @@
-
 import type {Metadata} from 'next';
 import './globals.css';
 import { Navbar } from '@/components/navbar';
 import { MobileJoinBanner } from '@/components/mobile-join-banner';
 import { Footer } from '@/components/footer';
+import { BottomNav } from '@/components/bottom-nav';
 
 export const metadata: Metadata = {
   title: 'CrowdFund | Launch Your Dreams',
@@ -28,6 +28,7 @@ export default function RootLayout({
         <main className="flex-grow">
           {children}
         </main>
+        <BottomNav />
         <Footer />
       </body>
     </html>

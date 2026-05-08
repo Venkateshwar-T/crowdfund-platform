@@ -9,8 +9,6 @@ import {
   CircleHelp, 
   Menu, 
   X, 
-  Home, 
-  Compass, 
   ChevronRight, 
   Heart, 
   Sprout, 
@@ -126,7 +124,7 @@ export function Navbar() {
                   "hidden lg:grid absolute top-full left-0 mt-0 pt-2 w-[480px] transition-all duration-200 ease-out origin-top-left",
                   isBrowseOpen ? "opacity-100 scale-100 translate-y-0" : "opacity-0 scale-95 -translate-y-2 pointer-events-none"
                 )}>
-                  <div className="bg-white rounded-2xl shadow-xl border border-border p-4 grid grid-cols-2 gap-1 overflow-hidden z-100">
+                  <div className="bg-white rounded-2xl shadow-xl border border-border p-4 grid grid-cols-2 gap-1 overflow-hidden z-[100]">
                     {BROWSE_CATEGORIES.map((cat) => (
                       <Link
                         key={cat.id}
@@ -239,11 +237,9 @@ export function Navbar() {
 
       <div className={cn(
         "md:hidden absolute top-full left-0 w-full bg-background border-b shadow-xl transition-all duration-300 ease-in-out overflow-hidden",
-        isMenuOpen ? "max-height-60 opacity-100" : "max-h-0 opacity-0 pointer-events-none"
+        isMenuOpen ? "max-h-[300px] opacity-100" : "max-h-0 opacity-0 pointer-events-none"
       )}>
         <div className="flex flex-col bg-background">
-          <MobileNavLink href="/" icon={Home}>Home</MobileNavLink>
-          <MobileNavLink href="/browse" icon={Compass}>Browse</MobileNavLink>
           <MobileNavLink href="/how-it-works" icon={CircleHelp}>How it Works</MobileNavLink>
         </div>
       </div>
