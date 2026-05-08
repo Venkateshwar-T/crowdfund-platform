@@ -1,9 +1,10 @@
 'use client';
 
 import { useRef } from 'react';
-import { ChevronLeft, ChevronRight, Heart, Sprout, GraduationCap, Cat, Palette, Cpu, Trophy, ShieldAlert, Building2 } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Heart, Sprout, GraduationCap, Cat, Palette, Cpu, Trophy, ShieldAlert } from 'lucide-react';
 import { IoWoman } from "react-icons/io5";
 import { MdElderly } from "react-icons/md";
+import { GiProgression } from "react-icons/gi";
 import { cn } from '@/lib/utils';
 
 export const CATEGORIES = [
@@ -17,7 +18,7 @@ export const CATEGORIES = [
   { id: 'technology', label: 'Technology', icon: Cpu },
   { id: 'sports', label: 'Sports', icon: Trophy },
   { id: 'disaster', label: 'Disaster Relief', icon: ShieldAlert },
-  { id: 'development', label: 'Urban/Rural Development', icon: Building2 },
+  { id: 'development', label: 'Urban/Rural Development', icon: GiProgression },
 ];
 
 export function BrowseCategoryBar() {

@@ -1,8 +1,9 @@
 'use client';
 
-import { Heart, GraduationCap, Cat, Palette, Cpu, Trophy, ShieldAlert, Building2, Sprout } from 'lucide-react';
+import { Heart, GraduationCap, Cat, Palette, Cpu, Trophy, ShieldAlert, Sprout } from 'lucide-react';
 import { IoWoman } from "react-icons/io5";
 import { MdElderly } from "react-icons/md";
+import { GiProgression } from "react-icons/gi";
 import { cn } from '@/lib/utils';
 
 const CATEGORIES = [
@@ -16,7 +17,7 @@ const CATEGORIES = [
   { id: 'technology', label: 'Technology', icon: Cpu, color: 'bg-slate-500/10 text-slate-600 border-slate-200' },
   { id: 'sports', label: 'Sports', icon: Trophy, color: 'bg-yellow-500/10 text-yellow-600 border-yellow-200' },
   { id: 'disaster', label: 'Disaster Relief', icon: ShieldAlert, color: 'bg-rose-500/10 text-rose-600 border-rose-200' },
-  { id: 'development', label: 'Urban/Rural Development', icon: Building2, color: 'bg-blue-500/10 text-blue-600 border-blue-200' },
+  { id: 'development', label: 'Urban/Rural Development', icon: GiProgression, color: 'bg-blue-500/10 text-blue-600 border-blue-200' },
 ];
 
 export function CategoryBubbles() {
