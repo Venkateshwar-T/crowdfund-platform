@@ -1,7 +1,6 @@
 import type {Metadata} from 'next';
 import './globals.css';
 import { Navbar } from '@/components/navbar';
-import { MobileJoinBanner } from '@/components/mobile-join-banner';
 import { Footer } from '@/components/footer';
 import { BottomNav } from '@/components/bottom-nav';
 
@@ -24,7 +23,6 @@ export default function RootLayout({
       </head>
       <body className="font-body antialiased overflow-x-hidden min-h-screen flex flex-col">
         <Navbar />
-        <MobileJoinBanner />
         <main className="flex-grow">
           {children}
         </main>
