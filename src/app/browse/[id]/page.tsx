@@ -3,7 +3,17 @@
 import { useState, useEffect, use } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { Film, Calendar } from 'lucide-react';
+import { 
+  Film, 
+  Calendar, 
+  Share2, 
+  Copy, 
+  Check, 
+  Facebook, 
+  Twitter, 
+  Instagram, 
+  MessageCircle 
+} from 'lucide-react';
 import { MdVerifiedUser } from 'react-icons/md';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { Input } from '@/components/ui/input';
@@ -19,10 +29,106 @@ import {
 } from "@/components/ui/carousel";
 
 /**
+ * ShareButton Component: Handles social sharing and link copying
+ */
+function ShareButton() {
+  const [isOpen, setIsOpen] = useState(false);
+  const [copied, setCopied] = useState(false);
+  const [shareUrl, setShareUrl] = useState('');
+
+  useEffect(() => {
+    setShareUrl(window.location.href);
+    const handleEsc = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') setIsOpen(false);
+    };
+    window.addEventListener('keydown', handleEsc);
+    return () => window.removeEventListener('keydown', handleEsc);
+  }, []);
+
+  const copyToClipboard = async () => {
+    try {
+      await navigator.clipboard.writeText(shareUrl);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    } catch (err) {
+      const textArea = document.createElement("textarea");
+      textArea.value = shareUrl;
+      document.body.appendChild(textArea);
+      textArea.select();
+      document.execCommand("copy");
+      document.body.removeChild(textArea);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    }
+  };
+
+  const shareOptions = [
+    { icon: <MessageCircle size={24} className="text-emerald-500" />, url: `https://wa.me/?text=${encodeURIComponent(shareUrl)}` },
+    { icon: <Twitter size={24} className="text-slate-900" />, url: `https://twitter.com/intent/tweet?url=${encodeURIComponent(shareUrl)}` },
+    { icon: <Facebook size={24} className="text-blue-600" />, url: `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(shareUrl)}` },
+    { icon: <Instagram size={24} className="text-pink-600" />, url: `https://instagram.com` }
+  ];
+
+  return (
+    <div className="relative">
+      <button
+        onClick={() => setIsOpen(true)}
+        className="w-8 h-8 md:w-10 md:h-10 flex items-center justify-center bg-white border border-border rounded-full shadow-sm hover:shadow-md hover:border-primary/50 transition-all active:scale-90 group"
+      >
+        <Share2 size={16} className="text-muted-foreground group-hover:text-primary transition-colors md:w-5 md:h-5" />
+      </button>
+
+      {isOpen && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
+          <div className="absolute inset-0 bg-black/20 backdrop-blur-md animate-in fade-in duration-300" onClick={() => setIsOpen(false)} />
+          
+          <div className="relative bg-white rounded-[2rem] p-6 md:p-8 shadow-2xl animate-in zoom-in-95 duration-200 max-w-sm w-full">
+            <div className="flex flex-col items-center gap-6">
+              <h2 className="text-[10px] md:text-xs font-black uppercase tracking-[0.2em] text-muted-foreground/60">Share Link</h2>
+              
+              <div className="flex gap-2 md:gap-4 items-center">
+                {shareOptions.map((option, i) => (
+                  <a
+                    key={i}
+                    href={option.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="w-10 h-10 md:w-12 md:h-12 flex items-center justify-center rounded-2xl hover:bg-muted transition-all active:scale-90"
+                  >
+                    {option.icon}
+                  </a>
+                ))}
+                
+                <div className="w-[1px] h-8 bg-border mx-1" />
+
+                <button
+                  onClick={copyToClipboard}
+                  className="w-10 h-10 md:w-12 md:h-12 flex items-center justify-center rounded-2xl hover:bg-muted transition-all active:scale-90 text-muted-foreground hover:text-primary"
+                >
+                  {copied ? <Check size={20} className="text-emerald-500 md:w-6 md:h-6" /> : <Copy size={20} className="md:w-6 md:h-6" />}
+                </button>
+              </div>
+
+              {copied && (
+                <div className="absolute -bottom-10 left-1/2 -translate-x-1/2 px-4 py-1.5 bg-emerald-500 rounded-full shadow-lg shadow-emerald-500/20">
+                   <p className="text-[9px] md:text-[10px] font-bold text-white uppercase tracking-widest whitespace-nowrap">
+                    Copied to clipboard
+                  </p>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+/**
  * Sub-component for the Progress Circle SVG
  */
 function ProgressCircle({ progress }: { progress: number }) {
-  const size = 140; // Scaled down for mobile
+  const size = 140; 
   const strokeWidth = 10;
   const center = size / 2;
   const radius = center - strokeWidth;
@@ -67,8 +173,9 @@ function ProgressCircle({ progress }: { progress: number }) {
 function TitleSection({ title, status }: { title: string; status: 'Active' | 'Completed' | 'New' }) {
   return (
     <div className="flex flex-col gap-2">
-      <div className="flex items-center gap-2">
+      <div className="flex items-center justify-between">
         <StatusBadge status={status} />
+        <ShareButton />
       </div>
       <h1 className="text-xl md:text-3xl font-black leading-tight tracking-tight text-foreground">
         {title}
@@ -128,7 +235,6 @@ function MediaGallery({ media, title }: { media: { type: string; url: string }[]
         </CarouselContent>
       </Carousel>
       
-      {/* Position Indicators */}
       {media.length > 1 && (
         <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex items-center gap-1.5 z-10 px-3 py-1.5 rounded-full bg-black/30 backdrop-blur-md border border-white/10">
           {media.map((_, index) => (
@@ -153,7 +259,6 @@ function DetailsCard({ campaign }: { campaign: any }) {
 
   return (
     <div className="bg-white/70 backdrop-blur-xl rounded-2xl md:rounded-3xl border border-white/20 p-5 md:p-8 shadow-xl flex flex-col gap-6">
-      {/* User Section */}
       <div className="flex items-center gap-3">
         <Avatar className="h-8 w-8 md:h-12 md:w-12 border-2 border-background ring-1 ring-border/10">
           <AvatarImage src={campaign.user.avatar} />
@@ -171,7 +276,6 @@ function DetailsCard({ campaign }: { campaign: any }) {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-center">
-        {/* Description & Deadline Section */}
         <div className="flex flex-col gap-6 order-2 md:order-1">
           <div className="flex flex-col gap-2">
             <h2 className="text-[10px] md:text-sm font-bold uppercase tracking-widest text-primary">About the Campaign</h2>
@@ -191,7 +295,6 @@ function DetailsCard({ campaign }: { campaign: any }) {
           </div>
         </div>
 
-        {/* Progress Section */}
         <div className="flex flex-col items-center justify-center gap-4 order-1 md:order-2 p-4 md:p-6 bg-primary/5 rounded-2xl border border-primary/10">
           <ProgressCircle progress={progress} />
 
