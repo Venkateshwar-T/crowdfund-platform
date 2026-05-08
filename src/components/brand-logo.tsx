@@ -1,7 +1,6 @@
 'use client';
 
 import Image from 'next/image';
-import Link from 'next/link';
 import { cn } from '@/lib/utils';
 
 interface BrandLogoProps {
@@ -12,7 +11,7 @@ interface BrandLogoProps {
 
 export function BrandLogo({ className, textClassName, logoSize = 60 }: BrandLogoProps) {
   return (
-    <Link href="/" className={cn("flex items-center gap-2 shrink-0 group", className)}>
+    <div className={cn("flex items-center gap-2 shrink-0", className)}>
       <div 
         className="relative" 
         style={{ width: logoSize, height: logoSize }}
@@ -30,6 +29,6 @@ export function BrandLogo({ className, textClassName, logoSize = 60 }: BrandLogo
       <span className={cn("text-xl md:text-2xl font-bold tracking-tight text-primary whitespace-nowrap", textClassName)}>
         CrowdFund
       </span>
-    </Link>
+    </div>
   );
 }
