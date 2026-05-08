@@ -6,6 +6,12 @@
       "description": "Crowdfunding Platform Hero Banner",
       "imageUrl": "/crowdfunding.png",
       "imageHint": "crowdfunding banner"
+    },
+    {
+      "id": "logo-image",
+      "description": "CrowdFund Logo",
+      "imageUrl": "/logo.png",
+      "imageHint": "company logo"
     }
   ]
 }
