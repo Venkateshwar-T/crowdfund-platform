@@ -1,11 +1,8 @@
 'use client';
 
-import { BrowseCategoryBar } from '@/components/browse-category-bar';
-
 export default function BrowsePage() {
   return (
     <div className="flex flex-col min-h-screen">
-      <BrowseCategoryBar />
       <main className="flex-grow p-4">
         <div className="max-w-7xl mx-auto">
           {/* Fundraiser grid will go here */}
