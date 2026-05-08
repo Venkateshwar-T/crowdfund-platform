@@ -1,9 +1,9 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { ArrowLeft, Upload, X, Calendar as CalendarIcon, Loader2, Film, Image as ImageIcon } from 'lucide-react';
-import { useForm } from 'react-hook-form';
+import { ArrowLeft, Upload, X, Calendar as CalendarIcon, Loader2, Film, Image as ImageIcon, ChevronLeft, ChevronRight } from 'lucide-react';
+import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import { format } from 'date-fns';
@@ -28,12 +28,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from '@/components/ui/popover';
-import { Calendar } from '@/components/ui/calendar';
 import { Card } from '@/components/ui/card';
 
 const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
@@ -85,6 +79,11 @@ export default function NewFundraiserPage() {
   const [files, setFiles] = useState<File[]>([]);
   const [dragActive, setDragActive] = useState(false);
 
+  // Custom Calendar State
+  const [isCalendarOpen, setIsCalendarOpen] = useState(false);
+  const [viewDate, setViewDate] = useState(new Date());
+  const calendarRef = useRef<HTMLDivElement>(null);
+
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -99,6 +98,24 @@ export default function NewFundraiserPage() {
   });
 
   const categoryValue = form.watch('category');
+
+  // Handle click outside for custom calendar
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      if (calendarRef.current && !calendarRef.current.contains(e.target as Node)) {
+        setIsCalendarOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
+  const daysInMonth = (y: number, m: number) => new Date(y, m + 1, 0).getDate();
+  const firstDayOfMonth = (y: number, m: number) => new Date(y, m, 1).getDay();
+
+  const changeMonth = (offset: number) => {
+    setViewDate(new Date(viewDate.getFullYear(), viewDate.getMonth() + offset, 1));
+  };
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {
@@ -151,7 +168,6 @@ export default function NewFundraiserPage() {
 
   async function onSubmit(values: FormValues) {
     setIsSubmitting(true);
-    // Simulate API call
     console.log(values, files);
     setTimeout(() => {
       setIsSubmitting(false);
@@ -161,7 +177,6 @@ export default function NewFundraiserPage() {
 
   return (
     <div className="flex flex-col min-h-screen bg-background">
-      {/* Sticky Header */}
       <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur-md">
         <div className="max-w-3xl mx-auto px-4 h-14 md:h-16 flex items-center gap-4">
           <button 
@@ -179,7 +194,6 @@ export default function NewFundraiserPage() {
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
               
-              {/* Basic Information */}
               <div className="space-y-6">
                 <FormField
                   control={form.control}
@@ -266,8 +280,7 @@ export default function NewFundraiserPage() {
                 </div>
               </div>
 
-              {/* Financials & Timeline */}
-              <Card className="p-6 border-muted-foreground/10 bg-primary/5 rounded-3xl overflow-hidden">
+              <Card className="p-6 border-muted-foreground/10 bg-primary/5 rounded-3xl overflow-visible">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div className="space-y-4">
                     <FormLabel className="text-base font-bold">Target Amount</FormLabel>
@@ -317,37 +330,108 @@ export default function NewFundraiserPage() {
                     render={({ field }) => (
                       <FormItem className="flex flex-col gap-1.5">
                         <FormLabel className="text-base font-bold">Deadline Date</FormLabel>
-                        <Popover>
-                          <PopoverTrigger asChild>
-                            <FormControl>
-                              <CustomButton
-                                variant={"outline"}
-                                className={cn(
-                                  "h-12 w-full pl-4 text-left font-medium rounded-xl border-muted-foreground/20 bg-background hover:bg-background hover:border-primary/50 transition-all",
-                                  !field.value && "text-muted-foreground"
-                                )}
-                              >
+                        <div className="relative w-full" ref={calendarRef}>
+                          <button
+                            type="button"
+                            onClick={() => setIsCalendarOpen(!isCalendarOpen)}
+                            className={cn(
+                              "w-full flex items-center justify-between bg-background border border-muted-foreground/20 rounded-xl px-5 py-3 h-12 shadow-sm hover:border-primary/50 transition-all text-foreground",
+                              !field.value && "text-muted-foreground"
+                            )}
+                          >
+                            <div className="flex items-center gap-3">
+                              <CalendarIcon size={18} className="text-primary" />
+                              <span className="font-medium">
                                 {field.value ? (
-                                  format(field.value, "PPP")
+                                  format(field.value, 'MMMM d, yyyy')
                                 ) : (
-                                  <span>Select campaign end date</span>
+                                  'Select campaign end date'
                                 )}
-                                <CalendarIcon className="ml-auto h-5 w-5 text-primary opacity-70" />
-                              </CustomButton>
-                            </FormControl>
-                          </PopoverTrigger>
-                          <PopoverContent className="w-auto p-0 rounded-2xl shadow-2xl border-none overflow-hidden" align="start">
-                            <Calendar
-                              mode="single"
-                              selected={field.value}
-                              onSelect={field.onChange}
-                              disabled={(date) =>
-                                date < new Date()
-                              }
-                              initialFocus
-                            />
-                          </PopoverContent>
-                        </Popover>
+                              </span>
+                            </div>
+                          </button>
+
+                          {isCalendarOpen && (
+                            <div className="absolute top-full left-0 mt-2 w-full bg-background rounded-2xl shadow-2xl border border-border p-5 z-[100] animate-in fade-in zoom-in duration-200 origin-top">
+                              <div className="flex items-center justify-between mb-4">
+                                <h3 className="font-bold text-foreground">
+                                  {viewDate.toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}
+                                </h3>
+                                <div className="flex gap-1">
+                                  <button type="button" onClick={() => changeMonth(-1)} className="p-1.5 hover:bg-accent rounded-md text-muted-foreground hover:text-primary transition-colors">
+                                    <ChevronLeft size={18} />
+                                  </button>
+                                  <button type="button" onClick={() => changeMonth(1)} className="p-1.5 hover:bg-accent rounded-md text-muted-foreground hover:text-primary transition-colors">
+                                    <ChevronRight size={18} />
+                                  </button>
+                                </div>
+                              </div>
+
+                              <div className="grid grid-cols-7 gap-1 mb-2">
+                                {['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa'].map(d => (
+                                  <div key={d} className="text-[10px] font-bold text-muted-foreground/60 text-center uppercase py-1">{d}</div>
+                                ))}
+                                {(() => {
+                                  const days = [];
+                                  const totalDays = daysInMonth(viewDate.getFullYear(), viewDate.getMonth());
+                                  const startDay = firstDayOfMonth(viewDate.getFullYear(), viewDate.getMonth());
+                                  const today = new Date();
+
+                                  for (let i = 0; i < startDay; i++) {
+                                    days.push(<div key={`empty-${i}`} />);
+                                  }
+
+                                  for (let d = 1; d <= totalDays; d++) {
+                                    const currentD = new Date(viewDate.getFullYear(), viewDate.getMonth(), d);
+                                    const isSelected = field.value && 
+                                                      d === field.value.getDate() && 
+                                                      viewDate.getMonth() === field.value.getMonth() && 
+                                                      viewDate.getFullYear() === field.value.getFullYear();
+                                    
+                                    const isTodayDate = d === today.getDate() && 
+                                                      viewDate.getMonth() === today.getMonth() && 
+                                                      viewDate.getFullYear() === today.getFullYear();
+
+                                    days.push(
+                                      <button
+                                        key={d}
+                                        type="button"
+                                        onClick={() => {
+                                          field.onChange(currentD);
+                                          setIsCalendarOpen(false);
+                                        }}
+                                        className={cn(
+                                          "w-9 h-9 flex items-center justify-center rounded-lg text-sm transition-all",
+                                          isSelected 
+                                            ? 'bg-primary text-primary-foreground font-bold shadow-md shadow-primary/20' 
+                                            : isTodayDate 
+                                              ? 'bg-primary/10 text-primary font-semibold' 
+                                              : 'hover:bg-primary/10 hover:text-primary text-foreground'
+                                        )}
+                                      >
+                                        {d}
+                                      </button>
+                                    );
+                                  }
+                                  return days;
+                                })()}
+                              </div>
+                              
+                              <button 
+                                type="button"
+                                onClick={() => {
+                                  const now = new Date();
+                                  setViewDate(now); 
+                                  field.onChange(now); 
+                                  setIsCalendarOpen(false);
+                                }}
+                                className="w-full mt-3 py-2 text-xs font-bold text-primary bg-primary/5 hover:bg-primary/10 rounded-xl transition-colors"
+                              >
+                                Reset to Today
+                              </button>
+                            </div>
+                          )}
+                        </div>
                         <FormMessage />
                       </FormItem>
                     )}
@@ -355,7 +439,6 @@ export default function NewFundraiserPage() {
                 </div>
               </Card>
 
-              {/* Media Upload */}
               <div className="space-y-4">
                 <FormLabel className="text-base font-bold">Media Uploads (Max 5)</FormLabel>
                 <div 
@@ -388,7 +471,6 @@ export default function NewFundraiserPage() {
                   </div>
                 </div>
 
-                {/* File Previews */}
                 {files.length > 0 && (
                   <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-4">
                     {files.map((file, i) => (
@@ -412,7 +494,6 @@ export default function NewFundraiserPage() {
                 )}
               </div>
 
-              {/* Additional Notes */}
               <FormField
                 control={form.control}
                 name="additionalNotes"
@@ -431,7 +512,6 @@ export default function NewFundraiserPage() {
                 )}
               />
 
-              {/* Submit Section */}
               <div className="pt-8 flex flex-col gap-4">
                 <CustomButton 
                   type="submit" 
