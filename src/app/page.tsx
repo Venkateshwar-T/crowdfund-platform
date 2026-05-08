@@ -37,15 +37,15 @@ export default function Home() {
 
           {/* Image Content */}
           <div className="relative w-full max-w-2xl mx-auto order-2">
-            <div className="relative aspect-[4/3] w-full overflow-hidden rounded-3xl">
+            <div className="relative aspect-[4/3] w-full">
               <Image
                 src="/crowdfunding.png"
                 alt="Crowdfunding Hero"
                 fill
                 className="object-cover"
                 style={{
-                  WebkitMaskImage: 'radial-gradient(ellipse, black 80%, transparent 100%)',
-                  maskImage: 'radial-gradient(ellipse, black 80%, transparent 100%)',
+                  WebkitMaskImage: 'radial-gradient(ellipse at center, black 60%, transparent 95%)',
+                  maskImage: 'radial-gradient(ellipse at center, black 60%, transparent 95%)',
                 }}
                 priority
                 draggable="false"
