@@ -60,7 +60,7 @@ export function Navbar() {
         )}>
           {/* Left Section: Logo, Navigation, and Search Trigger */}
           <div className="flex items-center gap-4 md:gap-6 flex-1 min-w-0">
-            <BrandLogo />
+            <BrandLogo logoSize={48}/>
             
             {/* Desktop Navigation */}
             <div className="hidden md:flex items-center gap-4 md:gap-6">

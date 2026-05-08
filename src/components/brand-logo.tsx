@@ -10,7 +10,7 @@ interface BrandLogoProps {
   logoSize?: number;
 }
 
-export function BrandLogo({ className, textClassName, logoSize = 32 }: BrandLogoProps) {
+export function BrandLogo({ className, textClassName, logoSize = 60 }: BrandLogoProps) {
   return (
     <Link href="/" className={cn("flex items-center gap-2 shrink-0 group", className)}>
       <div 
@@ -27,7 +27,7 @@ export function BrandLogo({ className, textClassName, logoSize = 32 }: BrandLogo
           draggable="false"
         />
       </div>
-      <span className={cn("text-2xl font-bold tracking-tight text-primary whitespace-nowrap", textClassName)}>
+      <span className={cn("text-xl md:text-2xl font-bold tracking-tight text-primary whitespace-nowrap", textClassName)}>
         CrowdFund
       </span>
     </Link>
