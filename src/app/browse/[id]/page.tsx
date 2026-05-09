@@ -8,17 +8,20 @@ import {
   Calendar,
   ChevronDown,
   ChevronUp,
-  Tag
+  Tag,
+  Loader2
 } from 'lucide-react';
 import { MdVerifiedUser, MdOutlineReportProblem } from 'react-icons/md';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { Input } from '@/components/ui/input';
 import { CustomButton } from '@/components/custom-button';
-import { FAKE_CAMPAIGNS } from '@/lib/mock-data';
 import { StatusBadge } from '@/components/status-badge';
 import { ContributorBadge } from '@/components/contributor-badge';
 import { ShareButton } from '@/components/share-button';
 import { cn } from '@/lib/utils';
+import { useReadContract } from 'wagmi';
+import { formatEther } from 'viem';
+import { CONTRACT_ADDRESS, CONTRACT_ABI } from '@/lib/contract';
 import {
   Carousel,
   CarouselContent,
@@ -191,13 +194,6 @@ function DetailsCard({ campaign }: { campaign: any }) {
         <div className="flex flex-col gap-6 order-2 md:order-1">
 
           <div className="flex flex-col gap-2">
-            <h2 className="text-[10px] md:text-sm font-bold uppercase tracking-widest text-primary">About the Campaign</h2>
-            <p className="text-xs md:text-base text-muted-foreground leading-relaxed">
-              {campaign.description}
-            </p>
-          </div>
-
-          <div className="flex flex-col gap-2">
             <h2 className="text-[10px] md:text-sm font-bold uppercase tracking-widest text-primary">Category</h2>
             <div className="flex items-center gap-2">
               <Tag className="h-4 w-4 text-primary" />
@@ -205,6 +201,13 @@ function DetailsCard({ campaign }: { campaign: any }) {
                 {campaign.category}
               </span>
             </div>
+          </div>
+
+          <div className="flex flex-col gap-2">
+            <h2 className="text-[10px] md:text-sm font-bold uppercase tracking-widest text-primary">About the Campaign</h2>
+            <p className="text-xs md:text-base text-muted-foreground leading-relaxed">
+              {campaign.description}
+            </p>
           </div>
 
           <div className="flex flex-col gap-2">
@@ -223,7 +226,7 @@ function DetailsCard({ campaign }: { campaign: any }) {
 
           <div className="text-center flex flex-col gap-2">
             <p className="text-[11px] md:text-sm font-bold text-foreground">
-              ${campaign.contributedAmount.toLocaleString()} <span className="text-muted-foreground font-medium">raised of ${campaign.targetAmount.toLocaleString()}</span>
+              {campaign.contributedAmount.toLocaleString()} ETH <span className="text-muted-foreground font-medium">raised of {campaign.targetAmount.toLocaleString()} ETH</span>
             </p>
             <ContributorBadge count={campaign.contributors} showSupportersLabel className="mx-auto" />
           </div>
@@ -236,17 +239,9 @@ function DetailsCard({ campaign }: { campaign: any }) {
 /**
  * Section 4: Contributors List Component
  */
-function ContributorsList({ count }: { count: number }) {
+function ContributorsList({ count, donators, donations }: { count: number, donators: string[], donations: bigint[] }) {
   const [isOpen, setIsOpen] = useState(false);
   
-  const contributors = [
-    { name: 'Alex Johnson', amount: 500, avatar: 'https://picsum.photos/seed/c1/100/100', time: '2 hours ago' },
-    { name: 'Sarah Williams', amount: 250, avatar: 'https://picsum.photos/seed/c2/100/100', time: '5 hours ago' },
-    { name: 'Michael Chen', amount: 1000, avatar: 'https://picsum.photos/seed/c3/100/100', time: 'Yesterday' },
-    { name: 'Emily Davis', amount: 50, avatar: 'https://picsum.photos/seed/c4/100/100', time: '2 days ago' },
-    { name: 'Robert Wilson', amount: 150, avatar: 'https://picsum.photos/seed/c5/100/100', time: '3 days ago' },
-  ];
-
   return (
     <div className="bg-white/70 backdrop-blur-xl rounded-2xl md:rounded-3xl border border-white/20 p-5 md:p-8 shadow-xl">
       <Collapsible open={isOpen} onOpenChange={setIsOpen}>
@@ -266,27 +261,24 @@ function ContributorsList({ count }: { count: number }) {
 
         <CollapsibleContent className="mt-6 space-y-4 animate-in slide-in-from-top-2 duration-300">
           <div className="flex flex-col gap-4">
-            {contributors.map((contributor, index) => (
+            {donators && donators.map((donator, index) => (
               <div key={index} className="flex items-center justify-between pb-4 border-b border-border/50 last:border-0 last:pb-0">
                 <div className="flex items-center gap-3">
                   <Avatar className="h-8 w-8 md:h-10 md:w-10 border border-background ring-1 ring-border/10">
-                    <AvatarImage src={contributor.avatar} />
-                    <AvatarFallback>{contributor.name[0]}</AvatarFallback>
+                    <AvatarImage src={`https://picsum.photos/seed/${donator}/100/100`} />
+                    <AvatarFallback>{donator[0]}</AvatarFallback>
                   </Avatar>
                   <div className="flex flex-col">
-                    <span className="text-xs md:text-sm font-bold text-foreground">{contributor.name}</span>
-                    <span className="text-[10px] text-muted-foreground">{contributor.time}</span>
+                    <span className="text-xs md:text-sm font-bold text-foreground">{donator.slice(0, 6)}...{donator.slice(-4)}</span>
+                    <span className="text-[10px] text-muted-foreground">On-chain donation</span>
                   </div>
                 </div>
                 <div className="text-right">
-                  <span className="text-xs md:text-sm font-black text-primary">${contributor.amount}</span>
+                  <span className="text-xs md:text-sm font-black text-primary">{formatEther(donations[index])} ETH</span>
                 </div>
               </div>
             ))}
           </div>
-          <CustomButton variant="outline" className="w-full rounded-xl text-xs font-bold mt-2 border-primary/20 hover:bg-primary/5 hover:text-primary">
-            View All Contributors
-          </CustomButton>
         </CollapsibleContent>
       </Collapsible>
     </div>
@@ -309,7 +301,7 @@ function StaticContributionBox({ containerRef }: { containerRef: React.RefObject
       
       <div className="flex w-full md:w-auto items-center gap-3">
         <div className="relative flex-grow md:w-32">
-          <span className="absolute left-3 top-1/2 -translate-y-1/2 text-white/40 font-bold text-sm">$</span>
+          <span className="absolute left-3 top-1/2 -translate-y-1/2 text-white/40 font-bold text-sm">Ξ</span>
           <Input 
             type="number" 
             placeholder="0"
@@ -373,9 +365,18 @@ function FloatingCTA({ onContribute, visible }: { onContribute: () => void, visi
 
 export default function CampaignDetailsPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params);
-  const campaign = FAKE_CAMPAIGNS.find((c) => c.id === id);
   const fundRef = useRef<HTMLDivElement>(null);
   const [isFundInView, setIsFundInView] = useState(false);
+
+  // Fetch campaign details from blockchain
+  const { data: campaignRaw, isLoading, isError } = useReadContract({
+    address: CONTRACT_ADDRESS,
+    abi: CONTRACT_ABI,
+    functionName: 'getCampaigns',
+  });
+
+  const campaignIndex = parseInt(id);
+  const campaignData = (campaignRaw as any)?.[campaignIndex];
 
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -383,7 +384,7 @@ export default function CampaignDetailsPage({ params }: { params: Promise<{ id: 
         setIsFundInView(entry.isIntersecting);
       },
       {
-        threshold: 0.1, // Trigger when 10% of the box is visible
+        threshold: 0.1,
       }
     );
 
@@ -398,10 +399,20 @@ export default function CampaignDetailsPage({ params }: { params: Promise<{ id: 
     fundRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
   };
 
-  if (!campaign) {
+  if (isLoading) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-[60vh] gap-4 p-4 text-center">
+        <Loader2 className="h-12 w-12 animate-spin text-primary" />
+        <h1 className="text-lg font-bold text-muted-foreground">Loading campaign from blockchain...</h1>
+      </div>
+    );
+  }
+
+  if (isError || !campaignData) {
     return (
       <div className="flex flex-col items-center justify-center min-h-[60vh] gap-4 p-4 text-center">
         <h1 className="text-2xl font-bold">Campaign not found</h1>
+        <p className="text-muted-foreground">Ensure you are connected to Sepolia testnet.</p>
         <Link href="/browse">
           <CustomButton variant="outline" className="rounded-full">
             Back to Browse
@@ -411,13 +422,37 @@ export default function CampaignDetailsPage({ params }: { params: Promise<{ id: 
     );
   }
 
+  // Map contract struct to local format
+  const campaign = {
+    title: campaignData.title,
+    description: campaignData.description,
+    category: campaignData.category,
+    media: [
+      { type: 'image', url: campaignData.mediaUrl || "https://picsum.photos/seed/placeholder/800/600" }
+    ],
+    user: {
+      name: `${campaignData.owner.slice(0, 6)}...${campaignData.owner.slice(-4)}`,
+      avatar: `https://picsum.photos/seed/${campaignData.owner}/100/100`,
+      verified: true
+    },
+    contributedAmount: parseFloat(formatEther(campaignData.amountCollected)),
+    targetAmount: parseFloat(formatEther(campaignData.target)),
+    contributors: campaignData.donators.length,
+    deadline: new Date(Number(campaignData.deadline) * 1000).toLocaleDateString('en-GB', {
+      day: '2-digit',
+      month: 'short',
+      year: 'numeric'
+    }),
+    status: Number(campaignData.deadline) * 1000 < Date.now() ? 'Completed' : 'Active' as 'Active' | 'Completed' | 'New'
+  };
+
   return (
     <div className="flex flex-col min-h-screen pb-12 md:pb-20">
       <main className="max-w-4xl mx-auto px-4 py-6 md:py-10 w-full flex flex-col gap-4 md:gap-8">
         <TitleSection title={campaign.title} status={campaign.status} />
-        <MediaGallery media={campaign.media} title={campaign.title} />
+        <MediaGallery media={campaign.media as any} title={campaign.title} />
         <DetailsCard campaign={campaign} />
-        <ContributorsList count={campaign.contributors} />
+        <ContributorsList count={campaign.contributors} donators={campaignData.donators} donations={campaignData.donations} />
         <StaticContributionBox containerRef={fundRef} />
       </main>
       

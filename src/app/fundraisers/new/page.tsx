@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { ArrowLeft, Upload, X, Loader2, Film, Image as ImageIcon } from 'lucide-react';
+import { Upload, X, Loader2, Film, Image as ImageIcon } from 'lucide-react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
@@ -29,6 +29,10 @@ import {
 } from '@/components/ui/select';
 import { Card } from '@/components/ui/card';
 import { CustomDatePicker } from '@/components/custom-date-picker';
+import { useWriteContract, useAccount } from 'wagmi';
+import { parseEther } from 'viem';
+import { CONTRACT_ADDRESS, CONTRACT_ABI } from '@/lib/contract';
+import { useToast } from '@/hooks/use-toast';
 
 const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
 const MAX_FILES = 5;
@@ -41,7 +45,7 @@ const formSchema = z.object({
   targetAmount: z.string().refine((val) => !isNaN(Number(val)) && Number(val) > 0, {
     message: 'Amount must be a positive number',
   }),
-  currency: z.enum(['INR', 'USD']),
+  currency: z.enum(['INR', 'USD', 'ETH']),
   deadline: z.date({
     required_error: 'A deadline is required',
   }),
@@ -74,8 +78,11 @@ const PREDEFINED_CATEGORIES = [
 ];
 
 export default function NewFundraiserPage() {
+  const { isConnected } = useAccount();
+  const { writeContract, isPending: isWalletLoading } = useWriteContract();
   const router = useRouter();
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  const { toast } = useToast();
+  const [isUploading, setIsUploading] = useState(false);
   const [files, setFiles] = useState<File[]>([]);
   const [previews, setPreviews] = useState<string[]>([]);
   const [dragActive, setDragActive] = useState(false);
@@ -88,7 +95,7 @@ export default function NewFundraiserPage() {
       category: '',
       otherCategory: '',
       targetAmount: '',
-      currency: 'INR',
+      currency: 'ETH',
       additionalNotes: '',
     },
   });
@@ -96,16 +103,14 @@ export default function NewFundraiserPage() {
   const categoryValue = form.watch('category');
 
   useEffect(() => {
-    // Generate previews for images
     const newPreviews = files.map(file => {
       if (file.type.startsWith('image/')) {
         return URL.createObjectURL(file);
       }
-      return ''; // No preview for videos/other
+      return '';
     });
     setPreviews(newPreviews);
 
-    // Cleanup URLs on unmount or file change
     return () => {
       newPreviews.forEach(url => {
         if (url) URL.revokeObjectURL(url);
@@ -123,7 +128,11 @@ export default function NewFundraiserPage() {
   const addFiles = (newFiles: File[]) => {
     const validFiles = newFiles.filter(file => {
       if (file.size > MAX_FILE_SIZE) {
-        alert(`File ${file.name} is too large. Max size is 10MB.`);
+        toast({
+          title: "File too large",
+          description: `File ${file.name} exceeds 10MB limit.`,
+          variant: "destructive"
+        });
         return false;
       }
       return true;
@@ -132,7 +141,11 @@ export default function NewFundraiserPage() {
     setFiles(prev => {
       const combined = [...prev, ...validFiles];
       if (combined.length > MAX_FILES) {
-        alert(`You can only upload up to ${MAX_FILES} files.`);
+        toast({
+          title: "Too many files",
+          description: `Max ${MAX_FILES} files allowed.`,
+          variant: "destructive"
+        });
         return combined.slice(0, MAX_FILES);
       }
       return combined;
@@ -162,14 +175,101 @@ export default function NewFundraiserPage() {
     }
   };
 
-  async function onSubmit(values: FormValues) {
-    setIsSubmitting(true);
-    console.log(values, files);
-    setTimeout(() => {
-      setIsSubmitting(false);
-      router.push('/browse');
-    }, 2000);
+  async function uploadToPinata(file: File): Promise<string> {
+    const formData = new FormData();
+    formData.append('file', file);
+
+    const pinataMetadata = JSON.stringify({
+      name: file.name,
+    });
+    formData.append('pinataMetadata', pinataMetadata);
+
+    const pinataOptions = JSON.stringify({
+      cidVersion: 0,
+    });
+    formData.append('pinataOptions', pinataOptions);
+
+    try {
+      const res = await fetch("https://api.pinata.cloud/pinning/pinFileToIPFS", {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${process.env.NEXT_PUBLIC_PINATA_JWT}`
+        },
+        body: formData
+      });
+      const resData = await res.json();
+      if (!res.ok) throw new Error(resData.error || 'Upload failed');
+      return `https://gateway.pinata.cloud/ipfs/${resData.IpfsHash}`;
+    } catch (error) {
+      console.error('Error uploading to Pinata:', error);
+      throw error;
+    }
   }
+
+  async function onSubmit(values: FormValues) {
+    if (!isConnected) {
+      toast({
+        title: "Wallet not connected",
+        description: "Please connect your wallet to create a campaign.",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    if (files.length === 0) {
+      toast({
+        title: "Media required",
+        description: "Please upload at least one image or video.",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    setIsUploading(true);
+    try {
+      // Step 1: Upload the first file to IPFS
+      const mediaUrl = await uploadToPinata(files[0]);
+
+      // Step 2: Create campaign on-chain
+      writeContract({
+        address: CONTRACT_ADDRESS,
+        abi: CONTRACT_ABI,
+        functionName: 'createCampaign',
+        args: [
+          values.title,
+          values.description,
+          values.category === 'other' ? values.otherCategory! : values.category,
+          mediaUrl,
+          parseEther(values.targetAmount),
+          BigInt(Math.floor(values.deadline.getTime() / 1000)),
+        ],
+        onSuccess: () => {
+          toast({
+            title: "Transaction Sent",
+            description: "Your campaign is being created on the blockchain.",
+          });
+          router.push('/browse');
+        },
+        onError: (error) => {
+          toast({
+            title: "Contract Error",
+            description: error.message,
+            variant: "destructive"
+          });
+        }
+      } as any);
+    } catch (error: any) {
+      toast({
+        title: "Upload Failed",
+        description: error.message,
+        variant: "destructive"
+      });
+    } finally {
+      setIsUploading(false);
+    }
+  }
+
+  const isSubmitting = isUploading || isWalletLoading;
 
   return (
     <div className="flex flex-col min-h-screen bg-transparent">
@@ -281,8 +381,9 @@ export default function NewFundraiserPage() {
                                 </SelectTrigger>
                               </FormControl>
                               <SelectContent className="rounded-xl">
-                                <SelectItem value="INR">INR (₹)</SelectItem>
+                                <SelectItem value="ETH">ETH</SelectItem>
                                 <SelectItem value="USD">USD ($)</SelectItem>
+                                <SelectItem value="INR">INR (₹)</SelectItem>
                               </SelectContent>
                             </Select>
                           </FormItem>
@@ -417,7 +518,7 @@ export default function NewFundraiserPage() {
                   {isSubmitting ? (
                     <>
                       <Loader2 className="mr-2 h-4 w-4 md:h-5 md:w-5 animate-spin" />
-                      Creating Campaign...
+                      {isUploading ? 'Uploading to IPFS...' : 'Creating Campaign...'}
                     </>
                   ) : (
                     'Create Campaign'
