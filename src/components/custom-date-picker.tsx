@@ -35,7 +35,12 @@ export function CustomDatePicker({ value, onChange, placeholder, className }: Cu
   };
 
   const selectDate = (day: number) => {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
     const newDate = new Date(viewDate.getFullYear(), viewDate.getMonth(), day);
+    
+    if (newDate < today) return;
+
     onChange(newDate);
     setIsOpen(false);
   };
@@ -58,19 +63,27 @@ export function CustomDatePicker({ value, onChange, placeholder, className }: Cu
     const days = [];
     const totalDays = daysInMonth(viewDate.getFullYear(), viewDate.getMonth());
     const startDay = firstDayOfMonth(viewDate.getFullYear(), viewDate.getMonth());
+    
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
 
     for (let i = 0; i < startDay; i++) {
       days.push(<div key={`empty-${i}`} />);
     }
 
     for (let d = 1; d <= totalDays; d++) {
+      const dateToCheck = new Date(viewDate.getFullYear(), viewDate.getMonth(), d);
+      const isPast = dateToCheck < today;
+
       days.push(
         <button
           key={d}
           type="button"
-          onClick={() => selectDate(d)}
+          disabled={isPast}
+          onClick={() => !isPast && selectDate(d)}
           className={cn(
             "w-9 h-9 flex items-center justify-center rounded-lg text-sm transition-all",
+            isPast ? "opacity-20 cursor-not-allowed text-muted-foreground" : 
             isSelected(d) 
               ? 'bg-primary text-primary-foreground font-bold shadow-md shadow-primary/20' 
               : isToday(d) 

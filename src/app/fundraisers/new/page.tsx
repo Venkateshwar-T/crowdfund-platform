@@ -55,6 +55,12 @@ const formSchema = z.object({
   }),
   deadline: z.date({
     required_error: 'A deadline is required',
+  }).refine((date) => {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    return date >= today;
+  }, {
+    message: "Deadline must be in the future",
   }),
   additionalNotes: z.string().optional(),
 }).refine((data) => {
