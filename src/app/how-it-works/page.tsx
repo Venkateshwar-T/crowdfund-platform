@@ -74,7 +74,7 @@ export default function HowItWorksPage() {
   return (
     <div className="flex flex-col min-h-screen">
       {/* Hero Header */}
-      <section className="w-full bg-primary/5 py-16 md:py-24 px-4 overflow-hidden relative">
+      <section className="w-full bg-primary/5 py-16 md:py-24 px-6 md:px-4 overflow-hidden relative">
         <div className="max-w-4xl mx-auto text-center relative z-10 flex flex-col gap-6">
           <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-primary/10 border border-primary/20 text-primary text-xs md:text-sm font-black uppercase tracking-widest mx-auto animate-in fade-in slide-in-from-top-4 duration-1000">
             <Lock className="h-3.5 w-3.5" />
@@ -94,7 +94,7 @@ export default function HowItWorksPage() {
       </section>
 
       {/* Technical Highlights */}
-      <section className="w-full py-12 md:py-20 px-4 border-b">
+      <section className="w-full py-12 md:py-20 px-6 md:px-4 border-b">
         <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-12">
           <div className="p-8 md:p-12 rounded-[2.5rem] bg-foreground text-white flex flex-col gap-6 relative overflow-hidden group">
             <Server className="h-12 w-12 text-primary opacity-50 absolute -right-4 -top-4 scale-150 group-hover:scale-[2] transition-transform duration-700" />
@@ -124,7 +124,7 @@ export default function HowItWorksPage() {
       </section>
 
       {/* Detailed Workflow */}
-      <section className="w-full py-16 md:py-32 px-4">
+      <section className="w-full py-16 md:py-32 px-6 md:px-4">
         <div className="max-w-4xl mx-auto flex flex-col gap-12 md:gap-24">
           <div className="text-center md:text-left">
             <h2 className="text-3xl md:text-5xl font-black tracking-tight">The Blockchain Workflow</h2>
@@ -195,20 +195,20 @@ export default function HowItWorksPage() {
       </section>
 
       {/* CTA Section */}
-      <section className="w-full py-20 md:py-32 px-4 bg-foreground text-white">
+      <section className="w-full py-20 md:py-32 px-6 md:px-4 bg-foreground text-white">
         <div className="max-w-4xl mx-auto text-center flex flex-col gap-8 md:gap-10">
           <h2 className="text-4xl md:text-6xl font-black tracking-tighter">Ready to interact with the ledger?</h2>
           <p className="text-lg md:text-xl text-white/60 max-w-2xl mx-auto">
             Your journey is protected by code. Launch your first campaign or support a cause you believe in.
           </p>
           <div className="flex flex-wrap gap-4 justify-center">
-            <CustomButton asChild className="rounded-full px-10 h-14 text-lg font-black bg-primary hover:bg-primary/90">
+            <CustomButton asChild className="rounded-full px-8 md:px-10 h-11 md:h-12 text-sm md:text-lg font-black bg-primary hover:bg-primary/90">
               <Link href="/fundraisers/new" className="flex items-center gap-2">
                 Launch Campaign <ArrowRight className="h-5 w-5" />
               </Link>
             </CustomButton>
-            <CustomButton variant="outline" asChild className="rounded-full px-10 h-14 text-lg font-black border-white/20 hover:bg-white/10">
-              <Link href="/browse">Browse History</Link>
+            <CustomButton asChild className="rounded-full px-8 md:px-10 h-11 md:h-12 text-sm md:text-lg font-black bg-white text-black hover:bg-white/90">
+              <Link href="/browse">Browse Campaigns</Link>
             </CustomButton>
           </div>
         </div>
