@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { 
   User, 
   Copy, 
@@ -13,11 +13,17 @@ import {
   ExternalLink, 
   Settings2,
   Trash2,
-  Image as ImageIcon,
-  Loader2
+  ImageIcon,
+  Loader2,
+  TrendingUp,
+  HeartHandshake,
+  LayoutGrid,
+  Search,
+  PlusCircle
 } from 'lucide-react';
-import { useAccount, useBalance, useDisconnect } from 'wagmi';
+import { useAccount, useBalance, useDisconnect, useReadContract } from 'wagmi';
 import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { CustomButton } from '@/components/custom-button';
 import { Badge } from '@/components/ui/badge';
@@ -32,7 +38,17 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import {
+  Tabs,
+  TabsContent,
+  TabsList,
+  TabsTrigger,
+} from "@/components/ui/tabs";
 import { cn } from '@/lib/utils';
+import { CONTRACT_ADDRESS, CONTRACT_ABI } from '@/lib/contract';
+import { formatUnits } from 'viem';
+import { CampaignCard } from '@/components/campaign-card';
+import { Progress } from '@/components/ui/progress';
 
 /**
  * Sub-component for the state when no wallet is connected
@@ -175,91 +191,43 @@ function ProfileIdentityCard({
 }
 
 /**
- * Sub-component for the statistics cards (Balance and Provider)
+ * Statistics Grid for the Profile Dashboard
  */
-function StatsGrid({ 
-  balance, 
-  ethPrice,
-  priceLoading,
-  onOpenAccountModal, 
-  onOpenExplorer 
-}: { 
-  balance: any, 
-  ethPrice: any,
-  priceLoading: boolean,
-  onOpenAccountModal: () => void, 
-  onOpenExplorer: () => void 
-}) {
-  const ethAmount = balance ? parseFloat(balance.formatted) : 0;
-  const usdEstimate = ethPrice ? ethAmount * ethPrice.usd : 0;
-  const inrEstimate = ethPrice ? ethAmount * ethPrice.inr : 0;
-
+function DashboardStats({ totalUSD, totalETH, campaignsCount, priceLoading }: any) {
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
-      <Card className="p-6 md:p-8 rounded-[2rem] border-white/20 bg-white/50 flex flex-col gap-4 shadow-sm hover:shadow-md transition-shadow">
-        <div className="flex items-center justify-between">
-          <div className="p-3 bg-primary/10 rounded-2xl text-primary">
-            <Wallet className="h-6 w-6" />
-          </div>
+    <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6 mt-8">
+      <Card className="p-6 md:p-8 rounded-[2rem] border-white/20 bg-white/50 flex flex-col gap-4 shadow-sm">
+        <div className="p-3 w-fit bg-primary/10 rounded-2xl text-primary">
+          <TrendingUp className="h-6 w-6" />
         </div>
         <div>
-          <p className="text-[10px] md:text-xs text-muted-foreground font-black uppercase tracking-[0.2em] mb-1">Live Balance</p>
+          <p className="text-[10px] md:text-xs text-muted-foreground font-black uppercase tracking-[0.2em] mb-1">Total Raised (USD)</p>
           <h3 className="text-2xl md:text-4xl font-black text-foreground">
-            {balance?.formatted?.slice(0, 6)} <span className="text-lg md:text-2xl font-bold text-muted-foreground">{balance?.symbol}</span>
+            ${totalUSD.toLocaleString(undefined, { maximumFractionDigits: 0 })}
           </h3>
-          
-          <div className="mt-3 flex flex-col gap-1.5">
-            {priceLoading ? (
-              <div className="flex items-center gap-2 text-muted-foreground">
-                <Loader2 className="h-3 w-3 animate-spin" />
-                <span className="text-xs font-medium">Fetching market rates...</span>
-              </div>
-            ) : (
-              <>
-                <div className="flex items-center gap-2">
-                  <span className="text-sm font-bold text-primary">
-                    ≈ ${usdEstimate.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-                  </span>
-                  <span className="text-[10px] font-bold text-primary/60 uppercase tracking-widest">USD</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <span className="text-xs font-bold text-muted-foreground">
-                    ≈ ₹{inrEstimate.toLocaleString(undefined, { maximumFractionDigits: 0 })}
-                  </span>
-                  <span className="text-[9px] font-bold text-muted-foreground/50 uppercase tracking-widest">INR</span>
-                </div>
-              </>
-            )}
-          </div>
         </div>
       </Card>
 
-      <Card className="p-6 md:p-8 rounded-[2rem] border-white/20 bg-white/50 flex flex-col gap-4 shadow-sm hover:shadow-md transition-shadow">
-        <div className="flex items-center justify-between">
-          <div className="p-3 bg-primary/10 rounded-2xl text-primary">
-            <ShieldCheck className="h-6 w-6" />
-          </div>
-          <div className="flex items-center gap-1">
-            <button 
-              onClick={onOpenAccountModal}
-              className="p-2 hover:bg-primary/10 rounded-lg text-primary transition-all"
-              title="Account Settings"
-            >
-              <Settings2 className="h-5 w-5" />
-            </button>
-            <button 
-              onClick={onOpenExplorer}
-              className="p-2 hover:bg-primary/10 rounded-lg text-primary transition-all"
-              title="View on Explorer"
-            >
-              <ExternalLink className="h-5 w-5" />
-            </button>
-          </div>
+      <Card className="p-6 md:p-8 rounded-[2rem] border-white/20 bg-white/50 flex flex-col gap-4 shadow-sm">
+        <div className="p-3 w-fit bg-primary/10 rounded-2xl text-primary">
+          <HeartHandshake className="h-6 w-6" />
         </div>
         <div>
-          <p className="text-[10px] md:text-xs text-muted-foreground font-black uppercase tracking-[0.2em] mb-1">Connected Via</p>
+          <p className="text-[10px] md:text-xs text-muted-foreground font-black uppercase tracking-[0.2em] mb-1">Total Contributed (ETH)</p>
           <h3 className="text-2xl md:text-4xl font-black text-foreground">
-            MetaMask
+            {totalETH.toFixed(4)} <span className="text-lg md:text-2xl font-bold text-muted-foreground">ETH</span>
+          </h3>
+        </div>
+      </Card>
+
+      <Card className="p-6 md:p-8 rounded-[2rem] border-white/20 bg-white/50 flex flex-col gap-4 shadow-sm">
+        <div className="p-3 w-fit bg-primary/10 rounded-2xl text-primary">
+          <LayoutGrid className="h-6 w-6" />
+        </div>
+        <div>
+          <p className="text-[10px] md:text-xs text-muted-foreground font-black uppercase tracking-[0.2em] mb-1">Campaigns Launched</p>
+          <h3 className="text-2xl md:text-4xl font-black text-foreground">
+            {campaignsCount}
           </h3>
         </div>
       </Card>
@@ -284,6 +252,85 @@ export default function ProfilePage() {
   const [isEditingUsername, setIsEditingUsername] = useState(false);
   const [username, setUsername] = useState('New Supporter');
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
+
+  // Fetch all campaigns from contract to calculate history
+  const { data: campaignsRaw, isLoading: isCampaignsLoading, isError } = useReadContract({
+    address: CONTRACT_ADDRESS,
+    abi: CONTRACT_ABI,
+    functionName: 'getCampaigns',
+  });
+
+  const processedData = useMemo(() => {
+    if (!campaignsRaw || !address) return { 
+      myCampaigns: [], 
+      myContributions: [], 
+      totalUSD: 0, 
+      totalETH: 0 
+    };
+
+    const all = (campaignsRaw as any[]) || [];
+    const userAddr = address.toLowerCase();
+
+    // 1. My Created Campaigns
+    const myCampaigns = all
+      .map((c, index) => {
+        const amountCollected = parseFloat(formatUnits(c.amountCollected, 18));
+        const target = parseFloat(formatUnits(c.target, 18));
+        const deadlineMs = Number(c.deadline) * 1000;
+
+        let status: 'Active' | 'Completed' | 'New' = 'Active';
+        if (amountCollected >= target) status = 'Completed';
+        else if (Date.now() < deadlineMs && (deadlineMs - Date.now() > 20 * 24 * 60 * 60 * 1000)) status = 'New';
+
+        return {
+          id: index.toString(),
+          title: c.title,
+          images: c.mediaUrls && c.mediaUrls.length > 0 ? c.mediaUrls : ["https://picsum.photos/seed/placeholder/800/600"],
+          user: {
+            name: `${c.owner.slice(0, 6)}...${c.owner.slice(-4)}`,
+            avatar: `https://picsum.photos/seed/${c.owner}/100/100`,
+            verified: true,
+          },
+          contributedAmount: amountCollected,
+          targetAmount: target,
+          contributors: c.donators.length,
+          deadline: new Date(deadlineMs).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }),
+          status,
+          owner: c.owner.toLowerCase()
+        };
+      })
+      .filter(c => c.owner === userAddr);
+
+    const totalUSD = myCampaigns.reduce((acc, c) => acc + c.contributedAmount, 0);
+
+    // 2. My Contributions
+    const myContributions = all
+      .map((c, index) => {
+        let personalContribution = 0n;
+        c.donators.forEach((donator: string, dIdx: number) => {
+          if (donator.toLowerCase() === userAddr) {
+            personalContribution += c.donations[dIdx];
+          }
+        });
+
+        const amountCollected = parseFloat(formatUnits(c.amountCollected, 18));
+        const target = parseFloat(formatUnits(c.target, 18));
+
+        return {
+          id: index.toString(),
+          title: c.title,
+          personalContribution: parseFloat(formatUnits(personalContribution, 18)),
+          amountCollected,
+          target,
+          progress: Math.min((amountCollected / target) * 100, 100)
+        };
+      })
+      .filter(c => c.personalContribution > 0);
+
+    const totalETH = myContributions.reduce((acc, c) => acc + c.personalContribution, 0);
+
+    return { myCampaigns, myContributions, totalUSD, totalETH };
+  }, [campaignsRaw, address]);
 
   const shortenedAddress = address 
     ? `${address.slice(0, 6)}...${address.slice(-4)}` 
@@ -317,8 +364,17 @@ export default function ProfilePage() {
     return <NotConnectedView onConnect={openConnectModal!} />;
   }
 
+  if (isCampaignsLoading) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-[60vh] gap-4 p-4 text-center">
+        <Loader2 className="h-12 w-12 animate-spin text-primary" />
+        <h1 className="text-lg font-bold text-muted-foreground">Syncing your on-chain activity...</h1>
+      </div>
+    );
+  }
+
   return (
-    <div className="max-w-4xl mx-auto px-4 py-8 md:py-16 w-full">
+    <div className="max-w-6xl mx-auto px-4 py-8 md:py-16 w-full">
       <div className="flex flex-col gap-6 md:gap-8">
         
         <ProfileIdentityCard 
@@ -335,15 +391,105 @@ export default function ProfilePage() {
           chain={chain}
         />
 
-        <StatsGrid 
-          balance={balance}
-          ethPrice={ethPrices}
+        <DashboardStats 
+          totalUSD={processedData.totalUSD}
+          totalETH={processedData.totalETH}
+          campaignsCount={processedData.myCampaigns.length}
           priceLoading={priceLoading}
-          onOpenAccountModal={() => openAccountModal?.()}
-          onOpenExplorer={openExplorer}
         />
 
-        <div className="flex flex-col md:flex-row gap-3 md:gap-4 mt-4">
+        <Tabs defaultValue="my-campaigns" className="mt-8">
+          <TabsList className="bg-white/50 backdrop-blur-md p-1 rounded-2xl h-12 md:h-14 mb-8 grid grid-cols-2 max-w-md border border-white/20">
+            <TabsTrigger value="my-campaigns" className="rounded-xl font-bold data-[state=active]:bg-primary data-[state=active]:text-white">
+              My Campaigns
+            </TabsTrigger>
+            <TabsTrigger value="contributions" className="rounded-xl font-bold data-[state=active]:bg-primary data-[state=active]:text-white">
+              Contributions
+            </TabsTrigger>
+          </TabsList>
+
+          <TabsContent value="my-campaigns" className="mt-0">
+            {processedData.myCampaigns.length === 0 ? (
+              <Card className="p-12 text-center flex flex-col items-center gap-6 bg-white/50 rounded-[2.5rem] border-white/20">
+                <div className="p-6 bg-muted rounded-full">
+                  <Search className="h-10 w-10 text-muted-foreground" />
+                </div>
+                <div>
+                  <h3 className="text-xl font-bold">No campaigns launched yet</h3>
+                  <p className="text-muted-foreground mt-2">Start your first fundraiser today and make an impact.</p>
+                </div>
+                <CustomButton asChild className="rounded-full px-8 gap-2">
+                  <Link href="/fundraisers/new">
+                    <PlusCircle className="h-5 w-5" />
+                    Create Campaign
+                  </Link>
+                </CustomButton>
+              </Card>
+            ) : (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {processedData.myCampaigns.map((campaign: any) => (
+                  <CampaignCard key={campaign.id} {...campaign} />
+                ))}
+              </div>
+            )}
+          </TabsContent>
+
+          <TabsContent value="contributions" className="mt-0">
+            {processedData.myContributions.length === 0 ? (
+              <Card className="p-12 text-center flex flex-col items-center gap-6 bg-white/50 rounded-[2.5rem] border-white/20">
+                <div className="p-6 bg-muted rounded-full">
+                  <HeartHandshake className="h-10 w-10 text-muted-foreground" />
+                </div>
+                <div>
+                  <h3 className="text-xl font-bold">No contributions found</h3>
+                  <p className="text-muted-foreground mt-2">Support a cause and join a community of changemakers.</p>
+                </div>
+                <CustomButton asChild className="rounded-full px-8 gap-2">
+                  <Link href="/browse">
+                    <Search className="h-5 w-5" />
+                    Browse Campaigns
+                  </Link>
+                </CustomButton>
+              </Card>
+            ) : (
+              <div className="grid grid-cols-1 gap-4">
+                {processedData.myContributions.map((contribution: any) => (
+                  <Link key={contribution.id} href={`/browse/${contribution.id}`}>
+                    <Card className="p-6 rounded-3xl bg-white/50 hover:bg-white/80 transition-all border-white/20 group">
+                      <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
+                        <div className="flex-1">
+                          <h4 className="text-lg font-bold group-hover:text-primary transition-colors">{contribution.title}</h4>
+                          <div className="flex items-center gap-4 mt-2">
+                            <div className="flex flex-col">
+                              <span className="text-[10px] text-muted-foreground uppercase font-black tracking-widest">Your Contribution</span>
+                              <span className="text-lg font-black text-primary">{contribution.personalContribution.toFixed(4)} ETH</span>
+                            </div>
+                            <div className="w-px h-8 bg-border/50" />
+                            <div className="flex flex-col">
+                              <span className="text-[10px] text-muted-foreground uppercase font-black tracking-widest">Campaign Raised</span>
+                              <span className="text-lg font-bold text-foreground">
+                                ${contribution.amountCollected.toLocaleString()} / ${contribution.target.toLocaleString()}
+                              </span>
+                            </div>
+                          </div>
+                        </div>
+                        <div className="w-full md:w-64 flex flex-col gap-2">
+                          <div className="flex justify-between items-center text-xs font-bold uppercase tracking-widest text-muted-foreground">
+                            <span>Progress</span>
+                            <span>{Math.round(contribution.progress)}%</span>
+                          </div>
+                          <Progress value={contribution.progress} className="h-2 bg-muted border border-border/10" />
+                        </div>
+                      </div>
+                    </Card>
+                  </Link>
+                ))}
+              </div>
+            )}
+          </TabsContent>
+        </Tabs>
+
+        <div className="flex flex-col md:flex-row gap-3 md:gap-4 mt-8">
           <CustomButton 
             onClick={handleDisconnect}
             variant="outline" 
@@ -354,15 +500,17 @@ export default function ProfilePage() {
           </CustomButton>
           
           <CustomButton 
-            onClick={() => router.push('/browse')}
-            className="flex-1 rounded-2xl h-12 md:h-14 font-bold shadow-lg shadow-primary/20"
+            onClick={() => openAccountModal?.()}
+            variant="secondary"
+            className="flex-1 rounded-2xl h-12 md:h-14 font-bold border border-primary/10"
           >
-            Explore Campaigns
+            <Settings2 className="h-5 w-5 mr-2" />
+            Wallet Settings
           </CustomButton>
         </div>
 
         <p className="text-center text-[10px] md:text-xs text-muted-foreground/60 max-w-sm mx-auto mt-4">
-          All financial data is pulled directly from the {chain?.name || 'blockchain'} and is immutable. Ensure your private keys are secure.
+          All statistics are live and immutable, derived directly from the {chain?.name || 'blockchain'}.
         </p>
 
       </div>
