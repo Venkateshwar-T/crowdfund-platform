@@ -9,7 +9,8 @@ import {
   ChevronDown,
   ChevronUp,
   Tag,
-  Loader2
+  Loader2,
+  Info
 } from 'lucide-react';
 import { MdVerifiedUser, MdOutlineReportProblem } from 'react-icons/md';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
@@ -171,6 +172,9 @@ function MediaGallery({ media, title }: { media: { type: string; url: string }[]
  */
 function DetailsCard({ campaign }: { campaign: any }) {
   const progress = Math.min((campaign.contributedAmount / campaign.targetAmount) * 100, 100);
+  
+  // Handle description split for additional notes
+  const [mainDesc, extraNotes] = campaign.description.split('---NOTES---');
 
   return (
     <div className="bg-white/70 backdrop-blur-xl rounded-2xl md:rounded-3xl border border-white/20 p-5 md:p-8 shadow-xl flex flex-col gap-6">
@@ -190,7 +194,7 @@ function DetailsCard({ campaign }: { campaign: any }) {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-center">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-start">
         <div className="flex flex-col gap-6 order-2 md:order-1">
 
           <div className="flex flex-col gap-2">
@@ -206,9 +210,21 @@ function DetailsCard({ campaign }: { campaign: any }) {
           <div className="flex flex-col gap-2">
             <h2 className="text-[10px] md:text-sm font-bold uppercase tracking-widest text-primary">About the Campaign</h2>
             <p className="text-xs md:text-base text-muted-foreground leading-relaxed">
-              {campaign.description}
+              {mainDesc}
             </p>
           </div>
+
+          {extraNotes && (
+            <div className="flex flex-col gap-2 p-4 bg-primary/5 rounded-xl border border-primary/10">
+              <h2 className="text-[10px] md:text-sm font-bold uppercase tracking-widest text-primary flex items-center gap-2">
+                <Info className="h-4 w-4" />
+                Additional Notes
+              </h2>
+              <p className="text-xs md:text-base text-muted-foreground italic leading-relaxed">
+                "{extraNotes}"
+              </p>
+            </div>
+          )}
 
           <div className="flex flex-col gap-2">
             <h2 className="text-[10px] md:text-sm font-bold uppercase tracking-widest text-primary">Deadline</h2>

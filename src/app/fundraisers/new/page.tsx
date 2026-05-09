@@ -2,10 +2,11 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { Upload, X, Loader2, Film, Image as ImageIcon } from 'lucide-react';
+import { Upload, X, Loader2, Film, Image as ImageIcon, CheckCircle2, ArrowLeft, PlusCircle } from 'lucide-react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
+import Link from 'next/link';
 
 import { cn } from '@/lib/utils';
 import { CustomButton } from '@/components/custom-button';
@@ -83,6 +84,7 @@ export default function NewFundraiserPage() {
   const router = useRouter();
   const { toast } = useToast();
   const [isUploading, setIsUploading] = useState(false);
+  const [isSuccess, setIsSuccess] = useState(false);
   const [files, setFiles] = useState<File[]>([]);
   const [previews, setPreviews] = useState<string[]>([]);
   const [dragActive, setDragActive] = useState(false);
@@ -230,25 +232,31 @@ export default function NewFundraiserPage() {
       // Step 1: Upload the first file to IPFS
       const mediaUrl = await uploadToPinata(files[0]);
 
-      // Step 2: Create campaign on-chain
+      // Step 2: Prepare description with hidden additional notes
+      // We use a specific separator to split them later on the detail page
+      const finalDescription = values.additionalNotes 
+        ? `${values.description}---NOTES---${values.additionalNotes}`
+        : values.description;
+
+      // Step 3: Create campaign on-chain
       writeContract({
         address: CONTRACT_ADDRESS,
         abi: CONTRACT_ABI,
         functionName: 'createCampaign',
         args: [
           values.title,
-          values.description,
+          finalDescription,
           values.category === 'other' ? values.otherCategory! : values.category,
           mediaUrl,
           parseEther(values.targetAmount),
           BigInt(Math.floor(values.deadline.getTime() / 1000)),
         ],
         onSuccess: () => {
+          setIsSuccess(true);
           toast({
             title: "Transaction Sent",
             description: "Your campaign is being created on the blockchain.",
           });
-          router.push('/browse');
         },
         onError: (error) => {
           toast({
@@ -269,12 +277,51 @@ export default function NewFundraiserPage() {
     }
   }
 
+  const resetPage = () => {
+    form.reset();
+    setFiles([]);
+    setPreviews([]);
+    setIsSuccess(false);
+  };
+
   const isSubmitting = isUploading || isWalletLoading;
+
+  if (isSuccess) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-[70vh] p-4 text-center">
+        <div className="bg-emerald-100 p-6 rounded-full mb-6">
+          <CheckCircle2 className="h-16 w-16 text-emerald-600 animate-in zoom-in duration-500" />
+        </div>
+        <h1 className="text-2xl md:text-4xl font-black text-foreground mb-2">Campaign Successfully Created!</h1>
+        <p className="text-muted-foreground max-w-md mb-10">
+          Your fundraiser is now live on the Sepolia Testnet. It may take a few moments for the blockchain to index your transaction.
+        </p>
+        
+        <div className="flex flex-col md:flex-row gap-4 w-full max-w-md">
+          <CustomButton asChild variant="outline" className="flex-1 h-12 rounded-2xl font-bold gap-2">
+            <Link href="/">
+              <ArrowLeft className="h-4 w-4" />
+              Back to Home
+            </Link>
+          </CustomButton>
+          <CustomButton onClick={resetPage} className="flex-1 h-12 rounded-2xl font-bold gap-2">
+            <PlusCircle className="h-4 w-4" />
+            Create New Campaign
+          </CustomButton>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="flex flex-col min-h-screen bg-transparent">
       <main className="flex-grow py-6 md:py-8 px-4">
         <div className="max-w-3xl mx-auto">
+          <div className="mb-8 text-center md:text-left">
+            <h1 className="text-2xl md:text-4xl font-black tracking-tight text-foreground">Launch a Fundraiser</h1>
+            <p className="text-muted-foreground mt-2">Fill out the details below to start your on-chain journey.</p>
+          </div>
+
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6 md:space-y-8">
               
@@ -367,40 +414,24 @@ export default function NewFundraiserPage() {
               <Card className="p-4 md:p-6 border-muted-foreground/10 bg-primary/5 rounded-3xl overflow-visible">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
                   <div className="space-y-3 md:space-y-4">
-                    <FormLabel className="text-sm md:text-base font-bold">Target Amount</FormLabel>
+                    <FormLabel className="text-sm md:text-base font-bold">Target Amount (ETH)</FormLabel>
                     <div className="flex gap-2">
-                      <FormField
-                        control={form.control}
-                        name="currency"
-                        render={({ field }) => (
-                          <FormItem className="w-1/3">
-                            <Select onValueChange={field.onChange} defaultValue={field.value}>
-                              <FormControl>
-                                <SelectTrigger className="h-10 md:h-12 text-sm md:text-base rounded-xl border-muted-foreground/20 bg-background">
-                                  <SelectValue />
-                                </SelectTrigger>
-                              </FormControl>
-                              <SelectContent className="rounded-xl">
-                                <SelectItem value="ETH">ETH</SelectItem>
-                                <SelectItem value="USD">USD ($)</SelectItem>
-                                <SelectItem value="INR">INR (₹)</SelectItem>
-                              </SelectContent>
-                            </Select>
-                          </FormItem>
-                        )}
-                      />
                       <FormField
                         control={form.control}
                         name="targetAmount"
                         render={({ field }) => (
                           <FormItem className="flex-grow">
                             <FormControl>
-                              <Input 
-                                type="number"
-                                placeholder="0.00" 
-                                className="h-10 md:h-12 text-sm md:text-base rounded-xl border-muted-foreground/20 transition-all bg-background"
-                                {...field} 
-                              />
+                              <div className="relative">
+                                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground font-bold">Ξ</span>
+                                <Input 
+                                  type="number"
+                                  step="0.01"
+                                  placeholder="0.00" 
+                                  className="h-10 md:h-12 pl-8 text-sm md:text-base rounded-xl border-muted-foreground/20 transition-all bg-background"
+                                  {...field} 
+                                />
+                              </div>
                             </FormControl>
                             <FormMessage className="text-xs md:text-sm" />
                           </FormItem>
@@ -430,7 +461,7 @@ export default function NewFundraiserPage() {
               </Card>
 
               <div className="space-y-3 md:space-y-4">
-                <FormLabel className="text-sm md:text-base font-bold">Media Uploads (Max 5)</FormLabel>
+                <FormLabel className="text-sm md:text-base font-bold">Media Upload (First file is featured)</FormLabel>
                 <div 
                   className={cn(
                     "relative border-2 border-dashed rounded-3xl p-6 md:p-8 transition-all duration-200 flex flex-col items-center justify-center gap-3 md:gap-4 cursor-pointer",
@@ -499,7 +530,7 @@ export default function NewFundraiserPage() {
                     <FormLabel className="text-sm md:text-base font-bold">Additional Notes</FormLabel>
                     <FormControl>
                       <Textarea 
-                        placeholder="Any extra details for your supporters?" 
+                        placeholder="Any extra details for your supporters? (This will be shown separately on the detail page)" 
                         className="min-h-[80px] md:min-h-[100px] text-sm md:text-base rounded-xl border-muted-foreground/20 transition-all resize-none"
                         {...field} 
                       />
