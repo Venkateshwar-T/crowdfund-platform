@@ -237,8 +237,7 @@ function StaticContributionBox({
             <div className="flex flex-col gap-1.5 px-2">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2 text-xs md:text-sm font-medium text-white/60">
-                  <Info className="h-4 w-4" />
-                  <span>Estimated: <span className="text-primary font-bold">{ethEstimate.toFixed(6)} ETH</span> | <span className="text-primary font-bold">₹{inrEstimate.toLocaleString(undefined, { maximumFractionDigits: 2 })}</span></span>
+                  <span className="text-primary font-bold">{ethEstimate.toFixed(6)} ETH</span> | <span className="text-primary font-bold">₹{inrEstimate.toLocaleString(undefined, { maximumFractionDigits: 2 })}</span>
                 </div>
                 {isInsufficient && (
                   <div className="flex items-center gap-1.5 text-xs text-destructive font-bold animate-pulse">
@@ -321,11 +320,9 @@ export default function CampaignDetailsPage({ params }: { params: Promise<{ id: 
   const campaignIndex = parseInt(id);
   const campaignData = (campaignsRaw as any)?.[campaignIndex];
 
-  // Process unique donors and their total contributions
   const processedDonors = useMemo(() => {
     if (!campaignData?.donators || !campaignData?.donations) return [];
     
-    // Use lowercased address as key for map to ensure uniqueness and correct aggregation
     const donorsMap = new Map<string, bigint>();
     campaignData.donators.forEach((donator: string, idx: number) => {
       const addr = donator.toLowerCase();
@@ -337,10 +334,9 @@ export default function CampaignDetailsPage({ params }: { params: Promise<{ id: 
     return Array.from(donorsMap.entries())
       .map(([address, totalAmount]) => ({
         address,
-        // Calculate USD by converting Wei (stored) to ETH then multiplying by current market price
         totalUSD: parseFloat(formatUnits(totalAmount, 18)) * (ethPrices?.usd || 0)
       }))
-      .sort((a, b) => b.totalUSD - a.totalUSD); // Sort by highest contribution
+      .sort((a, b) => b.totalUSD - a.totalUSD);
   }, [campaignData, ethPrices]);
 
   useEffect(() => {
@@ -424,7 +420,7 @@ export default function CampaignDetailsPage({ params }: { params: Promise<{ id: 
     },
     contributedAmount: amountCollectedUSD,
     targetAmount: targetUSD,
-    contributors: processedDonors.length, // Now counts unique lowercase addresses
+    contributors: processedDonors.length,
     deadline: new Date(deadlineMs).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }),
     status: status
   };
@@ -455,26 +451,34 @@ export default function CampaignDetailsPage({ params }: { params: Promise<{ id: 
                     <ReportIcon size={24} className="text-muted-foreground group-hover:text-primary transition-colors w-4 h-4 md:w-5 md:h-5"/>
                   </button>
                 </DialogTrigger>
-                <DialogContent className="sm:max-w-md rounded-2xl md:rounded-3xl">
-                  <DialogHeader>
-                    <DialogTitle className="text-xl font-black">Report this campaign</DialogTitle>
-                    <DialogDescription className="text-muted-foreground">
-                      Help us maintain a safe community. Please describe what's wrong with this fundraiser.
+                <DialogContent className="sm:max-w-xl rounded-2xl md:rounded-[2rem] border-white/20 bg-white/90 backdrop-blur-2xl shadow-2xl overflow-hidden p-6 md:p-10">
+                  <DialogHeader className="flex flex-col items-center gap-2 mb-6 text-center">
+                    <div className="w-12 h-12 rounded-2xl bg-destructive/10 flex items-center justify-center text-destructive mb-2">
+                      <ReportIcon size={24} />
+                    </div>
+                    <DialogTitle className="text-xl md:text-2xl font-black text-foreground">Report this Campaign</DialogTitle>
+                    <DialogDescription className="text-sm md:text-base text-muted-foreground max-w-sm mx-auto">
+                      Help us maintain a safe community. Please describe why you are reporting this fundraiser.
                     </DialogDescription>
                   </DialogHeader>
-                  <div className="flex flex-col gap-4 py-4">
-                    <Textarea 
-                      placeholder="Tell us why you are reporting this..."
-                      value={reportReason}
-                      onChange={(e) => setReportReason(e.target.value)}
-                      className="min-h-[120px] rounded-xl border-muted-foreground/20 focus-visible:ring-primary/20"
-                    />
+                  
+                  <div className="flex flex-col gap-6 py-2">
+                    <div className="space-y-2">
+                      <label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground px-1">Reason for Report</label>
+                      <Textarea 
+                        placeholder="Provide details about your concerns..."
+                        value={reportReason}
+                        onChange={(e) => setReportReason(e.target.value)}
+                        className="min-h-[160px] rounded-2xl border-muted-foreground/20 focus-visible:ring-primary/20 bg-muted/30 p-4 md:p-6 text-sm md:text-base"
+                      />
+                    </div>
                   </div>
-                  <DialogFooter className="flex flex-col sm:flex-row gap-2">
-                    <CustomButton asChild className="w-full rounded-xl gap-2 font-bold h-11">
+                  
+                  <DialogFooter className="mt-8">
+                    <CustomButton asChild className="w-full rounded-2xl gap-3 font-black h-12 md:h-14 text-sm md:text-base shadow-lg shadow-primary/10">
                       <a href={reportMailto}>
-                        <Mail className="h-4 w-4" />
-                        Contact Support
+                        <Mail className="h-5 w-5" />
+                        Send Report via Email
                       </a>
                     </CustomButton>
                   </DialogFooter>
@@ -556,7 +560,7 @@ export default function CampaignDetailsPage({ params }: { params: Promise<{ id: 
                 <h2 className="text-[10px] md:text-sm font-bold uppercase tracking-widest text-primary">Supporters</h2>
                 <p className="text-xs md:text-base font-bold text-foreground">{campaign.contributors.toLocaleString()} unique donors have supported this cause</p>
               </div>
-              <CollapsibleTrigger asChild><CustomButton variant="ghost" size="sm" className="rounded-full h-8 w-8 p-0 hover:bg-primary/10"><ChevronDown className="h-4 w-4 text-primary" /></CustomButton></CollapsibleTrigger>
+              <CollapsibleTrigger asChild><CustomButton variant="ghost" size="sm" className="rounded-full h-8 w-8 p-0 hover:bg-primary/10"><ChevronDown className="h-4 w-4 text-primary" /></ChevronButton></CollapsibleTrigger>
             </div>
             <CollapsibleContent className="mt-6 space-y-4">
               {processedDonors.length > 0 ? processedDonors.map((donor, index) => (
