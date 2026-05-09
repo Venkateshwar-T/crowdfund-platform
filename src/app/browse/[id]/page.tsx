@@ -11,8 +11,7 @@ import {
   Tag,
   Loader2,
   Info,
-  CheckCircle2,
-  Clock
+  CheckCircle2
 } from 'lucide-react';
 import { MdVerifiedUser, MdOutlineReportProblem as ReportIcon } from 'react-icons/md';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
@@ -361,17 +360,7 @@ function StaticContributionBox({
             isLoading={isConfirming || isMining}
             className="h-10 md:h-12 px-6 md:px-8 rounded-xl font-black text-xs md:text-sm shadow-lg shadow-primary/20 bg-primary hover:bg-primary/90 min-w-[120px]"
           >
-            {isConfirming ? (
-              <span className='flex items-center gap-2'>
-                <Clock className="h-3 w-3 animate-pulse" />
-                Confirming...
-              </span>
-            ) : isMining ? (
-              <span className='flex items-center gap-2'>
-                <Loader2 className="h-3 w-3 animate-spin" />
-                Processing...
-              </span>
-            ) : 'Contribute'}
+            {isConfirming ? 'Confirming...' : isMining ? 'Processing...' : 'Contribute'}
           </CustomButton>
         </div>
       )}
