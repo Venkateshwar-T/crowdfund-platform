@@ -21,7 +21,7 @@ interface ProfileStatCardProps {
 
 export function ProfileStatCard({ title, value, subValue, icon: Icon, className }: ProfileStatCardProps) {
   return (
-    <Card className={cn("p-5 md:p-8 rounded-[1.5rem] md:rounded-[2rem] border-white/20 bg-white/50 flex flex-col gap-3 md:gap-4 shadow-sm border", className)}>
+    <Card className={cn("p-6 md:p-8 rounded-[1.5rem] md:rounded-[2rem] border-white/20 bg-white/50 flex flex-col gap-3 md:gap-4 shadow-sm border", className)}>
       <div className="p-2.5 md:p-3 w-fit bg-primary/10 rounded-xl md:rounded-2xl text-primary">
         <Icon className="h-5 w-5 md:h-6 md:w-6" />
       </div>

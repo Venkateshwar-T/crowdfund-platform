@@ -95,14 +95,14 @@ function ProfileIdentityCard({
   chain
 }: any) {
   return (
-    <Card className="p-6 md:p-10 rounded-3xl md:rounded-[2.5rem] bg-white/70 backdrop-blur-xl border-white/20 shadow-xl overflow-hidden relative">
+    <Card className="p-8 md:p-10 rounded-3xl md:rounded-[2.5rem] bg-white/70 backdrop-blur-xl border-white/20 shadow-xl overflow-hidden relative">
       <div className="absolute top-0 left-0 w-full h-24 md:h-32 bg-gradient-to-r from-primary/10 to-accent/20 -z-10" />
       
       <div className="flex flex-col md:flex-row items-center md:items-end gap-6 md:gap-8">
         <div className="relative group">
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Avatar className="h-20 w-20 md:h-32 md:w-32 border-4 border-background shadow-2xl ring-1 ring-border/20 cursor-pointer hover:scale-105 transition-transform">
+              <Avatar className="h-24 w-24 md:h-32 md:w-32 border-4 border-background shadow-2xl ring-1 ring-border/20 cursor-pointer hover:scale-105 transition-transform">
                 <AvatarImage src={avatarUrl || `https://picsum.photos/seed/${address}/200/200`} />
                 <AvatarFallback className="bg-primary text-white text-3xl font-bold">
                   {username[0]}
@@ -332,7 +332,7 @@ export default function ProfilePage() {
         />
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6 mt-4 md:mt-8">
-          <Card className="p-5 md:p-8 rounded-[1.5rem] md:rounded-[2rem] border-white/20 bg-primary/5 flex flex-col gap-3 md:gap-4 shadow-sm border">
+          <Card className="p-6 md:p-8 rounded-[1.5rem] md:rounded-[2rem] border-white/20 bg-primary/5 flex flex-col gap-3 md:gap-4 shadow-sm border">
             <div className="p-2.5 md:p-3 w-fit bg-primary rounded-xl md:rounded-2xl text-white">
               <WalletIcon className="h-5 w-5 md:h-6 md:w-6" />
             </div>
