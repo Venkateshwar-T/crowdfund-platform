@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState } from 'react';
@@ -12,7 +13,8 @@ import {
   ExternalLink, 
   Settings2,
   Trash2,
-  Image as ImageIcon
+  Image as ImageIcon,
+  Loader2
 } from 'lucide-react';
 import { useAccount, useBalance, useDisconnect } from 'wagmi';
 import { useRouter } from 'next/navigation';
@@ -23,6 +25,7 @@ import { Card } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { useToast } from '@/hooks/use-toast';
 import { useAccountModal, useConnectModal } from '@rainbow-me/rainbowkit';
+import { useEthPrice } from '@/hooks/use-eth-price';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -176,31 +179,58 @@ function ProfileIdentityCard({
  */
 function StatsGrid({ 
   balance, 
-  chainName, 
+  ethPrice,
+  priceLoading,
   onOpenAccountModal, 
   onOpenExplorer 
 }: { 
   balance: any, 
-  chainName: string, 
+  ethPrice: any,
+  priceLoading: boolean,
   onOpenAccountModal: () => void, 
   onOpenExplorer: () => void 
 }) {
+  const ethAmount = balance ? parseFloat(balance.formatted) : 0;
+  const usdEstimate = ethPrice ? ethAmount * ethPrice.usd : 0;
+  const inrEstimate = ethPrice ? ethAmount * ethPrice.inr : 0;
+
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
-      <Card className="p-6 md:p-8 rounded-[2rem] border-white/20 bg-white/50 flex flex-row md:flex-col gap-4 shadow-sm hover:shadow-md transition-shadow">
+      <Card className="p-6 md:p-8 rounded-[2rem] border-white/20 bg-white/50 flex flex-col gap-4 shadow-sm hover:shadow-md transition-shadow">
         <div className="flex items-center justify-between">
           <div className="p-3 bg-primary/10 rounded-2xl text-primary">
             <Wallet className="h-6 w-6" />
           </div>
-          {/* <Badge variant="secondary" className="rounded-full text-[10px] font-black uppercase tracking-widest">
-            {chainName}
-          </Badge> */}
         </div>
         <div>
           <p className="text-[10px] md:text-xs text-muted-foreground font-black uppercase tracking-[0.2em] mb-1">Live Balance</p>
           <h3 className="text-2xl md:text-4xl font-black text-foreground">
             {balance?.formatted?.slice(0, 6)} <span className="text-lg md:text-2xl font-bold text-muted-foreground">{balance?.symbol}</span>
           </h3>
+          
+          <div className="mt-3 flex flex-col gap-1.5">
+            {priceLoading ? (
+              <div className="flex items-center gap-2 text-muted-foreground">
+                <Loader2 className="h-3 w-3 animate-spin" />
+                <span className="text-xs font-medium">Fetching market rates...</span>
+              </div>
+            ) : (
+              <>
+                <div className="flex items-center gap-2">
+                  <span className="text-sm font-bold text-primary">
+                    ≈ ${usdEstimate.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                  </span>
+                  <span className="text-[10px] font-bold text-primary/60 uppercase tracking-widest">USD</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <span className="text-xs font-bold text-muted-foreground">
+                    ≈ ₹{inrEstimate.toLocaleString(undefined, { maximumFractionDigits: 0 })}
+                  </span>
+                  <span className="text-[9px] font-bold text-muted-foreground/50 uppercase tracking-widest">INR</span>
+                </div>
+              </>
+            )}
+          </div>
         </div>
       </Card>
 
@@ -243,6 +273,7 @@ function StatsGrid({
 export default function ProfilePage() {
   const { address, isConnected, chain } = useAccount();
   const { data: balance } = useBalance({ address });
+  const { prices: ethPrices, isLoading: priceLoading } = useEthPrice();
   const { disconnect } = useDisconnect();
   const { openAccountModal } = useAccountModal();
   const { openConnectModal } = useConnectModal();
@@ -306,7 +337,8 @@ export default function ProfilePage() {
 
         <StatsGrid 
           balance={balance}
-          chainName={chain?.name || 'Network'}
+          ethPrice={ethPrices}
+          priceLoading={priceLoading}
           onOpenAccountModal={() => openAccountModal?.()}
           onOpenExplorer={openExplorer}
         />
