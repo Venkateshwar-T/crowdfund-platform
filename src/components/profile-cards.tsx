@@ -19,16 +19,16 @@ interface ProfileStatCardProps {
   className?: string;
 }
 
-export function ProfileStatCard({ title, value, subValue, icon: Icon, className }: ProfileStatCardProps) {
+export function ProfileStatCard({ title, value, icon: Icon, className }: ProfileStatCardProps) {
   return (
     <Card className={cn("p-6 md:p-8 rounded-[1.5rem] md:rounded-[2rem] border-white/20 bg-white/50 flex flex-col gap-3 md:gap-4 shadow-sm border", className)}>
       <div className="p-2.5 md:p-3 w-fit bg-primary/10 rounded-xl md:rounded-2xl text-primary">
         <Icon className="h-5 w-5 md:h-6 md:w-6" />
       </div>
       <div>
-        <p className="text-[8px] md:text-xs text-muted-foreground font-black uppercase tracking-[0.2em] mb-1">{title}</p>
+        <p className="text-[10px] md:text-xs text-muted-foreground font-black uppercase tracking-[0.2em] mb-1">{title}</p>
         <h3 className="text-xl md:text-4xl font-black text-foreground">
-          {value} {subValue && <span className="text-sm md:text-2xl font-bold text-muted-foreground">{subValue}</span>}
+          {value}
         </h3>
       </div>
     </Card>
@@ -86,7 +86,6 @@ export function ProfileContributionCard({
   title, 
   personalContribution, 
   amountCollected, 
-  target, 
   progress 
 }: ProfileContributionCardProps) {
   return (
@@ -104,7 +103,7 @@ export function ProfileContributionCard({
               <div className="flex flex-col">
                 <span className="text-[8px] md:text-[10px] text-muted-foreground uppercase font-black tracking-widest">Total Raised</span>
                 <span className="text-xs md:text-lg font-bold text-foreground">
-                  ${amountCollected.toLocaleString()}
+                  ${amountCollected.toLocaleString(undefined, { maximumFractionDigits: 2 })}
                 </span>
               </div>
             </div>

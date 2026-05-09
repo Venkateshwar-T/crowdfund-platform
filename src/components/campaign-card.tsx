@@ -132,7 +132,7 @@ export function CampaignCard({
                 <span className="text-[7px] md:text-[10px] font-bold uppercase tracking-wider">Contributed</span>
               </div>
               <div className="text-xs md:text-sm font-black text-foreground">
-                {formatCurrency(contributedAmount)} <span className="text-[9px] md:text-[12px] text-muted-foreground font-medium">/ {formatCurrency(targetAmount)}</span>
+                {formatCurrency(Number(contributedAmount.toLocaleString(undefined, { maximumFractionDigits: 2 })))} <span className="text-[9px] md:text-[12px] text-muted-foreground font-medium">/ {formatCurrency(targetAmount)}</span>
               </div>
             </div>
             

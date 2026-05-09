@@ -159,7 +159,7 @@ function ProfileIdentityCard({
           </div>
 
           <div className="flex items-center gap-2 bg-muted/50 px-3 py-1 rounded-full group">
-            <span className="text-[10px] md:text-sm font-mono font-medium text-muted-foreground">
+            <span className="text-xs md:text-sm font-mono font-medium text-muted-foreground">
               {shortenedAddress}
             </span>
             <button 
@@ -173,13 +173,13 @@ function ProfileIdentityCard({
 
         <div className="flex flex-col items-center md:items-end gap-2">
           <Badge variant="outline" className={cn(
-            "rounded-full gap-2 px-3 py-1 font-bold tracking-tight border-2 capitalize text-[10px] md:text-xs",
+            "rounded-full gap-2 px-3 py-1 font-bold tracking-tight border-2 capitalize text-xs",
             chain?.id === 1 ? "bg-blue-50 text-blue-600 border-blue-200" : "bg-emerald-50 text-emerald-600 border-emerald-200"
           )}>
             <div className={cn("w-1.5 h-1.5 md:w-2 md:h-2 rounded-full animate-pulse", chain?.id === 1 ? "bg-blue-600" : "bg-emerald-600")} />
             {chain?.name || 'Unknown Network'}
           </Badge>
-          <span className="text-[8px] md:text-[10px] text-muted-foreground uppercase font-black tracking-[0.1em]">Active Network</span>
+          <span className="text-[10px] text-muted-foreground uppercase font-black tracking-[0.1em]">Active Network</span>
         </div>
       </div>
     </Card>
@@ -337,31 +337,30 @@ export default function ProfilePage() {
               <WalletIcon className="h-5 w-5 md:h-6 md:w-6" />
             </div>
             <div>
-              <p className="text-[8px] md:text-xs text-muted-foreground font-black uppercase tracking-[0.2em] mb-1">My Wallet Balance</p>
+              <p className="text-[10px] md:text-xs text-muted-foreground font-black uppercase tracking-[0.2em] mb-1">My Wallet Balance</p>
               <h3 className="text-xl md:text-4xl font-black text-foreground">
                 {ethValueInWallet.toFixed(4)} <span className="text-sm md:text-2xl font-bold text-muted-foreground">ETH</span>
               </h3>
               <div className="flex items-center gap-1.5 md:gap-2 mt-2">
-                <span className="text-[10px] md:text-xs font-bold text-primary bg-primary/10 px-2 py-0.5 rounded-full">${usdValueInWallet.toLocaleString(undefined, { maximumFractionDigits: 2 })}</span>
-                <span className="text-[10px] md:text-xs font-bold text-primary bg-primary/10 px-2 py-0.5 rounded-full">₹{inrValueInWallet.toLocaleString(undefined, { maximumFractionDigits: 0 })}</span>
+                <span className="text-[12px] md:text-xs font-bold text-primary bg-primary/10 px-2 py-0.5 rounded-full">≈${usdValueInWallet.toLocaleString(undefined, { maximumFractionDigits: 2 })}</span>
+                <span className="text-[12px] md:text-xs font-bold text-primary bg-primary/10 px-2 py-0.5 rounded-full">≈₹{inrValueInWallet.toLocaleString(undefined, { maximumFractionDigits: 2 })}</span>
               </div>
             </div>
           </Card>
 
           <ProfileStatCard 
             title="Total Raised (USD)"
-            value={`$${processedData.totalUSD.toLocaleString(undefined, { maximumFractionDigits: 0 })}`}
+            value={`$${processedData.totalUSD.toLocaleString(undefined, { maximumFractionDigits: 2 })}`}
             icon={TrendingUp}
           />
           <ProfileStatCard 
-            title="Total Contributed (ETH)"
-            value={processedData.totalETH.toFixed(4)}
-            subValue="ETH"
+            title="Total Contributed (USD)"
+            value={`$${processedData.totalUSD.toLocaleString(undefined, { maximumFractionDigits: 2 })}`}
             icon={HeartHandshake}
           />
         </div>
 
-        <div className="mt-4 md:mt-8 bg-white/70 backdrop-blur-xl border border-white/20 rounded-[1.5rem] md:rounded-[2.5rem] overflow-hidden shadow-xl">
+        <div className="bg-white/70 backdrop-blur-xl border border-white/20 rounded-[1.5rem] md:rounded-[2.5rem] overflow-hidden shadow-xl">
           <Tabs defaultValue="my-campaigns" className="w-full">
             <div className="bg-muted/30 p-3 md:p-6 border-b border-border/10">
               <TabsList className="bg-background/80 backdrop-blur-md p-1 rounded-xl md:rounded-2xl h-10 md:h-14 grid grid-cols-2 max-w-sm border border-border/20">
@@ -369,16 +368,16 @@ export default function ProfilePage() {
                   My Campaigns
                 </TabsTrigger>
                 <TabsTrigger value="contributions" className="rounded-lg md:rounded-xl font-bold text-xs md:text-sm data-[state=active]:bg-primary data-[state=active]:text-white">
-                  Contributions
+                  My Contributions
                 </TabsTrigger>
               </TabsList>
             </div>
 
-            <div className="p-4 md:p-10">
+            <div className="p-4 md:p-6">
               <TabsContent value="my-campaigns" className="mt-0 outline-none">
-                <div className="flex items-center gap-2 mb-4 md:mb-8 bg-primary/5 p-2 md:p-3 rounded-lg md:rounded-2xl border border-primary/10 w-fit">
+                <div className="flex items-center gap-2 mb-4 md:mb-6 bg-primary/5 p-2 md:p-3 rounded-lg md:rounded-2xl border border-primary/10 w-fit">
                   <LayoutGrid className="h-3.5 w-3.5 md:h-4 md:w-4 text-primary" />
-                  <span className="text-[9px] md:text-sm font-bold text-primary uppercase tracking-widest">
+                  <span className="text-[9px] md:text-xs font-bold text-primary uppercase tracking-wider">
                     Total Launched: {processedData.myCampaigns.length}
                   </span>
                 </div>
@@ -415,9 +414,9 @@ export default function ProfilePage() {
               </TabsContent>
 
               <TabsContent value="contributions" className="mt-0 outline-none">
-                <div className="flex items-center gap-2 mb-4 md:mb-8 bg-primary/5 p-2 md:p-3 rounded-lg md:rounded-2xl border border-primary/10 w-fit">
+                <div className="flex items-center gap-2 mb-4 md:mb-6 bg-primary/5 p-2 md:p-3 rounded-lg md:rounded-2xl border border-primary/10 w-fit">
                   <HeartHandshake className="h-3.5 w-3.5 md:h-4 md:w-4 text-primary" />
-                  <span className="text-[9px] md:text-sm font-bold text-primary uppercase tracking-widest">
+                  <span className="text-[9px] md:text-xs font-bold text-primary uppercase tracking-wider">
                     Total Supported: {processedData.myContributions.length}
                   </span>
                 </div>

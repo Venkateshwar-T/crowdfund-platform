@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, use, useRef } from 'react';
+import { useState, useEffect, use, useRef, useMemo } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { 
@@ -245,12 +245,31 @@ function StaticContributionBox({
 }
 
 function FloatingCTA({ onContribute, visible }: { onContribute: () => void, visible: boolean }) {
-  if (!visible) return null;
+  const [isNavVisible, setIsNavVisible] = useState(true);
+  const [lastScrollY, setLastScrollY] = useState(0);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      const currentScrollY = window.scrollY;
+      if (currentScrollY > lastScrollY && currentScrollY > 50) {
+        setIsNavVisible(false);
+      } else {
+        setIsNavVisible(true);
+      }
+      setLastScrollY(currentScrollY);
+    };
+
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, [lastScrollY]);
 
   return (
     <div 
       className={cn(
-        "fixed left-0 right-0 z-40 px-4 bottom-4 md:left-1/2 md:-translate-x-1/2 md:max-w-4xl md:px-0 md:bottom-8"
+        "fixed left-0 right-0 z-40 px-4 transition-all duration-500 ease-in-out md:left-1/2 md:-translate-x-1/2 md:max-w-4xl md:px-0",
+        visible ? "translate-y-0 opacity-100" : "translate-y-10 opacity-0 pointer-events-none",
+        "md:bottom-8",
+        isNavVisible ? "bottom-[calc(4rem+1rem)]" : "bottom-4"
       )}
     >
       <div className="p-3 md:p-4 bg-foreground/90 backdrop-blur-xl rounded-2xl md:rounded-3xl text-white flex items-center justify-between gap-4 shadow-2xl ring-1 ring-white/10">
@@ -289,6 +308,25 @@ export default function CampaignDetailsPage({ params }: { params: Promise<{ id: 
 
   const campaignIndex = parseInt(id);
   const campaignData = (campaignsRaw as any)?.[campaignIndex];
+
+  // Process unique donors and their total contributions
+  const processedDonors = useMemo(() => {
+    if (!campaignData?.donators || !campaignData?.donations) return [];
+    
+    const donorsMap = new Map<string, bigint>();
+    campaignData.donators.forEach((donator: string, idx: number) => {
+      const amount = campaignData.donations[idx] || 0n;
+      const current = donorsMap.get(donator) || 0n;
+      donorsMap.set(donator, current + amount);
+    });
+
+    return Array.from(donorsMap.entries())
+      .map(([address, totalAmount]) => ({
+        address,
+        totalUSD: parseFloat(formatUnits(totalAmount, 18))
+      }))
+      .sort((a, b) => b.totalUSD - a.totalUSD); // Sort by highest contribution
+  }, [campaignData]);
 
   useEffect(() => {
     if (isTransactionConfirmed) {
@@ -371,7 +409,7 @@ export default function CampaignDetailsPage({ params }: { params: Promise<{ id: 
     },
     contributedAmount: amountCollectedUSD,
     targetAmount: targetUSD,
-    contributors: campaignData.donators.length,
+    contributors: processedDonors.length,
     deadline: new Date(deadlineMs).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }),
     status: status
   };
@@ -457,7 +495,7 @@ export default function CampaignDetailsPage({ params }: { params: Promise<{ id: 
               <ProgressCircle progress={Math.min((campaign.contributedAmount / campaign.targetAmount) * 100, 100)} />
               <div className="text-center flex flex-col gap-3">
                 <p className="text-[11px] md:text-xl font-black text-foreground">
-                  ${campaign.contributedAmount.toLocaleString()} <span className="text-muted-foreground font-medium text-sm md:text-lg">/ ${campaign.targetAmount.toLocaleString()}</span>
+                  ${campaign.contributedAmount.toLocaleString(undefined, { maximumFractionDigits: 2 })} <span className="text-muted-foreground font-medium text-sm md:text-lg">/ ${campaign.targetAmount.toLocaleString()}</span>
                 </p>
                 <ContributorBadge count={campaign.contributors} showSupportersLabel className="mx-auto" />
               </div>
@@ -470,16 +508,27 @@ export default function CampaignDetailsPage({ params }: { params: Promise<{ id: 
             <div className="flex items-center justify-between">
               <div className="flex flex-col gap-1">
                 <h2 className="text-[10px] md:text-sm font-bold uppercase tracking-widest text-primary">Supporters</h2>
-                <p className="text-xs md:text-base font-bold text-foreground">{campaign.contributors.toLocaleString()} people have supported this cause</p>
+                <p className="text-xs md:text-base font-bold text-foreground">{campaign.contributors.toLocaleString()} unique donors have supported this cause</p>
               </div>
               <CollapsibleTrigger asChild><CustomButton variant="ghost" size="sm" className="rounded-full h-8 w-8 p-0 hover:bg-primary/10"><ChevronDown className="h-4 w-4 text-primary" /></CustomButton></CollapsibleTrigger>
             </div>
             <CollapsibleContent className="mt-6 space-y-4">
-              {campaignData.donators?.length > 0 ? campaignData.donators.map((donator: string, index: number) => (
+              {processedDonors.length > 0 ? processedDonors.map((donor, index) => (
                 <div key={index} className="flex items-center justify-between pb-4 border-b border-border/50 last:border-0 last:pb-0">
                   <div className="flex items-center gap-3">
-                    <Avatar className="h-8 w-8 md:h-10 md:w-10 border border-background ring-1 ring-border/10"><AvatarImage src={`https://picsum.photos/seed/${donator}/100/100`} /><AvatarFallback>{donator[0]}</AvatarFallback></Avatar>
-                    <div className="flex flex-col"><span className="text-xs md:text-sm font-bold text-foreground">{donator.slice(0, 6)}...{donator.slice(-4)}</span><span className="text-[10px] text-muted-foreground">On-chain donation</span></div>
+                    <Avatar className="h-8 w-8 md:h-10 md:w-10 border border-background ring-1 ring-border/10">
+                      <AvatarImage src={`https://picsum.photos/seed/${donor.address}/100/100`} />
+                      <AvatarFallback>{donor.address[0]}</AvatarFallback>
+                    </Avatar>
+                    <div className="flex flex-col">
+                      <span className="text-xs md:text-sm font-bold text-foreground">{donor.address.slice(0, 6)}...{donor.address.slice(-4)}</span>
+                      <span className="text-[10px] text-muted-foreground">On-chain donation</span>
+                    </div>
+                  </div>
+                  <div className="text-right">
+                    <span className="text-xs md:text-base font-black text-primary">
+                      ${donor.totalUSD.toLocaleString(undefined, { maximumFractionDigits: 2 })}
+                    </span>
                   </div>
                 </div>
               )) : <div className="py-8 text-center text-muted-foreground">No supporters yet. Be the first!</div>}
