@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useState, useEffect } from 'react';
@@ -233,10 +232,8 @@ export default function NewFundraiserPage() {
 
     setIsUploading(true);
     try {
-      // Upload all media files
       const mediaUrls = await Promise.all(files.map(file => uploadToPinata(file)));
 
-      // Currency conversion logic (USD Hub)
       let usdAmount = parseFloat(values.targetAmount);
       if (values.currency === 'INR' && prices?.inr) {
         usdAmount = (usdAmount / prices.inr);
@@ -337,7 +334,9 @@ export default function NewFundraiserPage() {
                   name="title"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel className="text-sm md:text-base font-bold">Campaign Title</FormLabel>
+                      <FormLabel className="text-sm md:text-base font-bold">
+                        Campaign Title <span className="text-destructive">*</span>
+                      </FormLabel>
                       <FormControl>
                         <Input 
                           placeholder="e.g. Help Sarah's Medical Recovery" 
@@ -356,7 +355,9 @@ export default function NewFundraiserPage() {
                   name="description"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel className="text-sm md:text-base font-bold">Description</FormLabel>
+                      <FormLabel className="text-sm md:text-base font-bold">
+                        Description <span className="text-destructive">*</span>
+                      </FormLabel>
                       <FormControl>
                         <Textarea 
                           placeholder="Tell your story. What happened? Why do you need help? How will the funds be used?" 
@@ -375,7 +376,9 @@ export default function NewFundraiserPage() {
                     name="category"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel className="text-sm md:text-base font-bold">Category</FormLabel>
+                        <FormLabel className="text-sm md:text-base font-bold">
+                          Category <span className="text-destructive">*</span>
+                        </FormLabel>
                         <Select onValueChange={field.onChange} defaultValue={field.value}>
                           <FormControl>
                             <SelectTrigger className="h-10 md:h-12 text-sm md:text-base rounded-xl border-muted-foreground/20">
@@ -401,7 +404,7 @@ export default function NewFundraiserPage() {
                       name="otherCategory"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel className="text-sm md:text-base font-bold">Category Name</FormLabel>
+                          <FormLabel className="text-sm md:text-base font-bold">Category Name <span className="text-destructive">*</span></FormLabel>
                           <FormControl>
                             <Input 
                               placeholder="Specify domain" 
@@ -420,7 +423,9 @@ export default function NewFundraiserPage() {
               <Card className="p-4 md:p-6 border-muted-foreground/10 bg-primary/5 rounded-3xl overflow-visible">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
                   <div className="space-y-3 md:space-y-4">
-                    <FormLabel className="text-sm md:text-base font-bold">Target Amount</FormLabel>
+                    <FormLabel className="text-sm md:text-base font-bold">
+                      Target Amount <span className="text-destructive">*</span>
+                    </FormLabel>
                     <div className="flex gap-2">
                       <FormField
                         control={form.control}
@@ -469,7 +474,9 @@ export default function NewFundraiserPage() {
                     name="deadline"
                     render={({ field }) => (
                       <FormItem className="flex flex-col gap-1.5">
-                        <FormLabel className="text-sm md:text-base font-bold">Deadline Date</FormLabel>
+                        <FormLabel className="text-sm md:text-base font-bold">
+                          Deadline Date <span className="text-destructive">*</span>
+                        </FormLabel>
                         <FormControl>
                           <CustomDatePicker 
                             value={field.value} 
@@ -485,7 +492,9 @@ export default function NewFundraiserPage() {
               </Card>
 
               <div className="space-y-3 md:space-y-4">
-                <FormLabel className="text-sm md:text-base font-bold">Media Upload (Max 5 files, 1 video)</FormLabel>
+                <FormLabel className="text-sm md:text-base font-bold">
+                  Media Upload (Max 5 files, 1 video) <span className="text-destructive">*</span>
+                </FormLabel>
                 <div 
                   className={cn(
                     "relative border-2 border-dashed rounded-3xl p-6 md:p-8 transition-all duration-200 flex flex-col items-center justify-center gap-3 md:gap-4 cursor-pointer",
@@ -551,10 +560,12 @@ export default function NewFundraiserPage() {
                 name="additionalNotes"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel className="text-sm md:text-base font-bold">Additional Notes</FormLabel>
+                    <FormLabel className="text-sm md:text-base font-bold">
+                      Additional Notes <span className="text-muted-foreground font-normal ml-1">(Optional)</span>
+                    </FormLabel>
                     <FormControl>
                       <Textarea 
-                        placeholder="Any extra details for your supporters? (This will be shown separately on the detail page)" 
+                        placeholder="Any extra details for your supporters?" 
                         className="min-h-[80px] md:min-h-[100px] text-sm md:text-base rounded-xl border-muted-foreground/20 transition-all resize-none"
                         {...field} 
                       />
