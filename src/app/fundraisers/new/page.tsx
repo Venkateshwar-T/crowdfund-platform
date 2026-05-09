@@ -53,7 +53,6 @@ const formSchema = z.object({
   targetAmount: z.string().refine((val) => !isNaN(Number(val)) && Number(val) > 0, {
     message: 'Amount must be a positive number',
   }),
-  currency: z.enum(['USD', 'INR']),
   deadline: z.date({
     required_error: 'A deadline is required',
   }),
@@ -104,7 +103,6 @@ export default function NewFundraiserPage() {
       category: '',
       otherCategory: '',
       targetAmount: '',
-      currency: 'USD',
       additionalNotes: '',
     },
   });
@@ -253,12 +251,7 @@ export default function NewFundraiserPage() {
     setIsUploading(true);
     try {
       const mediaUrls = await Promise.all(files.map(file => uploadToPinata(file)));
-
-      let usdAmount = parseFloat(values.targetAmount);
-      if (values.currency === 'INR' && prices?.inr) {
-        usdAmount = (usdAmount / prices.inr);
-      }
-      
+      const usdAmount = parseFloat(values.targetAmount);
       const targetInUSD = parseUnits(usdAmount.toFixed(18), 18);
 
       writeContract({
@@ -445,49 +438,29 @@ export default function NewFundraiserPage() {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
                   <div className="space-y-3 md:space-y-4">
                     <FormLabel className="text-sm md:text-base font-bold">
-                      Target Amount <span className="text-destructive">*</span>
+                      Target Amount (USD) <span className="text-destructive">*</span>
                     </FormLabel>
-                    <div className="flex gap-2">
-                      <FormField
-                        control={form.control}
-                        name="currency"
-                        render={({ field }) => (
-                          <FormItem className="w-24">
-                            <Select onValueChange={field.onChange} defaultValue={field.value}>
-                              <FormControl>
-                                <SelectTrigger className="h-10 md:h-12 text-sm md:text-base rounded-xl border-muted-foreground/20">
-                                  <SelectValue />
-                                </SelectTrigger>
-                              </FormControl>
-                              <SelectContent>
-                                <SelectItem value="USD">USD</SelectItem>
-                                <SelectItem value="INR">INR</SelectItem>
-                              </SelectContent>
-                            </Select>
-                          </FormItem>
-                        )}
-                      />
-                      <FormField
-                        control={form.control}
-                        name="targetAmount"
-                        render={({ field }) => (
-                          <FormItem className="flex-grow">
-                            <FormControl>
-                              <div className="relative">
-                                <Input 
-                                  type="number"
-                                  step="0.01"
-                                  placeholder="0.00" 
-                                  className="h-10 md:h-12 text-sm md:text-base rounded-xl border-muted-foreground/20 transition-all bg-background"
-                                  {...field} 
-                                />
-                              </div>
-                            </FormControl>
-                            <FormMessage className="text-xs md:text-sm" />
-                          </FormItem>
-                        )}
-                      />
-                    </div>
+                    <FormField
+                      control={form.control}
+                      name="targetAmount"
+                      render={({ field }) => (
+                        <FormItem className="flex-grow">
+                          <FormControl>
+                            <div className="relative">
+                              <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground font-bold text-sm">$</span>
+                              <Input 
+                                type="number"
+                                step="0.01"
+                                placeholder="0.00" 
+                                className="h-10 md:h-12 pl-7 text-sm md:text-base rounded-xl border-muted-foreground/20 transition-all bg-background"
+                                {...field} 
+                              />
+                            </div>
+                          </FormControl>
+                          <FormMessage className="text-xs md:text-sm" />
+                        </FormItem>
+                      )}
+                    />
                   </div>
 
                   <FormField
@@ -522,6 +495,7 @@ export default function NewFundraiserPage() {
                     dragActive ? "border-primary bg-primary/5" : "border-muted-foreground/20 hover:border-primary/50 hover:bg-primary/5",
                     files.length >= MAX_FILES && "opacity-50 pointer-events-none"
                   )}
+                  onDragEnter={handleDrag}
                   onDragEnter={handleDrag}
                   onDragLeave={handleDrag}
                   onDragOver={handleDrag}

@@ -39,13 +39,6 @@ import {
   CollapsibleContent,
   CollapsibleTrigger,
 } from "@/components/ui/collapsible";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 
 function ProgressCircle({ progress }: { progress: number }) {
   const size = 140; 
@@ -158,29 +151,24 @@ function StaticContributionBox({
   isMining,
   isSuccess,
   ethPrice,
-  userBalance,
-  localCurrency
+  userBalance
 }: { 
   containerRef: React.RefObject<HTMLDivElement | null>,
-  onContribute: (amount: string, currency: string) => void,
+  onContribute: (amount: string) => void,
   isConfirming: boolean,
   isMining: boolean,
   isSuccess: boolean,
   ethPrice: any,
-  userBalance: any,
-  localCurrency: string
+  userBalance: any
 }) {
   const [amount, setAmount] = useState('');
-  const [currency, setCurrency] = useState('USD');
   
-  // Calculate ETH estimate
   let ethEstimate = 0;
+  let inrEstimate = 0;
   if (amount && ethPrice) {
-    let usdVal = parseFloat(amount);
-    if (currency === 'INR' && ethPrice.inr) {
-      usdVal = usdVal / ethPrice.inr;
-    }
+    const usdVal = parseFloat(amount);
     ethEstimate = usdVal / ethPrice.usd;
+    inrEstimate = usdVal * (ethPrice.inr / ethPrice.usd);
   }
 
   const isInsufficient = userBalance && parseFloat(userBalance.formatted) < ethEstimate;
@@ -190,26 +178,9 @@ function StaticContributionBox({
       ref={containerRef}
       className="p-5 md:p-8 bg-foreground rounded-2xl md:rounded-3xl text-white flex flex-col items-center gap-6 shadow-2xl ring-1 ring-white/10"
     >
-      <div className="text-center w-full flex flex-col md:flex-row items-center justify-between gap-4">
-        <div className="text-center md:text-left">
-          <h3 className="text-base md:text-lg font-bold">Fund this Campaign</h3>
-          <p className="text-xs md:text-sm text-white/60">Estimates are based on real-time market rates</p>
-        </div>
-        
-        <div className="flex items-center gap-2 bg-white/5 p-1 rounded-xl">
-          <CustomButton 
-            size="sm" 
-            variant={currency === 'USD' ? 'default' : 'ghost'} 
-            onClick={() => setCurrency('USD')}
-            className="rounded-lg h-8 px-4"
-          >USD</CustomButton>
-          <CustomButton 
-            size="sm" 
-            variant={currency === 'INR' ? 'default' : 'ghost'} 
-            onClick={() => setCurrency('INR')}
-            className="rounded-lg h-8 px-4"
-          >INR</CustomButton>
-        </div>
+      <div className="text-center w-full">
+        <h3 className="text-base md:text-lg font-bold">Fund this Campaign</h3>
+        <p className="text-xs md:text-sm text-white/60">Contribute in USD (ETH pulled from your wallet)</p>
       </div>
       
       {isSuccess ? (
@@ -221,9 +192,7 @@ function StaticContributionBox({
         <div className="w-full flex flex-col gap-4">
           <div className="flex w-full items-center gap-3">
             <div className="relative flex-grow">
-              <span className="absolute left-3 top-1/2 -translate-y-1/2 text-white/40 font-bold text-sm">
-                {currency === 'USD' ? '$' : '₹'}
-              </span>
+              <span className="absolute left-3 top-1/2 -translate-y-1/2 text-white/40 font-bold text-sm">$</span>
               <Input 
                 type="number" 
                 placeholder="0.00"
@@ -234,7 +203,7 @@ function StaticContributionBox({
               />
             </div>
             <CustomButton 
-              onClick={() => onContribute(amount, currency)}
+              onClick={() => onContribute(amount)}
               isLoading={isConfirming || isMining}
               disabled={isInsufficient || !amount || parseFloat(amount) <= 0}
               className="h-12 px-8 rounded-xl font-black text-sm shadow-lg shadow-primary/20 bg-primary hover:bg-primary/90 min-w-[140px]"
@@ -244,17 +213,19 @@ function StaticContributionBox({
           </div>
           
           {amount && ethPrice && (
-            <div className="flex items-center justify-between px-2">
-              <div className="flex items-center gap-2 text-xs md:text-sm font-medium text-white/60">
-                <Info className="h-4 w-4" />
-                <span>Estimated: <span className="text-primary font-bold">{ethEstimate.toFixed(6)} ETH</span></span>
-              </div>
-              {isInsufficient && (
-                <div className="flex items-center gap-1.5 text-xs text-destructive font-bold animate-pulse">
-                  <AlertCircle className="h-4 w-4" />
-                  Insufficient Balance
+            <div className="flex flex-col gap-1.5 px-2">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2 text-xs md:text-sm font-medium text-white/60">
+                  <Info className="h-4 w-4" />
+                  <span>Estimated: <span className="text-primary font-bold">{ethEstimate.toFixed(6)} ETH</span> | <span className="text-primary font-bold">₹{inrEstimate.toLocaleString(undefined, { maximumFractionDigits: 2 })}</span></span>
                 </div>
-              )}
+                {isInsufficient && (
+                  <div className="flex items-center gap-1.5 text-xs text-destructive font-bold animate-pulse">
+                    <AlertCircle className="h-4 w-4" />
+                    Insufficient Balance
+                  </div>
+                )}
+              </div>
             </div>
           )}
         </div>
@@ -267,7 +238,6 @@ export default function CampaignDetailsPage({ params }: { params: Promise<{ id: 
   const { id } = use(params);
   const fundRef = useRef<HTMLDivElement>(null);
   const [isFundInView, setIsFundInView] = useState(false);
-  const [displayCurrency, setDisplayCurrency] = useState<'USD' | 'INR' | 'ETH'>('USD');
   const { isConnected, address: userAddress } = useAccount();
   const { data: userBalance } = useBalance({ address: userAddress });
   const { toast } = useToast();
@@ -298,7 +268,7 @@ export default function CampaignDetailsPage({ params }: { params: Promise<{ id: 
     return () => observer.disconnect();
   }, []);
 
-  const handleContribute = (amount: string, currency: string) => {
+  const handleContribute = (amount: string) => {
     if (!isConnected) {
       toast({ title: "Connect Wallet", description: "Please connect your wallet to contribute.", variant: "destructive" });
       return;
@@ -309,11 +279,7 @@ export default function CampaignDetailsPage({ params }: { params: Promise<{ id: 
       return;
     }
 
-    // Calculate ETH to send
-    let usdVal = parseFloat(amount);
-    if (currency === 'INR' && ethPrices?.inr) {
-      usdVal = usdVal / ethPrices.inr;
-    }
+    const usdVal = parseFloat(amount);
     const ethToSend = usdVal / ethPrices?.usd;
 
     writeContract({
@@ -354,17 +320,6 @@ export default function CampaignDetailsPage({ params }: { params: Promise<{ id: 
   if (amountCollectedUSD >= targetUSD) status = 'Completed';
   else if (Date.now() < deadlineMs && (deadlineMs - Date.now() > 20 * 24 * 60 * 60 * 1000)) status = 'New';
 
-  // Currency conversion for display
-  const getFormattedValue = (valUSD: number) => {
-    if (displayCurrency === 'INR' && ethPrices?.inr) {
-      return `₹${(valUSD * (ethPrices.inr / ethPrices.usd)).toLocaleString()}`;
-    }
-    if (displayCurrency === 'ETH' && ethPrices?.usd) {
-      return `${(valUSD / ethPrices.usd).toFixed(4)} ETH`;
-    }
-    return `$${valUSD.toLocaleString()}`;
-  };
-
   const campaign = {
     title: campaignData.title,
     description: campaignData.description,
@@ -402,34 +357,17 @@ export default function CampaignDetailsPage({ params }: { params: Promise<{ id: 
         <MediaGallery media={campaign.media} title={campaign.title} />
 
         <div className="bg-white/70 backdrop-blur-xl rounded-2xl md:rounded-3xl border border-white/20 p-5 md:p-8 shadow-xl flex flex-col gap-6">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <Avatar className="h-8 w-8 md:h-12 md:w-12 border-2 border-background ring-1 ring-border/10">
-                <AvatarImage src={campaign.user.avatar} />
-                <AvatarFallback>{campaign.user.name[0]}</AvatarFallback>
-              </Avatar>
-              <div className="flex flex-col">
-                <div className="flex items-center gap-1">
-                  <span className="text-xs md:text-base font-bold text-foreground">{campaign.user.name}</span>
-                  {campaign.user.verified && <MdVerifiedUser color='#1C9A9C' className="h-3 w-3 md:h-4 md:w-4" />}
-                </div>
-                <span className="text-[10px] md:text-xs text-muted-foreground uppercase tracking-wider font-semibold">Campaign Organizer</span>
+          <div className="flex items-center gap-3">
+            <Avatar className="h-8 w-8 md:h-12 md:w-12 border-2 border-background ring-1 ring-border/10">
+              <AvatarImage src={campaign.user.avatar} />
+              <AvatarFallback>{campaign.user.name[0]}</AvatarFallback>
+            </Avatar>
+            <div className="flex flex-col">
+              <div className="flex items-center gap-1">
+                <span className="text-xs md:text-base font-bold text-foreground">{campaign.user.name}</span>
+                {campaign.user.verified && <MdVerifiedUser color='#1C9A9C' className="h-3 w-3 md:h-4 md:w-4" />}
               </div>
-            </div>
-            
-            <div className="flex items-center gap-1 bg-muted p-1 rounded-xl">
-              {(['USD', 'INR', 'ETH'] as const).map((curr) => (
-                <button
-                  key={curr}
-                  onClick={() => setDisplayCurrency(curr)}
-                  className={cn(
-                    "px-3 py-1.5 rounded-lg text-[10px] font-bold transition-all",
-                    displayCurrency === curr ? "bg-white text-primary shadow-sm" : "text-muted-foreground hover:text-foreground"
-                  )}
-                >
-                  {curr}
-                </button>
-              ))}
+              <span className="text-[10px] md:text-xs text-muted-foreground uppercase tracking-wider font-semibold">Campaign Organizer</span>
             </div>
           </div>
 
@@ -468,7 +406,7 @@ export default function CampaignDetailsPage({ params }: { params: Promise<{ id: 
               <ProgressCircle progress={Math.min((campaign.contributedAmount / campaign.targetAmount) * 100, 100)} />
               <div className="text-center flex flex-col gap-2">
                 <p className="text-[11px] md:text-sm font-bold text-foreground">
-                  {getFormattedValue(campaign.contributedAmount)} <span className="text-muted-foreground font-medium">raised of {getFormattedValue(campaign.targetAmount)}</span>
+                  ${campaign.contributedAmount.toLocaleString()} <span className="text-muted-foreground font-medium">raised of ${campaign.targetAmount.toLocaleString()}</span>
                 </p>
                 <ContributorBadge count={campaign.contributors} showSupportersLabel className="mx-auto" />
               </div>
@@ -506,7 +444,6 @@ export default function CampaignDetailsPage({ params }: { params: Promise<{ id: 
           isSuccess={isTransactionConfirmed}
           ethPrice={ethPrices}
           userBalance={userBalance}
-          localCurrency="INR"
         />
       </main>
       
