@@ -216,7 +216,7 @@ export default function ProfilePage() {
       myCampaigns: [], 
       myContributions: [], 
       totalUSD: 0, 
-      totalETH: 0 
+      totalContributedUSD: 0 
     };
 
     const all = (campaignsRaw as any[]) || [];
@@ -233,10 +233,13 @@ export default function ProfilePage() {
         if (amountCollected >= target) status = 'Completed';
         else if (Date.now() < deadlineMs && (deadlineMs - Date.now() > 20 * 24 * 60 * 60 * 1000)) status = 'New';
 
+        // Count unique supporters using lowercase addresses
+        const uniqueSupporters = new Set(c.donators.map((d: string) => d.toLowerCase()));
+
         return {
           id: index.toString(),
           title: c.title,
-          contributors: c.donators.length,
+          contributors: uniqueSupporters.size,
           status,
           owner: c.owner.toLowerCase(),
           amountCollected
@@ -247,6 +250,7 @@ export default function ProfilePage() {
     const totalUSD = myCampaigns.reduce((acc, c) => acc + c.amountCollected, 0);
 
     // 2. My Contributions
+    let totalPersonalETH = BigInt(0);
     const myContributions = all
       .map((c, index) => {
         let personalContribution = BigInt(0);
@@ -255,6 +259,10 @@ export default function ProfilePage() {
             personalContribution += c.donations[dIdx];
           }
         });
+
+        if (personalContribution > BigInt(0)) {
+          totalPersonalETH += personalContribution;
+        }
 
         const amountCollected = parseFloat(formatUnits(c.amountCollected, 18));
         const target = parseFloat(formatUnits(c.target, 18));
@@ -270,10 +278,11 @@ export default function ProfilePage() {
       })
       .filter(c => c.personalContribution > 0);
 
-    const totalETH = myContributions.reduce((acc, c) => acc + c.personalContribution, 0);
+    // Convert total contributed ETH to USD based on current prices
+    const totalContributedUSD = parseFloat(formatUnits(totalPersonalETH, 18)) * (ethPrices?.usd || 0);
 
-    return { myCampaigns, myContributions, totalUSD, totalETH };
-  }, [campaignsRaw, address]);
+    return { myCampaigns, myContributions, totalUSD, totalContributedUSD };
+  }, [campaignsRaw, address, ethPrices]);
 
   const ethValueInWallet = parseFloat(userBalance?.formatted || '0');
   const usdValueInWallet = ethValueInWallet * (ethPrices?.usd || 0);
@@ -355,7 +364,7 @@ export default function ProfilePage() {
           />
           <ProfileStatCard 
             title="Total Contributed (USD)"
-            value={`$${processedData.totalUSD.toLocaleString(undefined, { maximumFractionDigits: 2 })}`}
+            value={`$${processedData.totalContributedUSD.toLocaleString(undefined, { maximumFractionDigits: 2 })}`}
             icon={HeartHandshake}
           />
         </div>
