@@ -7,8 +7,6 @@ import {
   Check, 
   LogOut, 
   Edit2, 
-  ImageIcon, 
-  Trash2, 
   Loader2, 
   Search, 
   PlusCircle, 
@@ -21,7 +19,7 @@ import {
 import { useAccount, useDisconnect, useReadContract, useBalance } from 'wagmi';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
+import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { CustomButton } from '@/components/custom-button';
 import { Badge } from '@/components/ui/badge';
 import { Card } from '@/components/ui/card';
@@ -29,12 +27,6 @@ import { Input } from '@/components/ui/input';
 import { useToast } from '@/hooks/use-toast';
 import { useAccountModal, useConnectModal } from '@rainbow-me/rainbowkit';
 import { useEthPrice } from '@/hooks/use-eth-price';
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
 import {
   Tabs,
   TabsContent,
@@ -88,8 +80,6 @@ function ProfileIdentityCard({
   setIsEditingUsername,
   address,
   shortenedAddress,
-  avatarUrl,
-  setAvatarUrl,
   isCopied,
   copyAddress,
   chain
@@ -100,33 +90,11 @@ function ProfileIdentityCard({
       
       <div className="flex flex-col md:flex-row items-center md:items-end gap-6 md:gap-8">
         <div className="relative group">
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Avatar className="h-24 w-24 md:h-32 md:w-32 border-4 border-background shadow-2xl ring-1 ring-border/20 cursor-pointer hover:scale-105 transition-transform">
-                <AvatarImage src={avatarUrl || `https://picsum.photos/seed/${address}/200/200`} />
-                <AvatarFallback className="bg-primary text-white text-3xl font-bold">
-                  {username[0]}
-                </AvatarFallback>
-              </Avatar>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="center" className="rounded-xl p-1">
-              <DropdownMenuItem className="gap-2 rounded-lg cursor-pointer" onClick={() => setAvatarUrl(`https://picsum.photos/seed/${Math.random()}/200/200`)}>
-                <ImageIcon className="h-4 w-4" />
-                <span>Change Avatar</span>
-              </DropdownMenuItem>
-              <DropdownMenuItem className="gap-2 rounded-lg cursor-pointer text-destructive focus:text-destructive" onClick={() => setAvatarUrl(null)}>
-                <Trash2 className="h-4 w-4" />
-                <span>Remove Avatar</span>
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
-          
-          <button 
-            onClick={() => setIsEditingUsername(true)}
-            className="absolute bottom-0 right-0 p-2 bg-white rounded-full shadow-lg border border-border hover:bg-primary hover:text-white transition-all group-hover:scale-110"
-          >
-            <Edit2 className="h-3.5 w-3.5 md:h-4 md:w-4" />
-          </button>
+          <Avatar className="h-24 w-24 md:h-32 md:w-32 border-4 border-background shadow-2xl ring-1 ring-border/20 transition-transform">
+            <AvatarFallback className="bg-muted text-muted-foreground">
+              <User size={64} className="md:w-20 md:h-20" />
+            </AvatarFallback>
+          </Avatar>
         </div>
 
         <div className="flex flex-col items-center md:items-start flex-1 gap-2">
@@ -202,7 +170,6 @@ export default function ProfilePage() {
   const [isCopied, setIsCopied] = useState(false);
   const [isEditingUsername, setIsEditingUsername] = useState(false);
   const [username, setUsername] = useState('New Supporter');
-  const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
 
   // Fetch all campaigns from contract to calculate history
   const { data: campaignsRaw, isLoading: isCampaignsLoading } = useReadContract({
@@ -333,8 +300,6 @@ export default function ProfilePage() {
           setIsEditingUsername={setIsEditingUsername}
           address={address}
           shortenedAddress={shortenedAddress}
-          avatarUrl={avatarUrl}
-          setAvatarUrl={setAvatarUrl}
           isCopied={isCopied}
           copyAddress={copyAddress}
           chain={chain}

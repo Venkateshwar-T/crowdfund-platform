@@ -3,8 +3,8 @@
 import { useState, useEffect } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { Users, Calendar, Wallet } from 'lucide-react';
-import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
+import { Users, Calendar, Wallet, User } from 'lucide-react';
+import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { MdVerifiedUser  } from "react-icons/md";
 
 import { cn } from '@/lib/utils';
@@ -15,7 +15,6 @@ export interface CampaignCardProps {
   images: string[];
   user: {
     name: string;
-    avatar: string;
     verified?: boolean;
   };
   contributedAmount: number;
@@ -110,8 +109,9 @@ export function CampaignCard({
           {/* Metadata Bar */}
           <div className="flex items-center gap-2 mb-2">
             <Avatar className="h-4 w-4 md:h-6 md:w-6 border border-background ring-1 ring-border/10">
-              <AvatarImage src={user.avatar} />
-              <AvatarFallback>{user.name[0]}</AvatarFallback>
+              <AvatarFallback className="bg-muted text-muted-foreground">
+                <User size={12} className="md:w-4 md:h-4" />
+              </AvatarFallback>
             </Avatar>
             <span className="text-[10px] md:text-sm font-bold tracking-tight text-foreground/80 truncate">
               {user.name}

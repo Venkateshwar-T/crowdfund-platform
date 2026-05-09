@@ -20,10 +20,6 @@ export default function BrowsePage() {
     const target = parseFloat(formatUnits(c.target, 18));
     const deadlineMs = Number(c.deadline) * 1000;
 
-    // Status logic: 
-    // NEW: created within 10 days
-    // COMPLETED: goal reached
-    // ACTIVE: otherwise
     const tenDaysAgo = Date.now() - (10 * 24 * 60 * 60 * 1000);
     
     let status: 'Active' | 'Completed' | 'New' = 'Active';
@@ -39,10 +35,9 @@ export default function BrowsePage() {
     return {
       id: index.toString(),
       title: c.title,
-      images: c.mediaUrls && c.mediaUrls.length > 0 ? c.mediaUrls : ["https://picsum.photos/seed/placeholder/800/600"],
+      images: c.mediaUrls && c.mediaUrls.length > 0 ? c.mediaUrls : [],
       user: {
         name: `${c.owner.slice(0, 6)}...${c.owner.slice(-4)}`,
-        avatar: `https://picsum.photos/seed/${c.owner}/100/100`,
         verified: true,
       },
       contributedAmount: amountCollected,

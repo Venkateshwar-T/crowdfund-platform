@@ -7,16 +7,16 @@ import {
   Film, 
   Calendar,
   ChevronDown,
-  ChevronUp,
   Tag,
   Loader2,
   Info,
   CheckCircle2,
   AlertCircle,
-  Mail
+  Mail,
+  User
 } from 'lucide-react';
 import { MdVerifiedUser, MdOutlineReportProblem as ReportIcon } from 'react-icons/md';
-import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
+import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { CustomButton } from '@/components/custom-button';
@@ -416,7 +416,6 @@ export default function CampaignDetailsPage({ params }: { params: Promise<{ id: 
     additionalNotes: campaignData.additionalNotes,
     user: {
       name: `${campaignData.owner.slice(0, 6)}...${campaignData.owner.slice(-4)}`,
-      avatar: `https://picsum.photos/seed/${campaignData.owner}/100/100`,
       verified: true
     },
     contributedAmount: amountCollectedUSD,
@@ -497,8 +496,9 @@ export default function CampaignDetailsPage({ params }: { params: Promise<{ id: 
         <div className="bg-white/70 backdrop-blur-xl rounded-2xl md:rounded-3xl border border-white/20 p-5 md:p-8 shadow-xl flex flex-col gap-6">
           <div className="flex items-center gap-3">
             <Avatar className="h-8 w-8 md:h-12 md:w-12 border-2 border-background ring-1 ring-border/10">
-              <AvatarImage src={campaign.user.avatar} />
-              <AvatarFallback>{campaign.user.name[0]}</AvatarFallback>
+              <AvatarFallback className="bg-muted text-muted-foreground">
+                <User size={24} className="md:w-8 md:h-8" />
+              </AvatarFallback>
             </Avatar>
             <div className="flex flex-col">
               <div className="flex items-center gap-1">
@@ -572,8 +572,9 @@ export default function CampaignDetailsPage({ params }: { params: Promise<{ id: 
                 <div key={index} className="flex items-center justify-between pb-4 border-b border-border/50 last:border-0 last:pb-0">
                   <div className="flex items-center gap-3">
                     <Avatar className="h-8 w-8 md:h-10 md:w-10 border border-background ring-1 ring-border/10">
-                      <AvatarImage src={`https://picsum.photos/seed/${donor.address}/100/100`} />
-                      <AvatarFallback>{donor.address[0]}</AvatarFallback>
+                      <AvatarFallback className="bg-muted text-muted-foreground">
+                        <User size={16} className="md:w-5 md:h-5" />
+                      </AvatarFallback>
                     </Avatar>
                     <div className="flex flex-col">
                       <span className="text-xs md:text-sm font-bold text-foreground">{donor.address.slice(0, 6)}...{donor.address.slice(-4)}</span>
