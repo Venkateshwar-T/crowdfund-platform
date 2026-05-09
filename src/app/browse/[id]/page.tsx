@@ -176,7 +176,7 @@ function StaticContributionBox({
   return (
     <div 
       ref={containerRef}
-      className="p-5 md:p-8 bg-foreground rounded-2xl md:rounded-3xl text-white flex flex-col items-center gap-6 shadow-2xl ring-1 ring-white/10"
+      className="p-5 md:p-8 bg-foreground rounded-2xl md:rounded-3xl text-white flex flex-col items-center gap-6 shadow-2xl ring-1 ring-white/10 scroll-mt-24"
     >
       <div className="text-center w-full">
         <h3 className="text-base md:text-lg font-bold">Fund this Campaign</h3>
@@ -263,7 +263,10 @@ export default function CampaignDetailsPage({ params }: { params: Promise<{ id: 
   }, [isTransactionConfirmed, refetch, toast]);
 
   useEffect(() => {
-    const observer = new IntersectionObserver(([entry]) => setIsFundInView(entry.isIntersecting), { threshold: 0.1 });
+    const observer = new IntersectionObserver(([entry]) => setIsFundInView(entry.isIntersecting), { 
+      threshold: 0,
+      rootMargin: '-100px 0px 0px 0px'
+    });
     if (fundRef.current) observer.observe(fundRef.current);
     return () => observer.disconnect();
   }, []);
@@ -336,6 +339,13 @@ export default function CampaignDetailsPage({ params }: { params: Promise<{ id: 
     contributors: campaignData.donators.length,
     deadline: new Date(deadlineMs).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }),
     status: status
+  };
+
+  const scrollToFund = () => {
+    fundRef.current?.scrollIntoView({ 
+      behavior: 'smooth', 
+      block: 'center' 
+    });
   };
 
   return (
@@ -448,13 +458,13 @@ export default function CampaignDetailsPage({ params }: { params: Promise<{ id: 
       </main>
       
       {!isFundInView && (
-        <div className="fixed left-0 right-0 z-40 px-4 bottom-4 md:bottom-8 md:left-1/2 md:-translate-x-1/2 md:max-w-4xl md:px-0">
+        <div className="fixed left-0 right-0 z-40 px-4 bottom-4 md:bottom-8 md:left-1/2 md:-translate-x-1/2 md:max-w-4xl md:px-0 animate-in fade-in slide-in-from-bottom-10 duration-500">
           <div className="p-3 md:p-4 bg-foreground/90 backdrop-blur-xl rounded-2xl md:rounded-3xl text-white flex items-center justify-between gap-4 shadow-2xl ring-1 ring-white/10">
             <div className="pl-2">
               <p className="text-[10px] md:text-xs text-white/60 font-bold uppercase tracking-widest">Drive Impact</p>
               <p className="text-xs md:text-sm font-bold">Help this cause</p>
             </div>
-            <CustomButton onClick={() => fundRef.current?.scrollIntoView({ behavior: 'smooth' })} className="h-10 md:h-12 px-6 md:px-8 rounded-xl font-black text-xs md:text-sm bg-primary">Contribute Now</CustomButton>
+            <CustomButton onClick={scrollToFund} className="h-10 md:h-12 px-6 md:px-8 rounded-xl font-black text-xs md:text-sm bg-primary">Contribute Now</CustomButton>
           </div>
         </div>
       )}
