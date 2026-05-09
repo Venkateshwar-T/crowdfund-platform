@@ -10,7 +10,7 @@ import {
   Wallet, 
   ShieldCheck, 
   ExternalLink, 
-  MoreVertical,
+  Settings2,
   Trash2,
   Image as ImageIcon
 } from 'lucide-react';
@@ -66,6 +66,13 @@ export default function ProfilePage() {
     router.push('/');
   };
 
+  const openExplorer = () => {
+    if (address && chain) {
+      const baseUrl = chain.blockExplorers?.default.url || 'https://etherscan.io';
+      window.open(`${baseUrl}/address/${address}`, '_blank');
+    }
+  };
+
   if (!isConnected) {
     return (
       <div className="flex flex-col items-center justify-center min-h-[70vh] p-4 text-center">
@@ -97,22 +104,18 @@ export default function ProfilePage() {
           <div className="absolute top-0 left-0 w-full h-24 md:h-32 bg-gradient-to-r from-primary/10 to-accent/20 -z-10" />
           
           <div className="flex flex-col md:flex-row items-center md:items-end gap-6 md:gap-8">
-            {/* Avatar Section */}
+            {/* Avatar Section - Now Clickable for Actions */}
             <div className="relative group">
-              <Avatar className="h-24 w-24 md:h-32 md:w-32 border-4 border-background shadow-2xl ring-1 ring-border/20">
-                <AvatarImage src={avatarUrl || `https://picsum.photos/seed/${address}/200/200`} />
-                <AvatarFallback className="bg-primary text-white text-3xl font-bold">
-                  {username[0]}
-                </AvatarFallback>
-              </Avatar>
-              
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <button className="absolute bottom-0 right-0 p-2 bg-white rounded-full shadow-lg border border-border hover:bg-primary hover:text-white transition-all group-hover:scale-110">
-                    <Edit2 className="h-4 w-4" />
-                  </button>
+                  <Avatar className="h-24 w-24 md:h-32 md:w-32 border-4 border-background shadow-2xl ring-1 ring-border/20 cursor-pointer hover:scale-105 transition-transform">
+                    <AvatarImage src={avatarUrl || `https://picsum.photos/seed/${address}/200/200`} />
+                    <AvatarFallback className="bg-primary text-white text-3xl font-bold">
+                      {username[0]}
+                    </AvatarFallback>
+                  </Avatar>
                 </DropdownMenuTrigger>
-                <DropdownMenuContent align="end" className="rounded-xl p-1">
+                <DropdownMenuContent align="center" className="rounded-xl p-1">
                   <DropdownMenuItem className="gap-2 rounded-lg cursor-pointer" onClick={() => setAvatarUrl(`https://picsum.photos/seed/${Math.random()}/200/200`)}>
                     <ImageIcon className="h-4 w-4" />
                     <span>Change Avatar</span>
@@ -123,6 +126,13 @@ export default function ProfilePage() {
                   </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
+              
+              <button 
+                onClick={() => setIsEditingUsername(true)}
+                className="absolute bottom-0 right-0 p-2 bg-white rounded-full shadow-lg border border-border hover:bg-primary hover:text-white transition-all group-hover:scale-110"
+              >
+                <Edit2 className="h-4 w-4" />
+              </button>
             </div>
 
             {/* User Info Section */}
@@ -135,6 +145,8 @@ export default function ProfilePage() {
                       onChange={(e) => setUsername(e.target.value)}
                       className="h-8 md:h-10 text-lg md:text-2xl font-bold rounded-xl"
                       autoFocus
+                      onBlur={() => setIsEditingUsername(false)}
+                      onKeyDown={(e) => e.key === 'Enter' && setIsEditingUsername(false)}
                     />
                     <CustomButton size="sm" className="rounded-xl h-8 px-4" onClick={() => setIsEditingUsername(false)}>Save</CustomButton>
                   </div>
@@ -166,7 +178,7 @@ export default function ProfilePage() {
               </div>
             </div>
 
-            {/* Network Indicator (Desktop only in this spot) */}
+            {/* Network Indicator */}
             <div className="flex flex-col items-center md:items-end gap-2">
               <Badge variant="outline" className={cn(
                 "rounded-full gap-2 px-3 py-1 font-bold tracking-tight border-2 capitalize",
@@ -187,7 +199,9 @@ export default function ProfilePage() {
               <div className="p-3 bg-primary/10 rounded-2xl text-primary">
                 <Wallet className="h-6 w-6" />
               </div>
-              <Badge variant="secondary" className="rounded-full text-[10px] font-black uppercase tracking-widest">Sepolia</Badge>
+              <Badge variant="secondary" className="rounded-full text-[10px] font-black uppercase tracking-widest">
+                {chain?.name || 'Network'}
+              </Badge>
             </div>
             <div>
               <p className="text-[10px] md:text-xs text-muted-foreground font-black uppercase tracking-[0.2em] mb-1">Live Balance</p>
@@ -202,13 +216,22 @@ export default function ProfilePage() {
               <div className="p-3 bg-primary/10 rounded-2xl text-primary">
                 <ShieldCheck className="h-6 w-6" />
               </div>
-              <button 
-                onClick={() => openAccountModal?.()}
-                className="p-1 hover:text-primary transition-colors text-muted-foreground/40 hover:bg-primary/5 rounded-md"
-                title="Open Wallet Modal"
-              >
-                <ExternalLink className="h-5 w-5" />
-              </button>
+              <div className="flex items-center gap-1">
+                <button 
+                  onClick={() => openAccountModal?.()}
+                  className="p-2 hover:bg-primary/10 rounded-lg text-primary transition-all"
+                  title="Account Settings"
+                >
+                  <Settings2 className="h-5 w-5" />
+                </button>
+                <button 
+                  onClick={openExplorer}
+                  className="p-2 hover:bg-primary/10 rounded-lg text-primary transition-all"
+                  title="View on Explorer"
+                >
+                  <ExternalLink className="h-5 w-5" />
+                </button>
+              </div>
             </div>
             <div>
               <p className="text-[10px] md:text-xs text-muted-foreground font-black uppercase tracking-[0.2em] mb-1">Connected Via</p>
