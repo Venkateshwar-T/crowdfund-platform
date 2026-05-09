@@ -3,6 +3,7 @@
 import Link from 'next/link';
 import { useState, useRef, useEffect } from 'react';
 import { usePathname } from 'next/navigation';
+import { User } from 'lucide-react';
 import { 
   ArrowLeft, 
   Search, 
@@ -27,6 +28,8 @@ import { CustomButton } from './custom-button';
 import { BrandLogo } from './brand-logo';
 import { Input } from '@/components/ui/input';
 import { cn } from '@/lib/utils';
+import { useAccount } from 'wagmi';
+import { useConnectModal } from '@rainbow-me/rainbowkit';
 
 const BROWSE_CATEGORIES = [
   { id: 'medical', label: 'Medical', icon: Heart },
@@ -42,6 +45,8 @@ const BROWSE_CATEGORIES = [
 ];
 
 export function Navbar() {
+  const { isConnected } = useAccount();
+  const { openConnectModal } = useConnectModal();
   const pathname = usePathname();
   const [isSearching, setIsSearching] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -178,9 +183,30 @@ export function Navbar() {
               <CircleHelp className="h-5 w-5 text-muted-foreground" />
             </Link>
 
-            <CustomButton variant="default" className="hidden md:flex rounded-full px-4 md:px-6 whitespace-nowrap">
+            {/* <CustomButton variant="default" className="hidden md:flex rounded-full px-4 md:px-6 whitespace-nowrap">
               Connect Wallet
-            </CustomButton>
+            </CustomButton> */}
+
+            {isConnected ? (
+                <Link href="/profile">
+                  <CustomButton variant="default" className="hidden md:flex rounded-full px-4 gap-2">
+                    <User className="h-4 w-4" />
+                    Profile
+                  </CustomButton>
+                </Link>
+              ) : (
+                <CustomButton 
+                  onClick={openConnectModal} 
+                  variant="default"
+                  className="hidden md:flex rounded-full px-6 whitespace-nowrap"
+                >
+                  Connect Wallet
+                </CustomButton>
+              )}
+            
+              {/* Replace your CustomButton with this */}
+              {/* <WalletConnect />  */}
+            
 
             <div className="flex md:hidden items-center gap-1">
               <button 
