@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { 
   User, 
   Copy, 
@@ -31,6 +31,215 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { cn } from '@/lib/utils';
 
+/**
+ * Sub-component for the state when no wallet is connected
+ */
+function NotConnectedView({ onConnect }: { onConnect: () => void }) {
+  return (
+    <div className="flex flex-col items-center justify-center min-h-[70vh] p-4 text-center">
+      <div className="bg-primary/10 p-6 rounded-full mb-6">
+        <User className="h-12 w-12 text-primary" />
+      </div>
+      
+      <h1 className="text-2xl font-bold mb-2">Profile Access</h1>
+      <p className="text-muted-foreground max-w-xs mb-8">
+        Please connect your wallet to view and manage your decentralized profile and contributions.
+      </p>
+
+      <div className="flex flex-col items-center gap-4">
+        <div className="flex items-center gap-2 text-destructive font-bold text-xs uppercase tracking-[0.15em] animate-pulse">
+          <div className="w-2 h-2 rounded-full bg-destructive" />
+          <span>Wallet Not Connected</span>
+        </div>
+        
+        <CustomButton 
+          onClick={onConnect}
+          className="rounded-full px-8 h-10 md:h-12 text-sm md:text-base font-bold shadow-lg shadow-primary/10"
+        >
+          Connect Wallet
+        </CustomButton>
+      </div>
+    </div>
+  );
+}
+
+/**
+ * Sub-component for the main profile identity card
+ */
+function ProfileIdentityCard({ 
+  username, 
+  setUsername, 
+  isEditingUsername, 
+  setIsEditingUsername,
+  address,
+  shortenedAddress,
+  avatarUrl,
+  setAvatarUrl,
+  isCopied,
+  copyAddress,
+  chain
+}: any) {
+  return (
+    <Card className="p-6 md:p-10 rounded-3xl md:rounded-[2.5rem] bg-white/70 backdrop-blur-xl border-white/20 shadow-xl overflow-hidden relative">
+      <div className="absolute top-0 left-0 w-full h-24 md:h-32 bg-gradient-to-r from-primary/10 to-accent/20 -z-10" />
+      
+      <div className="flex flex-col md:flex-row items-center md:items-end gap-6 md:gap-8">
+        <div className="relative group">
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Avatar className="h-24 w-24 md:h-32 md:w-32 border-4 border-background shadow-2xl ring-1 ring-border/20 cursor-pointer hover:scale-105 transition-transform">
+                <AvatarImage src={avatarUrl || `https://picsum.photos/seed/${address}/200/200`} />
+                <AvatarFallback className="bg-primary text-white text-3xl font-bold">
+                  {username[0]}
+                </AvatarFallback>
+              </Avatar>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="center" className="rounded-xl p-1">
+              <DropdownMenuItem className="gap-2 rounded-lg cursor-pointer" onClick={() => setAvatarUrl(`https://picsum.photos/seed/${Math.random()}/200/200`)}>
+                <ImageIcon className="h-4 w-4" />
+                <span>Change Avatar</span>
+              </DropdownMenuItem>
+              <DropdownMenuItem className="gap-2 rounded-lg cursor-pointer text-destructive focus:text-destructive" onClick={() => setAvatarUrl(null)}>
+                <Trash2 className="h-4 w-4" />
+                <span>Remove Avatar</span>
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+          
+          <button 
+            onClick={() => setIsEditingUsername(true)}
+            className="absolute bottom-0 right-0 p-2 bg-white rounded-full shadow-lg border border-border hover:bg-primary hover:text-white transition-all group-hover:scale-110"
+          >
+            <Edit2 className="h-4 w-4" />
+          </button>
+        </div>
+
+        <div className="flex flex-col items-center md:items-start flex-1 gap-2">
+          <div className="flex items-center gap-2">
+            {isEditingUsername ? (
+              <div className="flex items-center gap-2">
+                <Input 
+                  value={username} 
+                  onChange={(e) => setUsername(e.target.value)}
+                  className="h-8 md:h-10 text-lg md:text-2xl font-bold rounded-xl"
+                  autoFocus
+                  onBlur={() => setIsEditingUsername(false)}
+                  onKeyDown={(e) => e.key === 'Enter' && setIsEditingUsername(false)}
+                />
+                <CustomButton size="sm" className="rounded-xl h-8 px-4" onClick={() => setIsEditingUsername(false)}>Save</CustomButton>
+              </div>
+            ) : (
+              <>
+                <h1 className="text-xl md:text-3xl font-black text-foreground">
+                  {username}
+                </h1>
+                <button 
+                  onClick={() => setIsEditingUsername(true)}
+                  className="p-1 hover:text-primary transition-colors"
+                >
+                  <Edit2 className="h-4 w-4 md:h-5 md:w-5" />
+                </button>
+              </>
+            )}
+          </div>
+
+          <div className="flex items-center gap-2 bg-muted/50 px-3 py-1 rounded-full group">
+            <span className="text-xs md:text-sm font-mono font-medium text-muted-foreground">
+              {shortenedAddress}
+            </span>
+            <button 
+              onClick={copyAddress}
+              className="p-1 hover:text-primary transition-all active:scale-90"
+            >
+              {isCopied ? <Check className="h-3 w-3 text-emerald-500" /> : <Copy className="h-3 w-3" />}
+            </button>
+          </div>
+        </div>
+
+        <div className="flex flex-col items-center md:items-end gap-2">
+          <Badge variant="outline" className={cn(
+            "rounded-full gap-2 px-3 py-1 font-bold tracking-tight border-2 capitalize",
+            chain?.id === 1 ? "bg-blue-50 text-blue-600 border-blue-200" : "bg-emerald-50 text-emerald-600 border-emerald-200"
+          )}>
+            <div className={cn("w-2 h-2 rounded-full animate-pulse", chain?.id === 1 ? "bg-blue-600" : "bg-emerald-600")} />
+            {chain?.name || 'Unknown Network'}
+          </Badge>
+          <span className="text-[10px] text-muted-foreground uppercase font-black tracking-[0.1em]">Active Network</span>
+        </div>
+      </div>
+    </Card>
+  );
+}
+
+/**
+ * Sub-component for the statistics cards (Balance and Provider)
+ */
+function StatsGrid({ 
+  balance, 
+  chainName, 
+  onOpenAccountModal, 
+  onOpenExplorer 
+}: { 
+  balance: any, 
+  chainName: string, 
+  onOpenAccountModal: () => void, 
+  onOpenExplorer: () => void 
+}) {
+  return (
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
+      <Card className="p-6 md:p-8 rounded-[2rem] border-white/20 bg-white/50 flex flex-col gap-4 shadow-sm hover:shadow-md transition-shadow">
+        <div className="flex items-center justify-between">
+          <div className="p-3 bg-primary/10 rounded-2xl text-primary">
+            <Wallet className="h-6 w-6" />
+          </div>
+          <Badge variant="secondary" className="rounded-full text-[10px] font-black uppercase tracking-widest">
+            {chainName}
+          </Badge>
+        </div>
+        <div>
+          <p className="text-[10px] md:text-xs text-muted-foreground font-black uppercase tracking-[0.2em] mb-1">Live Balance</p>
+          <h3 className="text-2xl md:text-4xl font-black text-foreground">
+            {balance?.formatted?.slice(0, 6)} <span className="text-lg md:text-2xl font-bold text-muted-foreground">{balance?.symbol}</span>
+          </h3>
+        </div>
+      </Card>
+
+      <Card className="p-6 md:p-8 rounded-[2rem] border-white/20 bg-white/50 flex flex-col gap-4 shadow-sm hover:shadow-md transition-shadow">
+        <div className="flex items-center justify-between">
+          <div className="p-3 bg-primary/10 rounded-2xl text-primary">
+            <ShieldCheck className="h-6 w-6" />
+          </div>
+          <div className="flex items-center gap-1">
+            <button 
+              onClick={onOpenAccountModal}
+              className="p-2 hover:bg-primary/10 rounded-lg text-primary transition-all"
+              title="Account Settings"
+            >
+              <Settings2 className="h-5 w-5" />
+            </button>
+            <button 
+              onClick={onOpenExplorer}
+              className="p-2 hover:bg-primary/10 rounded-lg text-primary transition-all"
+              title="View on Explorer"
+            >
+              <ExternalLink className="h-5 w-5" />
+            </button>
+          </div>
+        </div>
+        <div>
+          <p className="text-[10px] md:text-xs text-muted-foreground font-black uppercase tracking-[0.2em] mb-1">Connected Via</p>
+          <h3 className="text-2xl md:text-4xl font-black text-foreground">
+            MetaMask
+          </h3>
+        </div>
+      </Card>
+    </div>
+  );
+}
+
+/**
+ * Main Profile Page component
+ */
 export default function ProfilePage() {
   const { address, isConnected, chain } = useAccount();
   const { data: balance } = useBalance({ address });
@@ -45,7 +254,6 @@ export default function ProfilePage() {
   const [username, setUsername] = useState('New Supporter');
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
 
-  // Shorten address for display
   const shortenedAddress = address 
     ? `${address.slice(0, 6)}...${address.slice(-4)}` 
     : 'Not connected';
@@ -75,183 +283,34 @@ export default function ProfilePage() {
   };
 
   if (!isConnected) {
-    return (
-      <div className="flex flex-col items-center justify-center min-h-[70vh] p-4 text-center">
-        <div className="bg-primary/10 p-6 rounded-full mb-6">
-          <User className="h-12 w-12 text-primary" />
-        </div>
-        
-        <h1 className="text-2xl font-bold mb-2">Profile Access</h1>
-        <p className="text-muted-foreground max-w-xs mb-8">
-          Please connect your wallet to view and manage your decentralized profile and contributions.
-        </p>
-
-        <div className="flex flex-col items-center gap-4">
-          <div className="flex items-center gap-2 text-destructive font-bold text-xs uppercase tracking-[0.15em] animate-pulse">
-            <div className="w-2 h-2 rounded-full bg-destructive" />
-            <span>Wallet Not Connected</span>
-          </div>
-          
-          <CustomButton 
-            onClick={openConnectModal}
-            className="rounded-full px-8 h-10 md:h-12 text-sm md:text-base font-bold shadow-lg shadow-primary/10"
-          >
-            Connect Wallet
-          </CustomButton>
-        </div>
-      </div>
-    );
+    return <NotConnectedView onConnect={openConnectModal!} />;
   }
 
   return (
     <div className="max-w-4xl mx-auto px-4 py-8 md:py-16 w-full">
       <div className="flex flex-col gap-6 md:gap-8">
         
-        {/* Profile Header Card */}
-        <Card className="p-6 md:p-10 rounded-3xl md:rounded-[2.5rem] bg-white/70 backdrop-blur-xl border-white/20 shadow-xl overflow-hidden relative">
-          <div className="absolute top-0 left-0 w-full h-24 md:h-32 bg-gradient-to-r from-primary/10 to-accent/20 -z-10" />
-          
-          <div className="flex flex-col md:flex-row items-center md:items-end gap-6 md:gap-8">
-            {/* Avatar Section - Now Clickable for Actions */}
-            <div className="relative group">
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Avatar className="h-24 w-24 md:h-32 md:w-32 border-4 border-background shadow-2xl ring-1 ring-border/20 cursor-pointer hover:scale-105 transition-transform">
-                    <AvatarImage src={avatarUrl || `https://picsum.photos/seed/${address}/200/200`} />
-                    <AvatarFallback className="bg-primary text-white text-3xl font-bold">
-                      {username[0]}
-                    </AvatarFallback>
-                  </Avatar>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="center" className="rounded-xl p-1">
-                  <DropdownMenuItem className="gap-2 rounded-lg cursor-pointer" onClick={() => setAvatarUrl(`https://picsum.photos/seed/${Math.random()}/200/200`)}>
-                    <ImageIcon className="h-4 w-4" />
-                    <span>Change Avatar</span>
-                  </DropdownMenuItem>
-                  <DropdownMenuItem className="gap-2 rounded-lg cursor-pointer text-destructive focus:text-destructive" onClick={() => setAvatarUrl(null)}>
-                    <Trash2 className="h-4 w-4" />
-                    <span>Remove Avatar</span>
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
-              
-              <button 
-                onClick={() => setIsEditingUsername(true)}
-                className="absolute bottom-0 right-0 p-2 bg-white rounded-full shadow-lg border border-border hover:bg-primary hover:text-white transition-all group-hover:scale-110"
-              >
-                <Edit2 className="h-4 w-4" />
-              </button>
-            </div>
+        <ProfileIdentityCard 
+          username={username}
+          setUsername={setUsername}
+          isEditingUsername={isEditingUsername}
+          setIsEditingUsername={setIsEditingUsername}
+          address={address}
+          shortenedAddress={shortenedAddress}
+          avatarUrl={avatarUrl}
+          setAvatarUrl={setAvatarUrl}
+          isCopied={isCopied}
+          copyAddress={copyAddress}
+          chain={chain}
+        />
 
-            {/* User Info Section */}
-            <div className="flex flex-col items-center md:items-start flex-1 gap-2">
-              <div className="flex items-center gap-2">
-                {isEditingUsername ? (
-                  <div className="flex items-center gap-2">
-                    <Input 
-                      value={username} 
-                      onChange={(e) => setUsername(e.target.value)}
-                      className="h-8 md:h-10 text-lg md:text-2xl font-bold rounded-xl"
-                      autoFocus
-                      onBlur={() => setIsEditingUsername(false)}
-                      onKeyDown={(e) => e.key === 'Enter' && setIsEditingUsername(false)}
-                    />
-                    <CustomButton size="sm" className="rounded-xl h-8 px-4" onClick={() => setIsEditingUsername(false)}>Save</CustomButton>
-                  </div>
-                ) : (
-                  <>
-                    <h1 className="text-xl md:text-3xl font-black text-foreground">
-                      {username}
-                    </h1>
-                    <button 
-                      onClick={() => setIsEditingUsername(true)}
-                      className="p-1 hover:text-primary transition-colors"
-                    >
-                      <Edit2 className="h-4 w-4 md:h-5 md:w-5" />
-                    </button>
-                  </>
-                )}
-              </div>
+        <StatsGrid 
+          balance={balance}
+          chainName={chain?.name || 'Network'}
+          onOpenAccountModal={() => openAccountModal?.()}
+          onOpenExplorer={openExplorer}
+        />
 
-              <div className="flex items-center gap-2 bg-muted/50 px-3 py-1 rounded-full group">
-                <span className="text-xs md:text-sm font-mono font-medium text-muted-foreground">
-                  {shortenedAddress}
-                </span>
-                <button 
-                  onClick={copyAddress}
-                  className="p-1 hover:text-primary transition-all active:scale-90"
-                >
-                  {isCopied ? <Check className="h-3 w-3 text-emerald-500" /> : <Copy className="h-3 w-3" />}
-                </button>
-              </div>
-            </div>
-
-            {/* Network Indicator */}
-            <div className="flex flex-col items-center md:items-end gap-2">
-              <Badge variant="outline" className={cn(
-                "rounded-full gap-2 px-3 py-1 font-bold tracking-tight border-2 capitalize",
-                chain?.id === 1 ? "bg-blue-50 text-blue-600 border-blue-200" : "bg-emerald-50 text-emerald-600 border-emerald-200"
-              )}>
-                <div className={cn("w-2 h-2 rounded-full animate-pulse", chain?.id === 1 ? "bg-blue-600" : "bg-emerald-600")} />
-                {chain?.name || 'Unknown Network'}
-              </Badge>
-              <span className="text-[10px] text-muted-foreground uppercase font-black tracking-[0.1em]">Active Network</span>
-            </div>
-          </div>
-        </Card>
-
-        {/* Stats Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
-          <Card className="p-6 md:p-8 rounded-[2rem] border-white/20 bg-white/50 flex flex-col gap-4 shadow-sm hover:shadow-md transition-shadow">
-            <div className="flex items-center justify-between">
-              <div className="p-3 bg-primary/10 rounded-2xl text-primary">
-                <Wallet className="h-6 w-6" />
-              </div>
-              <Badge variant="secondary" className="rounded-full text-[10px] font-black uppercase tracking-widest">
-                {chain?.name || 'Network'}
-              </Badge>
-            </div>
-            <div>
-              <p className="text-[10px] md:text-xs text-muted-foreground font-black uppercase tracking-[0.2em] mb-1">Live Balance</p>
-              <h3 className="text-2xl md:text-4xl font-black text-foreground">
-                {balance?.formatted?.slice(0, 6)} <span className="text-lg md:text-2xl font-bold text-muted-foreground">{balance?.symbol}</span>
-              </h3>
-            </div>
-          </Card>
-
-          <Card className="p-6 md:p-8 rounded-[2rem] border-white/20 bg-white/50 flex flex-col gap-4 shadow-sm hover:shadow-md transition-shadow">
-            <div className="flex items-center justify-between">
-              <div className="p-3 bg-primary/10 rounded-2xl text-primary">
-                <ShieldCheck className="h-6 w-6" />
-              </div>
-              <div className="flex items-center gap-1">
-                <button 
-                  onClick={() => openAccountModal?.()}
-                  className="p-2 hover:bg-primary/10 rounded-lg text-primary transition-all"
-                  title="Account Settings"
-                >
-                  <Settings2 className="h-5 w-5" />
-                </button>
-                <button 
-                  onClick={openExplorer}
-                  className="p-2 hover:bg-primary/10 rounded-lg text-primary transition-all"
-                  title="View on Explorer"
-                >
-                  <ExternalLink className="h-5 w-5" />
-                </button>
-              </div>
-            </div>
-            <div>
-              <p className="text-[10px] md:text-xs text-muted-foreground font-black uppercase tracking-[0.2em] mb-1">Connected Via</p>
-              <h3 className="text-2xl md:text-4xl font-black text-foreground">
-                MetaMask
-              </h3>
-            </div>
-          </Card>
-        </div>
-
-
-        {/* Action Buttons */}
         <div className="flex flex-col md:flex-row gap-3 md:gap-4 mt-4">
           <CustomButton 
             onClick={handleDisconnect}
