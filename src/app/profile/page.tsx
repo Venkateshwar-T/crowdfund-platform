@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useState, useMemo } from 'react';
@@ -8,18 +7,15 @@ import {
   Check, 
   LogOut, 
   Edit2, 
-  Wallet, 
-  ShieldCheck, 
-  ExternalLink, 
+  ImageIcon, 
+  Trash2, 
+  Loader2, 
+  Search, 
+  PlusCircle, 
   Settings2,
-  Trash2,
-  ImageIcon,
-  Loader2,
   TrendingUp,
   HeartHandshake,
-  LayoutGrid,
-  Search,
-  PlusCircle
+  LayoutGrid
 } from 'lucide-react';
 import { useAccount, useBalance, useDisconnect, useReadContract } from 'wagmi';
 import { useRouter } from 'next/navigation';
@@ -43,12 +39,11 @@ import {
   TabsContent,
   TabsList,
   TabsTrigger,
-} from "@/components/ui/tabs";
+} from "@/components/tabs";
 import { cn } from '@/lib/utils';
 import { CONTRACT_ADDRESS, CONTRACT_ABI } from '@/lib/contract';
 import { formatUnits } from 'viem';
-import { CampaignCard } from '@/components/campaign-card';
-import { Progress } from '@/components/ui/progress';
+import { ProfileStatCard, ProfileCampaignCard, ProfileContributionCard } from '@/components/profile-cards';
 
 /**
  * Sub-component for the state when no wallet is connected
@@ -191,57 +186,11 @@ function ProfileIdentityCard({
 }
 
 /**
- * Statistics Grid for the Profile Dashboard
- */
-function DashboardStats({ totalUSD, totalETH, campaignsCount, priceLoading }: any) {
-  return (
-    <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6 mt-8">
-      <Card className="p-6 md:p-8 rounded-[2rem] border-white/20 bg-white/50 flex flex-col gap-4 shadow-sm">
-        <div className="p-3 w-fit bg-primary/10 rounded-2xl text-primary">
-          <TrendingUp className="h-6 w-6" />
-        </div>
-        <div>
-          <p className="text-[10px] md:text-xs text-muted-foreground font-black uppercase tracking-[0.2em] mb-1">Total Raised (USD)</p>
-          <h3 className="text-2xl md:text-4xl font-black text-foreground">
-            ${totalUSD.toLocaleString(undefined, { maximumFractionDigits: 0 })}
-          </h3>
-        </div>
-      </Card>
-
-      <Card className="p-6 md:p-8 rounded-[2rem] border-white/20 bg-white/50 flex flex-col gap-4 shadow-sm">
-        <div className="p-3 w-fit bg-primary/10 rounded-2xl text-primary">
-          <HeartHandshake className="h-6 w-6" />
-        </div>
-        <div>
-          <p className="text-[10px] md:text-xs text-muted-foreground font-black uppercase tracking-[0.2em] mb-1">Total Contributed (ETH)</p>
-          <h3 className="text-2xl md:text-4xl font-black text-foreground">
-            {totalETH.toFixed(4)} <span className="text-lg md:text-2xl font-bold text-muted-foreground">ETH</span>
-          </h3>
-        </div>
-      </Card>
-
-      <Card className="p-6 md:p-8 rounded-[2rem] border-white/20 bg-white/50 flex flex-col gap-4 shadow-sm">
-        <div className="p-3 w-fit bg-primary/10 rounded-2xl text-primary">
-          <LayoutGrid className="h-6 w-6" />
-        </div>
-        <div>
-          <p className="text-[10px] md:text-xs text-muted-foreground font-black uppercase tracking-[0.2em] mb-1">Campaigns Launched</p>
-          <h3 className="text-2xl md:text-4xl font-black text-foreground">
-            {campaignsCount}
-          </h3>
-        </div>
-      </Card>
-    </div>
-  );
-}
-
-/**
  * Main Profile Page component
  */
 export default function ProfilePage() {
   const { address, isConnected, chain } = useAccount();
-  const { data: balance } = useBalance({ address });
-  const { prices: ethPrices, isLoading: priceLoading } = useEthPrice();
+  const { prices: ethPrices } = useEthPrice();
   const { disconnect } = useDisconnect();
   const { openAccountModal } = useAccountModal();
   const { openConnectModal } = useConnectModal();
@@ -254,7 +203,7 @@ export default function ProfilePage() {
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
 
   // Fetch all campaigns from contract to calculate history
-  const { data: campaignsRaw, isLoading: isCampaignsLoading, isError } = useReadContract({
+  const { data: campaignsRaw, isLoading: isCampaignsLoading } = useReadContract({
     address: CONTRACT_ADDRESS,
     abi: CONTRACT_ABI,
     functionName: 'getCampaigns',
@@ -285,23 +234,15 @@ export default function ProfilePage() {
         return {
           id: index.toString(),
           title: c.title,
-          images: c.mediaUrls && c.mediaUrls.length > 0 ? c.mediaUrls : ["https://picsum.photos/seed/placeholder/800/600"],
-          user: {
-            name: `${c.owner.slice(0, 6)}...${c.owner.slice(-4)}`,
-            avatar: `https://picsum.photos/seed/${c.owner}/100/100`,
-            verified: true,
-          },
-          contributedAmount: amountCollected,
-          targetAmount: target,
           contributors: c.donators.length,
-          deadline: new Date(deadlineMs).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }),
           status,
-          owner: c.owner.toLowerCase()
+          owner: c.owner.toLowerCase(),
+          amountCollected
         };
       })
       .filter(c => c.owner === userAddr);
 
-    const totalUSD = myCampaigns.reduce((acc, c) => acc + c.contributedAmount, 0);
+    const totalUSD = myCampaigns.reduce((acc, c) => acc + c.amountCollected, 0);
 
     // 2. My Contributions
     const myContributions = all
@@ -353,13 +294,6 @@ export default function ProfilePage() {
     router.push('/');
   };
 
-  const openExplorer = () => {
-    if (address && chain) {
-      const baseUrl = chain.blockExplorers?.default.url || 'https://etherscan.io';
-      window.open(`${baseUrl}/address/${address}`, '_blank');
-    }
-  };
-
   if (!isConnected) {
     return <NotConnectedView onConnect={openConnectModal!} />;
   }
@@ -391,12 +325,24 @@ export default function ProfilePage() {
           chain={chain}
         />
 
-        <DashboardStats 
-          totalUSD={processedData.totalUSD}
-          totalETH={processedData.totalETH}
-          campaignsCount={processedData.myCampaigns.length}
-          priceLoading={priceLoading}
-        />
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6 mt-8">
+          <ProfileStatCard 
+            title="Total Raised (USD)"
+            value={`$${processedData.totalUSD.toLocaleString(undefined, { maximumFractionDigits: 0 })}`}
+            icon={TrendingUp}
+          />
+          <ProfileStatCard 
+            title="Total Contributed (ETH)"
+            value={processedData.totalETH.toFixed(4)}
+            subValue="ETH"
+            icon={HeartHandshake}
+          />
+          <ProfileStatCard 
+            title="Campaigns Launched"
+            value={processedData.myCampaigns.length}
+            icon={LayoutGrid}
+          />
+        </div>
 
         <Tabs defaultValue="my-campaigns" className="mt-8">
           <TabsList className="bg-white/50 backdrop-blur-md p-1 rounded-2xl h-12 md:h-14 mb-8 grid grid-cols-2 max-w-md border border-white/20">
@@ -428,7 +374,13 @@ export default function ProfilePage() {
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {processedData.myCampaigns.map((campaign: any) => (
-                  <CampaignCard key={campaign.id} {...campaign} />
+                  <ProfileCampaignCard 
+                    key={campaign.id}
+                    id={campaign.id}
+                    title={campaign.title}
+                    contributors={campaign.contributors}
+                    status={campaign.status}
+                  />
                 ))}
               </div>
             )}
@@ -454,35 +406,10 @@ export default function ProfilePage() {
             ) : (
               <div className="grid grid-cols-1 gap-4">
                 {processedData.myContributions.map((contribution: any) => (
-                  <Link key={contribution.id} href={`/browse/${contribution.id}`}>
-                    <Card className="p-6 rounded-3xl bg-white/50 hover:bg-white/80 transition-all border-white/20 group">
-                      <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
-                        <div className="flex-1">
-                          <h4 className="text-lg font-bold group-hover:text-primary transition-colors">{contribution.title}</h4>
-                          <div className="flex items-center gap-4 mt-2">
-                            <div className="flex flex-col">
-                              <span className="text-[10px] text-muted-foreground uppercase font-black tracking-widest">Your Contribution</span>
-                              <span className="text-lg font-black text-primary">{contribution.personalContribution.toFixed(4)} ETH</span>
-                            </div>
-                            <div className="w-px h-8 bg-border/50" />
-                            <div className="flex flex-col">
-                              <span className="text-[10px] text-muted-foreground uppercase font-black tracking-widest">Campaign Raised</span>
-                              <span className="text-lg font-bold text-foreground">
-                                ${contribution.amountCollected.toLocaleString()} / ${contribution.target.toLocaleString()}
-                              </span>
-                            </div>
-                          </div>
-                        </div>
-                        <div className="w-full md:w-64 flex flex-col gap-2">
-                          <div className="flex justify-between items-center text-xs font-bold uppercase tracking-widest text-muted-foreground">
-                            <span>Progress</span>
-                            <span>{Math.round(contribution.progress)}%</span>
-                          </div>
-                          <Progress value={contribution.progress} className="h-2 bg-muted border border-border/10" />
-                        </div>
-                      </div>
-                    </Card>
-                  </Link>
+                  <ProfileContributionCard 
+                    key={contribution.id}
+                    {...contribution}
+                  />
                 ))}
               </div>
             )}
