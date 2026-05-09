@@ -15,9 +15,11 @@ import {
   Settings2,
   TrendingUp,
   HeartHandshake,
-  LayoutGrid
+  LayoutGrid,
+  Wallet as WalletIcon,
+  Info
 } from 'lucide-react';
-import { useAccount, useDisconnect, useReadContract } from 'wagmi';
+import { useAccount, useDisconnect, useReadContract, useBalance } from 'wagmi';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
@@ -191,6 +193,7 @@ function ProfileIdentityCard({
 export default function ProfilePage() {
   const { address, isConnected, chain } = useAccount();
   const { prices: ethPrices } = useEthPrice();
+  const { data: userBalance } = useBalance({ address });
   const { disconnect } = useDisconnect();
   const { openAccountModal } = useAccountModal();
   const { openConnectModal } = useConnectModal();
@@ -273,6 +276,10 @@ export default function ProfilePage() {
     return { myCampaigns, myContributions, totalUSD, totalETH };
   }, [campaignsRaw, address]);
 
+  const ethValueInWallet = parseFloat(userBalance?.formatted || '0');
+  const usdValueInWallet = ethValueInWallet * (ethPrices?.usd || 0);
+  const inrValueInWallet = ethValueInWallet * (ethPrices?.inr || 0);
+
   const shortenedAddress = address 
     ? `${address.slice(0, 6)}...${address.slice(-4)}` 
     : 'Not connected';
@@ -326,6 +333,22 @@ export default function ProfilePage() {
         />
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6 mt-8">
+          <Card className="p-6 md:p-8 rounded-[2rem] border-white/20 bg-primary/5 flex flex-col gap-4 shadow-sm border">
+            <div className="p-3 w-fit bg-primary rounded-2xl text-white">
+              <WalletIcon className="h-6 w-6" />
+            </div>
+            <div>
+              <p className="text-[10px] md:text-xs text-muted-foreground font-black uppercase tracking-[0.2em] mb-1">My Wallet Balance</p>
+              <h3 className="text-2xl md:text-4xl font-black text-foreground">
+                {ethValueInWallet.toFixed(4)} <span className="text-lg md:text-2xl font-bold text-muted-foreground">ETH</span>
+              </h3>
+              <div className="flex items-center gap-2 mt-2">
+                <span className="text-xs font-bold text-primary bg-primary/10 px-2 py-0.5 rounded-full">${usdValueInWallet.toLocaleString(undefined, { maximumFractionDigits: 2 })}</span>
+                <span className="text-xs font-bold text-primary bg-primary/10 px-2 py-0.5 rounded-full">₹{inrValueInWallet.toLocaleString(undefined, { maximumFractionDigits: 0 })}</span>
+              </div>
+            </div>
+          </Card>
+
           <ProfileStatCard 
             title="Total Raised (USD)"
             value={`$${processedData.totalUSD.toLocaleString(undefined, { maximumFractionDigits: 0 })}`}
@@ -337,84 +360,99 @@ export default function ProfilePage() {
             subValue="ETH"
             icon={HeartHandshake}
           />
-          <ProfileStatCard 
-            title="Campaigns Launched"
-            value={processedData.myCampaigns.length}
-            icon={LayoutGrid}
-          />
         </div>
 
-        <Tabs defaultValue="my-campaigns" className="mt-8">
-          <TabsList className="bg-white/50 backdrop-blur-md p-1 rounded-2xl h-12 md:h-14 mb-8 grid grid-cols-2 max-w-md border border-white/20">
-            <TabsTrigger value="my-campaigns" className="rounded-xl font-bold data-[state=active]:bg-primary data-[state=active]:text-white">
-              My Campaigns
-            </TabsTrigger>
-            <TabsTrigger value="contributions" className="rounded-xl font-bold data-[state=active]:bg-primary data-[state=active]:text-white">
-              Contributions
-            </TabsTrigger>
-          </TabsList>
+        <div className="mt-8 bg-white/70 backdrop-blur-xl border border-white/20 rounded-[2.5rem] overflow-hidden shadow-xl">
+          <Tabs defaultValue="my-campaigns" className="w-full">
+            <div className="bg-muted/30 p-4 md:p-6 border-b border-border/10">
+              <TabsList className="bg-background/80 backdrop-blur-md p-1 rounded-2xl h-12 md:h-14 grid grid-cols-2 max-w-md border border-border/20">
+                <TabsTrigger value="my-campaigns" className="rounded-xl font-bold data-[state=active]:bg-primary data-[state=active]:text-white">
+                  My Campaigns
+                </TabsTrigger>
+                <TabsTrigger value="contributions" className="rounded-xl font-bold data-[state=active]:bg-primary data-[state=active]:text-white">
+                  Contributions
+                </TabsTrigger>
+              </TabsList>
+            </div>
 
-          <TabsContent value="my-campaigns" className="mt-0">
-            {processedData.myCampaigns.length === 0 ? (
-              <Card className="p-12 text-center flex flex-col items-center gap-6 bg-white/50 rounded-[2.5rem] border-white/20">
-                <div className="p-6 bg-muted rounded-full">
-                  <Search className="h-10 w-10 text-muted-foreground" />
+            <div className="p-6 md:p-10">
+              <TabsContent value="my-campaigns" className="mt-0 outline-none">
+                <div className="flex items-center gap-2 mb-8 bg-primary/5 p-3 rounded-2xl border border-primary/10 w-fit">
+                  <LayoutGrid className="h-4 w-4 text-primary" />
+                  <span className="text-xs md:text-sm font-bold text-primary uppercase tracking-widest">
+                    Total Campaigns Launched: {processedData.myCampaigns.length}
+                  </span>
                 </div>
-                <div>
-                  <h3 className="text-xl font-bold">No campaigns launched yet</h3>
-                  <p className="text-muted-foreground mt-2">Start your first fundraiser today and make an impact.</p>
-                </div>
-                <CustomButton asChild className="rounded-full px-8 gap-2">
-                  <Link href="/fundraisers/new">
-                    <PlusCircle className="h-5 w-5" />
-                    Create Campaign
-                  </Link>
-                </CustomButton>
-              </Card>
-            ) : (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {processedData.myCampaigns.map((campaign: any) => (
-                  <ProfileCampaignCard 
-                    key={campaign.id}
-                    id={campaign.id}
-                    title={campaign.title}
-                    contributors={campaign.contributors}
-                    status={campaign.status}
-                  />
-                ))}
-              </div>
-            )}
-          </TabsContent>
 
-          <TabsContent value="contributions" className="mt-0">
-            {processedData.myContributions.length === 0 ? (
-              <Card className="p-12 text-center flex flex-col items-center gap-6 bg-white/50 rounded-[2.5rem] border-white/20">
-                <div className="p-6 bg-muted rounded-full">
-                  <HeartHandshake className="h-10 w-10 text-muted-foreground" />
+                {processedData.myCampaigns.length === 0 ? (
+                  <div className="p-12 text-center flex flex-col items-center gap-6">
+                    <div className="p-6 bg-muted rounded-full">
+                      <Search className="h-10 w-10 text-muted-foreground" />
+                    </div>
+                    <div>
+                      <h3 className="text-xl font-bold">No campaigns launched yet</h3>
+                      <p className="text-muted-foreground mt-2">Start your first fundraiser today and make an impact.</p>
+                    </div>
+                    <CustomButton asChild className="rounded-full px-8 gap-2">
+                      <Link href="/fundraisers/new">
+                        <PlusCircle className="h-5 w-5" />
+                        Create Campaign
+                      </Link>
+                    </CustomButton>
+                  </div>
+                ) : (
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    {processedData.myCampaigns.map((campaign: any) => (
+                      <ProfileCampaignCard 
+                        key={campaign.id}
+                        id={campaign.id}
+                        title={campaign.title}
+                        contributors={campaign.contributors}
+                        status={campaign.status}
+                      />
+                    ))}
+                  </div>
+                )}
+              </TabsContent>
+
+              <TabsContent value="contributions" className="mt-0 outline-none">
+                <div className="flex items-center gap-2 mb-8 bg-primary/5 p-3 rounded-2xl border border-primary/10 w-fit">
+                  <HeartHandshake className="h-4 w-4 text-primary" />
+                  <span className="text-xs md:text-sm font-bold text-primary uppercase tracking-widest">
+                    Total Causes Supported: {processedData.myContributions.length}
+                  </span>
                 </div>
-                <div>
-                  <h3 className="text-xl font-bold">No contributions found</h3>
-                  <p className="text-muted-foreground mt-2">Support a cause and join a community of changemakers.</p>
-                </div>
-                <CustomButton asChild className="rounded-full px-8 gap-2">
-                  <Link href="/browse">
-                    <Search className="h-5 w-5" />
-                    Browse Campaigns
-                  </Link>
-                </CustomButton>
-              </Card>
-            ) : (
-              <div className="grid grid-cols-1 gap-4">
-                {processedData.myContributions.map((contribution: any) => (
-                  <ProfileContributionCard 
-                    key={contribution.id}
-                    {...contribution}
-                  />
-                ))}
-              </div>
-            )}
-          </TabsContent>
-        </Tabs>
+
+                {processedData.myContributions.length === 0 ? (
+                  <div className="p-12 text-center flex flex-col items-center gap-6">
+                    <div className="p-6 bg-muted rounded-full">
+                      <HeartHandshake className="h-10 w-10 text-muted-foreground" />
+                    </div>
+                    <div>
+                      <h3 className="text-xl font-bold">No contributions found</h3>
+                      <p className="text-muted-foreground mt-2">Support a cause and join a community of changemakers.</p>
+                    </div>
+                    <CustomButton asChild className="rounded-full px-8 gap-2">
+                      <Link href="/browse">
+                        <Search className="h-5 w-5" />
+                        Browse Campaigns
+                      </Link>
+                    </CustomButton>
+                  </div>
+                ) : (
+                  <div className="grid grid-cols-1 gap-4">
+                    {processedData.myContributions.map((contribution: any) => (
+                      <ProfileContributionCard 
+                        key={contribution.id}
+                        {...contribution}
+                      />
+                    ))}
+                  </div>
+                )}
+              </TabsContent>
+            </div>
+          </Tabs>
+        </div>
 
         <div className="flex flex-col md:flex-row gap-3 md:gap-4 mt-8">
           <CustomButton 

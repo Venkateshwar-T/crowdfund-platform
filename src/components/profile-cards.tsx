@@ -21,7 +21,7 @@ interface ProfileStatCardProps {
 
 export function ProfileStatCard({ title, value, subValue, icon: Icon, className }: ProfileStatCardProps) {
   return (
-    <Card className={cn("p-6 md:p-8 rounded-[2rem] border-white/20 bg-white/50 flex flex-col gap-4 shadow-sm", className)}>
+    <Card className={cn("p-6 md:p-8 rounded-[2rem] border-white/20 bg-white/50 flex flex-col gap-4 shadow-sm border", className)}>
       <div className="p-3 w-fit bg-primary/10 rounded-2xl text-primary">
         <Icon className="h-6 w-6" />
       </div>
@@ -48,7 +48,7 @@ interface ProfileCampaignCardProps {
 export function ProfileCampaignCard({ id, title, contributors, status }: ProfileCampaignCardProps) {
   return (
     <Link href={`/browse/${id}`} className="block h-full group">
-      <Card className="p-6 rounded-3xl bg-white/50 hover:bg-white/80 transition-all border-white/20 h-full flex flex-col justify-between">
+      <Card className="p-6 rounded-3xl bg-white/50 hover:bg-white/80 transition-all border-white/20 h-full flex flex-col justify-between shadow-sm border">
         <div className="space-y-4">
           <div className="flex items-start justify-between gap-4">
             <h4 className="text-base md:text-lg font-bold group-hover:text-primary transition-colors line-clamp-2">
@@ -91,7 +91,7 @@ export function ProfileContributionCard({
 }: ProfileContributionCardProps) {
   return (
     <Link href={`/browse/${id}`} className="block group">
-      <Card className="p-6 rounded-3xl bg-white/50 hover:bg-white/80 transition-all border-white/20">
+      <Card className="p-6 rounded-3xl bg-white/50 hover:bg-white/80 transition-all border-white/20 shadow-sm border">
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
           <div className="flex-1">
             <h4 className="text-lg font-bold group-hover:text-primary transition-colors">{title}</h4>
