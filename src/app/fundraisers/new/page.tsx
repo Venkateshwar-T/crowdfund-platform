@@ -1,13 +1,13 @@
+
 'use client';
 
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
-import { Upload, X, Film, Image as ImageIcon, CheckCircle2, ArrowLeft, PlusCircle } from 'lucide-react';
-import { useForm, Controller } from 'react-hook-form';
+import { Upload, X, Film, Image as ImageIcon, CheckCircle2, ArrowLeft, PlusCircle, Bold, Italic, Underline as UnderlineIcon, List, ListOrdered, Heading1 } from 'lucide-react';
+import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import Link from 'next/link';
-import dynamic from 'next/dynamic';
 
 import { cn } from '@/lib/utils';
 import { CustomButton } from '@/components/custom-button';
@@ -36,11 +36,10 @@ import { CONTRACT_ADDRESS, CONTRACT_ABI } from '@/lib/contract';
 import { useToast } from '@/hooks/use-toast';
 import { useEthPrice } from '@/hooks/use-eth-price';
 
-// Import MDE CSS
-import "easymde/dist/easymde.min.css";
-
-// Dynamic import for MDE to avoid SSR issues
-const SimpleMDE = dynamic(() => import('react-simplemde-editor'), { ssr: false });
+import { useEditor, EditorContent } from '@tiptap/react';
+import StarterKit from '@tiptap/starter-kit';
+import UnderlineExtension from '@tiptap/extension-underline';
+import Placeholder from '@tiptap/extension-placeholder';
 
 const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
 const MAX_FILES = 5;
@@ -90,6 +89,65 @@ const PREDEFINED_CATEGORIES = [
   { id: 'other', label: 'Other' },
 ];
 
+const MenuBar = ({ editor }: { editor: any }) => {
+  if (!editor) return null;
+
+  const buttons = [
+    { icon: Bold, action: () => editor.chain().focus().toggleBold().run(), active: 'bold' },
+    { icon: Italic, action: () => editor.chain().focus().toggleItalic().run(), active: 'italic' },
+    { icon: UnderlineIcon, action: () => editor.chain().focus().toggleUnderline().run(), active: 'underline' },
+    { icon: Heading1, action: () => editor.chain().focus().toggleHeading({ level: 1 }).run(), active: 'heading' },
+    { icon: List, action: () => editor.chain().focus().toggleBulletList().run(), active: 'bulletList' },
+    { icon: ListOrdered, action: () => editor.chain().focus().toggleOrderedList().run(), active: 'orderedList' },
+  ];
+
+  return (
+    <div className="flex flex-wrap gap-1 p-2 border-b bg-muted/30">
+      {buttons.map((btn, i) => (
+        <button
+          key={i}
+          type="button"
+          onClick={btn.action}
+          className={cn(
+            "p-2 rounded-lg transition-colors hover:bg-primary/10",
+            editor.isActive(btn.active) ? "text-primary bg-primary/20" : "text-muted-foreground"
+          )}
+        >
+          <btn.icon size={18} />
+        </button>
+      ))}
+    </div>
+  );
+};
+
+const TiptapEditor = ({ value, onChange, placeholder }: { value: string, onChange: (val: string) => void, placeholder: string }) => {
+  const editor = useEditor({
+    extensions: [
+      StarterKit,
+      UnderlineExtension,
+      Placeholder.configure({
+        placeholder,
+      }),
+    ],
+    content: value,
+    onUpdate: ({ editor }) => {
+      onChange(editor.getHTML());
+    },
+    editorProps: {
+      attributes: {
+        class: 'prose prose-sm md:prose-base focus:outline-none min-h-[150px] p-4 max-w-none',
+      },
+    },
+  });
+
+  return (
+    <div className="w-full border rounded-xl overflow-hidden bg-background focus-within:border-primary transition-colors">
+      <MenuBar editor={editor} />
+      <EditorContent editor={editor} />
+    </div>
+  );
+};
+
 export default function NewFundraiserPage() {
   const { isConnected } = useAccount();
   const { data: hash, writeContract, isPending: isWalletLoading } = useWriteContract();
@@ -114,21 +172,6 @@ export default function NewFundraiserPage() {
   });
 
   const categoryValue = form.watch('category');
-
-  const mdeOptions = useMemo(() => ({
-    spellChecker: false,
-    status: false,
-    minHeight: '200px',
-    placeholder: 'Use Markdown for rich formatting...',
-    toolbar: [
-      "bold",
-      "italic",
-      "heading",
-      "|",
-      "unordered-list",
-      "ordered-list"
-    ],
-  }), []);
 
   useEffect(() => {
     const newPreviews = files.map(file => {
@@ -377,13 +420,11 @@ export default function NewFundraiserPage() {
                         Description <span className="text-destructive">*</span>
                       </FormLabel>
                       <FormControl>
-                        <div className="prose prose-sm max-w-none prose-primary">
-                          <SimpleMDE 
-                            value={field.value} 
-                            onChange={field.onChange} 
-                            options={mdeOptions} 
-                          />
-                        </div>
+                        <TiptapEditor 
+                          value={field.value} 
+                          onChange={field.onChange} 
+                          placeholder="Tell your story here..." 
+                        />
                       </FormControl>
                       <FormMessage className="text-xs md:text-sm" />
                     </FormItem>
@@ -565,13 +606,11 @@ export default function NewFundraiserPage() {
                       Additional Notes <span className="text-muted-foreground font-normal ml-1">(Optional)</span>
                     </FormLabel>
                     <FormControl>
-                      <div className="prose prose-sm max-w-none prose-primary">
-                        <SimpleMDE 
-                          value={field.value} 
-                          onChange={field.onChange} 
-                          options={mdeOptions} 
-                        />
-                      </div>
+                      <TiptapEditor 
+                        value={field.value || ''} 
+                        onChange={field.onChange} 
+                        placeholder="Any extra info for your donors..." 
+                      />
                     </FormControl>
                     <FormMessage className="text-xs md:text-sm" />
                   </FormItem>

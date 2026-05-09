@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState, useEffect, use, useRef } from 'react';
@@ -27,7 +28,7 @@ import { formatUnits, parseEther } from 'viem';
 import { CONTRACT_ADDRESS, CONTRACT_ABI } from '@/lib/contract';
 import { useToast } from '@/hooks/use-toast';
 import { useEthPrice } from '@/hooks/use-eth-price';
-import ReactMarkdown from 'react-markdown';
+import DOMPurify from 'dompurify';
 import {
   Carousel,
   CarouselContent,
@@ -234,6 +235,50 @@ function StaticContributionBox({
   );
 }
 
+function FloatingCTA({ onContribute, visible }: { onContribute: () => void, visible: boolean }) {
+  const [isNavVisible, setIsNavVisible] = useState(true);
+  const [lastScrollY, setLastScrollY] = useState(0);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      const currentScrollY = window.scrollY;
+      if (currentScrollY > lastScrollY && currentScrollY > 50) {
+        setIsNavVisible(false);
+      } else {
+        setIsNavVisible(true);
+      }
+      setLastScrollY(currentScrollY);
+    };
+
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, [lastScrollY]);
+
+  return (
+    <div 
+      className={cn(
+        "fixed left-0 right-0 z-40 px-4 transition-all duration-500 ease-in-out md:left-1/2 md:-translate-x-1/2 md:max-w-4xl md:px-0",
+        visible ? "translate-y-0 opacity-100" : "translate-y-10 opacity-0 pointer-events-none",
+        "md:bottom-8",
+        isNavVisible ? "bottom-[calc(4rem+1rem)]" : "bottom-4"
+      )}
+    >
+      <div className="p-3 md:p-4 bg-foreground/90 backdrop-blur-xl rounded-2xl md:rounded-3xl text-white flex items-center justify-between gap-4 shadow-2xl ring-1 ring-white/10">
+        <div className="pl-2">
+          <p className="text-[10px] md:text-xs text-white/60 font-bold uppercase tracking-widest">Drive Impact</p>
+          <p className="text-xs md:text-sm font-bold">Help this cause</p>
+        </div>
+        <CustomButton 
+          onClick={onContribute}
+          className="h-10 md:h-12 px-6 md:px-8 rounded-xl font-black text-xs md:text-sm shadow-lg shadow-primary/20 bg-primary hover:bg-primary/90"
+        >
+          Contribute Now
+        </CustomButton>
+      </div>
+    </div>
+  );
+}
+
 export default function CampaignDetailsPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params);
   const fundRef = useRef<HTMLDivElement>(null);
@@ -348,6 +393,10 @@ export default function CampaignDetailsPage({ params }: { params: Promise<{ id: 
     });
   };
 
+  const sanitizeHTML = (html: string) => {
+    return { __html: DOMPurify.sanitize(html) };
+  };
+
   return (
     <div className="flex flex-col min-h-screen pb-12 md:pb-20">
       <main className="max-w-4xl mx-auto px-4 py-6 md:py-10 w-full flex flex-col gap-4 md:gap-8">
@@ -390,9 +439,10 @@ export default function CampaignDetailsPage({ params }: { params: Promise<{ id: 
 
               <div className="flex flex-col gap-2">
                 <h2 className="text-[10px] md:text-sm font-bold uppercase tracking-widest text-primary">About the Campaign</h2>
-                <div className="prose prose-sm md:prose-base max-w-none prose-primary prose-headings:font-black prose-headings:tracking-tight prose-p:leading-relaxed prose-p:text-muted-foreground">
-                  <ReactMarkdown>{campaign.description}</ReactMarkdown>
-                </div>
+                <div 
+                  className="prose prose-sm md:prose-base max-w-none prose-primary prose-headings:font-black prose-headings:tracking-tight prose-p:leading-relaxed prose-p:text-muted-foreground"
+                  dangerouslySetInnerHTML={sanitizeHTML(campaign.description)}
+                />
               </div>
 
               {campaign.additionalNotes && (
@@ -400,9 +450,10 @@ export default function CampaignDetailsPage({ params }: { params: Promise<{ id: 
                   <h2 className="text-[10px] md:text-sm font-bold uppercase tracking-widest text-primary flex items-center gap-2">
                     <Info className="h-4 w-4" />Additional Notes
                   </h2>
-                  <div className="prose prose-sm md:prose-base max-w-none prose-primary prose-p:italic prose-p:text-muted-foreground">
-                    <ReactMarkdown>{campaign.additionalNotes}</ReactMarkdown>
-                  </div>
+                  <div 
+                    className="prose prose-sm md:prose-base max-w-none prose-primary prose-p:italic prose-p:text-muted-foreground"
+                    dangerouslySetInnerHTML={sanitizeHTML(campaign.additionalNotes)}
+                  />
                 </div>
               )}
 
@@ -457,17 +508,10 @@ export default function CampaignDetailsPage({ params }: { params: Promise<{ id: 
         />
       </main>
       
-      {!isFundInView && (
-        <div className="fixed left-0 right-0 z-40 px-4 bottom-4 md:bottom-8 md:left-1/2 md:-translate-x-1/2 md:max-w-4xl md:px-0">
-          <div className="p-3 md:p-4 bg-foreground/90 backdrop-blur-xl rounded-2xl md:rounded-3xl text-white flex items-center justify-between gap-4 shadow-2xl ring-1 ring-white/10">
-            <div className="pl-2">
-              <p className="text-[10px] md:text-xs text-white/60 font-bold uppercase tracking-widest">Drive Impact</p>
-              <p className="text-xs md:text-sm font-bold">Help this cause</p>
-            </div>
-            <CustomButton onClick={scrollToFund} className="h-10 md:h-12 px-6 md:px-8 rounded-xl font-black text-xs md:text-sm bg-primary">Contribute Now</CustomButton>
-          </div>
-        </div>
-      )}
+      <FloatingCTA 
+        onContribute={scrollToFund} 
+        visible={!isFundInView} 
+      />
     </div>
   );
 }
