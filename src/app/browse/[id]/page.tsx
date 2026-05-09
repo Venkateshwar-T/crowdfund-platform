@@ -458,7 +458,7 @@ export default function CampaignDetailsPage({ params }: { params: Promise<{ id: 
       </main>
       
       {!isFundInView && (
-        <div className="fixed left-0 right-0 z-40 px-4 bottom-4 md:bottom-8 md:left-1/2 md:-translate-x-1/2 md:max-w-4xl md:px-0 animate-in fade-in zoom-in-95 slide-in-from-bottom-10 duration-500">
+        <div className="fixed left-0 right-0 z-40 px-4 bottom-4 md:bottom-8 md:left-1/2 md:-translate-x-1/2 md:max-w-4xl md:px-0">
           <div className="p-3 md:p-4 bg-foreground/90 backdrop-blur-xl rounded-2xl md:rounded-3xl text-white flex items-center justify-between gap-4 shadow-2xl ring-1 ring-white/10">
             <div className="pl-2">
               <p className="text-[10px] md:text-xs text-white/60 font-bold uppercase tracking-widest">Drive Impact</p>
