@@ -22,7 +22,7 @@ import { Badge } from '@/components/ui/badge';
 import { Card } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { useToast } from '@/hooks/use-toast';
-import { useAccountModal } from '@rainbow-me/rainbowkit';
+import { useAccountModal, useConnectModal } from '@rainbow-me/rainbowkit';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -36,6 +36,7 @@ export default function ProfilePage() {
   const { data: balance } = useBalance({ address });
   const { disconnect } = useDisconnect();
   const { openAccountModal } = useAccountModal();
+  const { openConnectModal } = useConnectModal();
   const { toast } = useToast();
   const router = useRouter();
 
@@ -80,17 +81,24 @@ export default function ProfilePage() {
           <User className="h-12 w-12 text-primary" />
         </div>
         
-        <h1 className="text-2xl font-bold mb-2">Access Denied</h1>
+        <h1 className="text-2xl font-bold mb-2">Profile Access</h1>
         <p className="text-muted-foreground max-w-xs mb-8">
-          Please connect your wallet to view and manage your decentralized profile.
+          Please connect your wallet to view and manage your decentralized profile and contributions.
         </p>
 
-        <CustomButton 
-          onClick={() => router.push('/')}
-          className="rounded-full px-8 h-10 md:h-12 text-sm md:text-base font-bold shadow-lg shadow-primary/10"
-        >
-          Back to Home
-        </CustomButton>
+        <div className="flex flex-col items-center gap-4">
+          <div className="flex items-center gap-2 text-destructive font-bold text-xs uppercase tracking-[0.15em] animate-pulse">
+            <div className="w-2 h-2 rounded-full bg-destructive" />
+            <span>Wallet Not Connected</span>
+          </div>
+          
+          <CustomButton 
+            onClick={openConnectModal}
+            className="rounded-full px-8 h-10 md:h-12 text-sm md:text-base font-bold shadow-lg shadow-primary/10"
+          >
+            Connect Wallet
+          </CustomButton>
+        </div>
       </div>
     );
   }
