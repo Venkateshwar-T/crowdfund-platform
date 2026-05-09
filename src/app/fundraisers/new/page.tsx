@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { Upload, X, Loader2, Film, Image as ImageIcon, CheckCircle2, ArrowLeft, PlusCircle } from 'lucide-react';
+import { Upload, X, Film, Image as ImageIcon, CheckCircle2, ArrowLeft, PlusCircle } from 'lucide-react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
@@ -229,16 +229,12 @@ export default function NewFundraiserPage() {
 
     setIsUploading(true);
     try {
-      // Step 1: Upload the first file to IPFS
       const mediaUrl = await uploadToPinata(files[0]);
 
-      // Step 2: Prepare description with hidden additional notes
-      // We use a specific separator to split them later on the detail page
       const finalDescription = values.additionalNotes 
         ? `${values.description}---NOTES---${values.additionalNotes}`
         : values.description;
 
-      // Step 3: Create campaign on-chain
       writeContract({
         address: CONTRACT_ADDRESS,
         abi: CONTRACT_ABI,
@@ -547,10 +543,7 @@ export default function NewFundraiserPage() {
                   isLoading={isSubmitting}
                 >
                   {isSubmitting ? (
-                    <>
-                      <Loader2 className="mr-2 h-4 w-4 md:h-5 md:w-5 animate-spin" />
-                      {isUploading ? 'Uploading to IPFS...' : 'Creating Campaign...'}
-                    </>
+                    isUploading ? 'Uploading to IPFS...' : 'Creating Campaign...'
                   ) : (
                     'Create Campaign'
                   )}
