@@ -104,6 +104,8 @@ export function Navbar() {
     );
   };
 
+  const isProfileActive = pathname === '/profile';
+
   return (
     <nav className="sticky top-0 z-50 w-full border-b bg-background/90 backdrop-blur-md">
       <div className="relative flex h-16 items-center px-4 md:px-6">
@@ -183,13 +185,15 @@ export function Navbar() {
               <CircleHelp className="h-5 w-5 text-muted-foreground" />
             </Link>
 
-            {/* <CustomButton variant="default" className="hidden md:flex rounded-full px-4 md:px-6 whitespace-nowrap">
-              Connect Wallet
-            </CustomButton> */}
-
             {isConnected ? (
                 <Link href="/profile">
-                  <CustomButton variant="default" className="hidden md:flex rounded-full px-4 gap-2">
+                  <CustomButton 
+                    variant={isProfileActive ? "default" : "outline"} 
+                    className={cn(
+                      "hidden md:flex rounded-full px-4 gap-2 transition-all duration-300",
+                      !isProfileActive && "border-2 border-primary/50"
+                    )}
+                  >
                     <User className="h-4 w-4" />
                     Profile
                   </CustomButton>
@@ -203,9 +207,6 @@ export function Navbar() {
                   Connect Wallet
                 </CustomButton>
               )}
-            
-              {/* Replace your CustomButton with this */}
-              {/* <WalletConnect />  */}
             
 
             <div className="flex md:hidden items-center gap-1">

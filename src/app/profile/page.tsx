@@ -88,7 +88,7 @@ export default function ProfilePage() {
 
   return (
     <div className="max-w-4xl mx-auto px-4 py-8 md:py-16 w-full">
-      <div className="flex flex-col gap-8">
+      <div className="flex flex-col gap-6 md:gap-8">
         
         {/* Profile Header Card */}
         <Card className="p-6 md:p-10 rounded-3xl md:rounded-[2.5rem] bg-white/70 backdrop-blur-xl border-white/20 shadow-xl overflow-hidden relative">
@@ -165,7 +165,7 @@ export default function ProfilePage() {
             </div>
 
             {/* Network Indicator (Desktop only in this spot) */}
-            <div className="hidden md:flex flex-col items-end gap-2">
+            <div className="flex flex-col items-center md:items-end gap-2">
               <Badge variant="outline" className={cn(
                 "rounded-full gap-2 px-3 py-1 font-bold tracking-tight border-2 capitalize",
                 chain?.id === 1 ? "bg-blue-50 text-blue-600 border-blue-200" : "bg-emerald-50 text-emerald-600 border-emerald-200"
@@ -211,17 +211,6 @@ export default function ProfilePage() {
           </Card>
         </div>
 
-        {/* Mobile Network Indicator */}
-        <div className="md:hidden flex items-center justify-between p-4 bg-muted/30 rounded-2xl border border-border/50">
-          <div className="flex flex-col">
-            <span className="text-[10px] text-muted-foreground uppercase font-black tracking-widest">Network</span>
-            <span className="text-sm font-bold">{chain?.name || 'Unknown'}</span>
-          </div>
-          <div className={cn(
-            "w-3 h-3 rounded-full animate-pulse",
-            chain?.id === 1 ? "bg-blue-600" : "bg-emerald-600"
-          )} />
-        </div>
 
         {/* Action Buttons */}
         <div className="flex flex-col md:flex-row gap-3 md:gap-4 mt-4">
