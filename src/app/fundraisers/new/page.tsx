@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { Upload, X, Film, Image as ImageIcon, CheckCircle2, ArrowLeft, PlusCircle, Bold, Italic, Underline as UnderlineIcon, List, ListOrdered, Heading1 } from 'lucide-react';
 import { useForm } from 'react-hook-form';
@@ -135,13 +135,13 @@ const TiptapEditor = ({ value, onChange, placeholder }: { value: string, onChang
     },
     editorProps: {
       attributes: {
-        class: 'prose prose-sm md:prose-base focus:outline-none min-h-[150px] p-4 max-w-none',
+        class: 'prose prose-sm md:prose-base focus:outline-none min-h-[150px] p-4 max-w-none [overflow-wrap:break-word] [word-break:normal]',
       },
     },
   });
 
   return (
-    <div className="w-full border rounded-xl overflow-hidden bg-background focus-within:border-primary transition-colors">
+    <div className="w-full border rounded-xl overflow-hidden bg-background focus-within:ring-2 focus-within:ring-primary/20 focus-within:border-primary transition-all border-muted-foreground/20">
       <MenuBar editor={editor} />
       <EditorContent editor={editor} />
     </div>
@@ -401,7 +401,7 @@ export default function NewFundraiserPage() {
                       <FormControl>
                         <Input 
                           placeholder="e.g. Help Sarah's Medical Recovery" 
-                          className="h-10 md:h-12 text-sm md:text-base rounded-xl border-muted-foreground/20 transition-all"
+                          className="h-10 md:h-12 text-sm md:text-base rounded-xl border-muted-foreground/20 transition-all focus-visible:ring-primary/20"
                           {...field} 
                         />
                       </FormControl>
@@ -442,7 +442,7 @@ export default function NewFundraiserPage() {
                         </FormLabel>
                         <Select onValueChange={field.onChange} defaultValue={field.value}>
                           <FormControl>
-                            <SelectTrigger className="h-10 md:h-12 text-sm md:text-base rounded-xl border-muted-foreground/20">
+                            <SelectTrigger className="h-10 md:h-12 text-sm md:text-base rounded-xl border-muted-foreground/20 focus:ring-primary/20">
                               <SelectValue placeholder="Select a domain" />
                             </SelectTrigger>
                           </FormControl>
@@ -469,7 +469,7 @@ export default function NewFundraiserPage() {
                           <FormControl>
                             <Input 
                               placeholder="Specify domain" 
-                              className="h-10 md:h-12 text-sm md:text-base rounded-xl border-muted-foreground/20"
+                              className="h-10 md:h-12 text-sm md:text-base rounded-xl border-muted-foreground/20 focus-visible:ring-primary/20"
                               {...field} 
                             />
                           </FormControl>
@@ -499,7 +499,7 @@ export default function NewFundraiserPage() {
                                 type="number"
                                 step="0.01"
                                 placeholder="0.00" 
-                                className="h-10 md:h-12 pl-7 text-sm md:text-base rounded-xl border-muted-foreground/20 transition-all bg-background"
+                                className="h-10 md:h-12 pl-7 text-sm md:text-base rounded-xl border-muted-foreground/20 transition-all bg-background focus-visible:ring-primary/20"
                                 {...field} 
                               />
                             </div>

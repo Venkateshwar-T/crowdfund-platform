@@ -254,11 +254,12 @@ function FloatingCTA({ onContribute, visible }: { onContribute: () => void, visi
     return () => window.removeEventListener('scroll', handleScroll);
   }, [lastScrollY]);
 
+  if (!visible) return null;
+
   return (
     <div 
       className={cn(
-        "fixed left-0 right-0 z-40 px-4 transition-all duration-500 ease-in-out md:left-1/2 md:-translate-x-1/2 md:max-w-4xl md:px-0",
-        visible ? "translate-y-0 opacity-100" : "translate-y-10 opacity-0 pointer-events-none",
+        "fixed left-0 right-0 z-40 px-4 md:left-1/2 md:-translate-x-1/2 md:max-w-4xl md:px-0",
         "md:bottom-8",
         isNavVisible ? "bottom-[calc(4rem+1rem)]" : "bottom-4"
       )}
@@ -394,7 +395,7 @@ export default function CampaignDetailsPage({ params }: { params: Promise<{ id: 
   };
 
   const sanitizeHTML = (html: string) => {
-    return { __html: DOMPurify.sanitize(html) };
+    return { __html: typeof window !== 'undefined' ? DOMPurify.sanitize(html) : html };
   };
 
   return (
@@ -440,7 +441,7 @@ export default function CampaignDetailsPage({ params }: { params: Promise<{ id: 
               <div className="flex flex-col gap-2">
                 <h2 className="text-[10px] md:text-sm font-bold uppercase tracking-widest text-primary">About the Campaign</h2>
                 <div 
-                  className="prose prose-sm md:prose-base max-w-none prose-primary prose-headings:font-black prose-headings:tracking-tight prose-p:leading-relaxed prose-p:text-muted-foreground"
+                  className="prose prose-teal prose-sm md:prose-base max-w-none prose-headings:font-black prose-headings:tracking-tight prose-p:leading-relaxed prose-p:text-muted-foreground [overflow-wrap:break-word] [word-break:normal]"
                   dangerouslySetInnerHTML={sanitizeHTML(campaign.description)}
                 />
               </div>
@@ -451,7 +452,7 @@ export default function CampaignDetailsPage({ params }: { params: Promise<{ id: 
                     <Info className="h-4 w-4" />Additional Notes
                   </h2>
                   <div 
-                    className="prose prose-sm md:prose-base max-w-none prose-primary prose-p:italic prose-p:text-muted-foreground"
+                    className="prose prose-teal prose-sm md:prose-base max-w-none prose-p:italic prose-p:text-muted-foreground [overflow-wrap:break-word] [word-break:normal]"
                     dangerouslySetInnerHTML={sanitizeHTML(campaign.additionalNotes)}
                   />
                 </div>

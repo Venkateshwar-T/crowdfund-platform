@@ -1,3 +1,4 @@
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -37,4 +38,13 @@
                 radial-gradient(circle at bottom right, hsl(var(--accent) / 0.5), transparent),
                 hsl(var(--background));
   }
+}
+
+/* TipTap Editor Spacing Fix */
+.ProseMirror p {
+  margin: 0 !important;
+}
+
+.ProseMirror {
+  outline: none;
 }
