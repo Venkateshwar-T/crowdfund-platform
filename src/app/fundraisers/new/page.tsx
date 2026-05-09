@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useState, useEffect } from 'react';
@@ -155,6 +154,7 @@ export default function NewFundraiserPage() {
   const { prices } = useEthPrice();
   const { toast } = useToast();
   const [isUploading, setIsUploading] = useState(false);
+  const [showSuccess, setShowSuccess] = useState(false);
   const [files, setFiles] = useState<File[]>([]);
   const [previews, setPreviews] = useState<string[]>([]);
   const [dragActive, setDragActive] = useState(false);
@@ -172,6 +172,12 @@ export default function NewFundraiserPage() {
   });
 
   const categoryValue = form.watch('category');
+
+  useEffect(() => {
+    if (isTransactionConfirmed) {
+      setShowSuccess(true);
+    }
+  }, [isTransactionConfirmed]);
 
   useEffect(() => {
     const newPreviews = files.map(file => {
@@ -346,11 +352,12 @@ export default function NewFundraiserPage() {
     form.reset();
     setFiles([]);
     setPreviews([]);
+    setShowSuccess(false);
   };
 
   const isSubmitting = isUploading || isWalletLoading || isMining;
 
-  if (isTransactionConfirmed) {
+  if (showSuccess) {
     return (
       <div className="flex flex-col items-center justify-center min-h-[70vh] p-4 text-center">
         <div className="bg-emerald-100 p-6 rounded-full mb-6">

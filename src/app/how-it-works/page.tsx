@@ -160,9 +160,9 @@ export default function HowItWorksPage() {
                           {step.list.map((item, i) => (
                             <div key={i} className="flex items-center gap-3 p-3 rounded-xl bg-primary/5 border border-primary/10">
                               <span className={cn(
-                                "text-[10px] font-black px-2 py-0.5 rounded-full shadow-sm",
+                                "px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider backdrop-blur-md border border-white/20 shadow-sm",
                                 item.label === "NEW" && "bg-blue-500/80 text-white",
-                                item.label === "ACTIVE" && "bg-white/80 text-primary border border-primary/20",
+                                item.label === "ACTIVE" && "bg-white/80 text-primary border-primary/20",
                                 item.label === "COMPLETED" && "bg-green-500/80 text-white"
                               )}>
                                 {item.label}
