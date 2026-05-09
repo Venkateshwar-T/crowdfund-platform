@@ -11,9 +11,11 @@ import {
   Tag,
   Loader2,
   Info,
-  Wallet
+  CheckCircle2,
+  Clock
 } from 'lucide-react';
-import { MdVerifiedUser, MdOutlineReportProblem } from 'react-icons/md';
+import { MdVerifiedUser, MdOutlineReportProblem } from 'react-icons/icons';
+import { MdOutlineReportProblem as ReportIcon } from 'react-icons/md';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { Input } from '@/components/ui/input';
 import { CustomButton } from '@/components/custom-button';
@@ -21,7 +23,7 @@ import { StatusBadge } from '@/components/status-badge';
 import { ContributorBadge } from '@/components/contributor-badge';
 import { ShareButton } from '@/components/share-button';
 import { cn } from '@/lib/utils';
-import { useReadContract, useWriteContract, useAccount } from 'wagmi';
+import { useReadContract, useWriteContract, useAccount, useWaitForTransactionReceipt } from 'wagmi';
 import { formatEther, parseEther } from 'viem';
 import { CONTRACT_ADDRESS, CONTRACT_ABI } from '@/lib/contract';
 import { useToast } from '@/hooks/use-toast';
@@ -90,7 +92,7 @@ function TitleSection({ title, status }: { title: string; status: 'Active' | 'Co
         <StatusBadge status={status} />
         <div className='flex flex-row gap-2'>
           <button className='w-8 h-8 md:w-10 md:h-10 flex items-center justify-center bg-white border border-border rounded-full shadow-sm hover:shadow-md hover:border-primary/50 transition-all active:scale-90 group'>
-            <MdOutlineReportProblem size={24} className="text-muted-foreground group-hover:text-primary transition-colors w-4 h-4 md:w-5 md:h-5"/>
+            <ReportIcon size={24} className="text-muted-foreground group-hover:text-primary transition-colors w-4 h-4 md:w-5 md:h-5"/>
           </button>
           <ShareButton />
         </div>
@@ -315,11 +317,15 @@ function ContributorsList({ count, donators, donations }: { count: number, donat
 function StaticContributionBox({ 
   containerRef, 
   onContribute, 
-  isLoading 
+  isConfirming,
+  isMining,
+  isSuccess
 }: { 
   containerRef: React.RefObject<HTMLDivElement | null>,
   onContribute: (amount: string) => void,
-  isLoading: boolean
+  isConfirming: boolean,
+  isMining: boolean,
+  isSuccess: boolean
 }) {
   const [amount, setAmount] = useState('');
 
@@ -333,25 +339,43 @@ function StaticContributionBox({
         <p className="text-xs md:text-sm text-white/60">Help drive real impact</p>
       </div>
       
-      <div className="flex w-full md:w-auto items-center gap-3">
-        <div className="relative flex-grow md:w-32">
-          <span className="absolute left-3 top-1/2 -translate-y-1/2 text-white/40 font-bold text-sm">Ξ</span>
-          <Input 
-            type="number" 
-            placeholder="0"
-            value={amount}
-            onChange={(e) => setAmount(e.target.value)}
-            className="bg-white/10 border-white/20 text-white pl-7 h-10 md:h-12 rounded-xl focus-visible:ring-primary focus-visible:border-primary text-sm font-bold shadow-inner"
-          />
+      {isSuccess ? (
+        <div className="flex items-center gap-3 bg-primary/20 px-6 py-3 rounded-2xl border border-primary/30 animate-in zoom-in-95">
+          <CheckCircle2 className="h-5 w-5 text-primary" />
+          <span className="text-sm font-bold text-white">Contribution Successful!</span>
         </div>
-        <CustomButton 
-          onClick={() => onContribute(amount)}
-          isLoading={isLoading}
-          className="h-10 md:h-12 px-6 md:px-8 rounded-xl font-black text-xs md:text-sm shadow-lg shadow-primary/20 bg-primary hover:bg-primary/90"
-        >
-          Contribute
-        </CustomButton>
-      </div>
+      ) : (
+        <div className="flex w-full md:w-auto items-center gap-3">
+          <div className="relative flex-grow md:w-32">
+            <span className="absolute left-3 top-1/2 -translate-y-1/2 text-white/40 font-bold text-sm">Ξ</span>
+            <Input 
+              type="number" 
+              placeholder="0"
+              value={amount}
+              onChange={(e) => setAmount(e.target.value)}
+              disabled={isConfirming || isMining}
+              className="bg-white/10 border-white/20 text-white pl-7 h-10 md:h-12 rounded-xl focus-visible:ring-primary focus-visible:border-primary text-sm font-bold shadow-inner"
+            />
+          </div>
+          <CustomButton 
+            onClick={() => onContribute(amount)}
+            isLoading={isConfirming || isMining}
+            className="h-10 md:h-12 px-6 md:px-8 rounded-xl font-black text-xs md:text-sm shadow-lg shadow-primary/20 bg-primary hover:bg-primary/90 min-w-[120px]"
+          >
+            {isConfirming ? (
+              <span className='flex items-center gap-2'>
+                <Clock className="h-3 w-3 animate-pulse" />
+                Confirming...
+              </span>
+            ) : isMining ? (
+              <span className='flex items-center gap-2'>
+                <Loader2 className="h-3 w-3 animate-spin" />
+                Processing...
+              </span>
+            ) : 'Contribute'}
+          </CustomButton>
+        </div>
+      )}
     </div>
   );
 }
@@ -409,10 +433,15 @@ export default function CampaignDetailsPage({ params }: { params: Promise<{ id: 
   const [isFundInView, setIsFundInView] = useState(false);
   const { isConnected } = useAccount();
   const { toast } = useToast();
-  const { writeContract, isPending: isMutationLoading } = useWriteContract();
+  
+  const { data: hash, writeContract, isPending: isConfirmingInWallet, isSuccess: isMutationSent } = useWriteContract();
+  
+  const { isLoading: isMining, isSuccess: isTransactionConfirmed } = useWaitForTransactionReceipt({
+    hash,
+  });
 
   // Fetch campaign details from blockchain
-  const { data: campaignsRaw, isLoading, isError, refetch } = useReadContract({
+  const { data: campaignsRaw, isLoading: isInitialLoading, isError, refetch } = useReadContract({
     address: CONTRACT_ADDRESS,
     abi: CONTRACT_ABI,
     functionName: 'getCampaigns',
@@ -420,6 +449,17 @@ export default function CampaignDetailsPage({ params }: { params: Promise<{ id: 
 
   const campaignIndex = parseInt(id);
   const campaignData = (campaignsRaw as any)?.[campaignIndex];
+
+  // Effect to refetch data once transaction is confirmed
+  useEffect(() => {
+    if (isTransactionConfirmed) {
+      toast({
+        title: "Contribution Confirmed!",
+        description: "Your donation has been recorded on the blockchain.",
+      });
+      refetch();
+    }
+  }, [isTransactionConfirmed, refetch, toast]);
 
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -464,13 +504,6 @@ export default function CampaignDetailsPage({ params }: { params: Promise<{ id: 
       args: [BigInt(campaignIndex)],
       value: parseEther(amount),
     }, {
-      onSuccess: () => {
-        toast({
-          title: "Transaction Sent",
-          description: "Your contribution is being processed on the blockchain.",
-        });
-        setTimeout(() => refetch(), 5000); // Refetch after a short delay for indexers
-      },
       onError: (err) => {
         toast({
           title: "Transaction Failed",
@@ -485,7 +518,7 @@ export default function CampaignDetailsPage({ params }: { params: Promise<{ id: 
     fundRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
   };
 
-  if (isLoading) {
+  if (isInitialLoading) {
     return (
       <div className="flex flex-col items-center justify-center min-h-[60vh] gap-4 p-4 text-center">
         <Loader2 className="h-12 w-12 animate-spin text-primary" />
@@ -513,14 +546,10 @@ export default function CampaignDetailsPage({ params }: { params: Promise<{ id: 
   const target = parseFloat(formatEther(campaignData.target));
   const deadlineMs = Number(campaignData.deadline) * 1000;
   
-  // Heuristic for creation time (mocking it as 15 days ago for testing if not available)
-  // Real NEW status needs a creation timestamp which isn't standard in basic contracts
-  // but we follow user rule: if goal reached -> completed, otherwise check age
   let status: 'Active' | 'Completed' | 'New' = 'Active';
   if (amountCollected >= target) {
     status = 'Completed';
   } else if (Date.now() - (deadlineMs - 30 * 24 * 60 * 60 * 1000) < 10 * 24 * 60 * 60 * 1000) {
-    // Assuming 30 day standard duration if unknown, just to show 'New' logic potential
     status = 'New';
   }
 
@@ -558,7 +587,9 @@ export default function CampaignDetailsPage({ params }: { params: Promise<{ id: 
         <StaticContributionBox 
           containerRef={fundRef} 
           onContribute={handleContribute}
-          isLoading={isMutationLoading}
+          isConfirming={isConfirmingInWallet}
+          isMining={isMining}
+          isSuccess={isTransactionConfirmed}
         />
       </main>
       
