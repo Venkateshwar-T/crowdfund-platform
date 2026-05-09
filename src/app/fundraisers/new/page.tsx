@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useState, useEffect, useMemo } from 'react';
@@ -117,6 +116,14 @@ export default function NewFundraiserPage() {
     status: false,
     minHeight: '200px',
     placeholder: 'Use Markdown for rich formatting...',
+    toolbar: [
+      "bold",
+      "italic",
+      "heading",
+      "|",
+      "unordered-list",
+      "ordered-list"
+    ],
   }), []);
 
   useEffect(() => {
