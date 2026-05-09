@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useState, useEffect, use, useRef } from 'react';
@@ -42,8 +41,18 @@ import {
 } from "@/components/ui/collapsible";
 
 function ProgressCircle({ progress }: { progress: number }) {
-  const size = 140; 
-  const strokeWidth = 10;
+  const [size, setSize] = useState(140);
+
+  useEffect(() => {
+    const handleResize = () => {
+      setSize(window.innerWidth >= 768 ? 220 : 140);
+    };
+    handleResize();
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
+  const strokeWidth = size >= 200 ? 14 : 10;
   const center = size / 2;
   const radius = center - strokeWidth;
   const circumference = 2 * Math.PI * radius;
@@ -75,7 +84,7 @@ function ProgressCircle({ progress }: { progress: number }) {
         />
       </svg>
       <div className="absolute inset-0 flex flex-col items-center justify-center">
-        <span className="text-xl md:text-2xl font-black text-primary">{Math.round(progress)}%</span>
+        <span className="text-xl md:text-4xl font-black text-primary">{Math.round(progress)}%</span>
       </div>
     </div>
   );
@@ -236,32 +245,12 @@ function StaticContributionBox({
 }
 
 function FloatingCTA({ onContribute, visible }: { onContribute: () => void, visible: boolean }) {
-  const [isNavVisible, setIsNavVisible] = useState(true);
-  const [lastScrollY, setLastScrollY] = useState(0);
-
-  useEffect(() => {
-    const handleScroll = () => {
-      const currentScrollY = window.scrollY;
-      if (currentScrollY > lastScrollY && currentScrollY > 50) {
-        setIsNavVisible(false);
-      } else {
-        setIsNavVisible(true);
-      }
-      setLastScrollY(currentScrollY);
-    };
-
-    window.addEventListener('scroll', handleScroll, { passive: true });
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, [lastScrollY]);
-
   if (!visible) return null;
 
   return (
     <div 
       className={cn(
-        "fixed left-0 right-0 z-40 px-4 md:left-1/2 md:-translate-x-1/2 md:max-w-4xl md:px-0",
-        "md:bottom-8",
-        isNavVisible ? "bottom-[calc(4rem+1rem)]" : "bottom-4"
+        "fixed left-0 right-0 z-40 px-4 bottom-4 md:left-1/2 md:-translate-x-1/2 md:max-w-4xl md:px-0 md:bottom-8"
       )}
     >
       <div className="p-3 md:p-4 bg-foreground/90 backdrop-blur-xl rounded-2xl md:rounded-3xl text-white flex items-center justify-between gap-4 shadow-2xl ring-1 ring-white/10">
@@ -372,7 +361,7 @@ export default function CampaignDetailsPage({ params }: { params: Promise<{ id: 
   const campaign = {
     title: campaignData.title,
     description: campaignData.description,
-    category: campaignData.category,
+    category: campaignData.category.charAt(0).toUpperCase() + campaignData.category.slice(1),
     media: campaignData.mediaUrls || [],
     additionalNotes: campaignData.additionalNotes,
     user: {
@@ -446,7 +435,7 @@ export default function CampaignDetailsPage({ params }: { params: Promise<{ id: 
                 />
               </div>
 
-              {campaign.additionalNotes && (
+              {campaign.additionalNotes && campaign.additionalNotes !== '<p></p>' && (
                 <div className="flex flex-col gap-2 p-4 md:p-6 bg-primary/5 rounded-2xl border border-primary/10">
                   <h2 className="text-[10px] md:text-sm font-bold uppercase tracking-widest text-primary flex items-center gap-2">
                     <Info className="h-4 w-4" />Additional Notes
@@ -464,11 +453,11 @@ export default function CampaignDetailsPage({ params }: { params: Promise<{ id: 
               </div>
             </div>
 
-            <div className="flex flex-col h-full items-center justify-center gap-4 order-1 md:order-2 p-4 md:p-6 bg-primary/5 rounded-2xl border border-primary/10">
+            <div className="flex flex-col h-full items-center justify-center gap-4 order-1 md:order-2 p-4 md:p-10 bg-primary/5 rounded-2xl border border-primary/10 min-h-[250px] md:min-h-[400px]">
               <ProgressCircle progress={Math.min((campaign.contributedAmount / campaign.targetAmount) * 100, 100)} />
-              <div className="text-center flex flex-col gap-2">
-                <p className="text-[11px] md:text-sm font-bold text-foreground">
-                  ${campaign.contributedAmount.toLocaleString()} <span className="text-muted-foreground font-medium">raised of ${campaign.targetAmount.toLocaleString()}</span>
+              <div className="text-center flex flex-col gap-3">
+                <p className="text-[11px] md:text-xl font-black text-foreground">
+                  ${campaign.contributedAmount.toLocaleString()} <span className="text-muted-foreground font-medium text-sm md:text-lg">/ ${campaign.targetAmount.toLocaleString()}</span>
                 </p>
                 <ContributorBadge count={campaign.contributors} showSupportersLabel className="mx-auto" />
               </div>

@@ -1,5 +1,6 @@
 'use client';
 
+import { useState, useEffect } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { Users, Calendar, Wallet } from 'lucide-react';
@@ -11,7 +12,7 @@ import { cn } from '@/lib/utils';
 export interface CampaignCardProps {
   id: string;
   title: string;
-  image: string;
+  images: string[];
   user: {
     name: string;
     avatar: string;
@@ -28,7 +29,7 @@ export interface CampaignCardProps {
 export function CampaignCard({
   id,
   title,
-  image,
+  images,
   user,
   contributedAmount,
   targetAmount,
@@ -37,7 +38,18 @@ export function CampaignCard({
   status,
   className
 }: CampaignCardProps) {
+  const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const progress = Math.min((contributedAmount / targetAmount) * 100, 100);
+
+  useEffect(() => {
+    if (images.length <= 1) return;
+
+    const interval = setInterval(() => {
+      setCurrentImageIndex((prev) => (prev + 1) % images.length);
+    }, 3000);
+
+    return () => clearInterval(interval);
+  }, [images.length]);
 
   const formatCurrency = (val: number) => {
     if (val >= 1000) return `$${(val / 1000).toFixed(1)}k`;
@@ -52,13 +64,19 @@ export function CampaignCard({
       )}>
         {/* Media Container */}
         <div className="relative aspect-[16/10] m-2 md:m-3 rounded-xl overflow-hidden">
-          <Image
-            src={image}
-            alt={title}
-            fill
-            className="object-cover transition-transform duration-700 group-hover:scale-105"
-            data-ai-hint="campaign image"
-          />
+          {images.map((img, idx) => (
+            <Image
+              key={idx}
+              src={img}
+              alt={`${title} image ${idx}`}
+              fill
+              className={cn(
+                "object-cover transition-opacity duration-1000",
+                idx === currentImageIndex ? "opacity-100" : "opacity-0"
+              )}
+              data-ai-hint="campaign image"
+            />
+          ))}
           
           {/* Overlay Content */}
           <div className="absolute inset-0 p-1.5 md:p-2 flex flex-col justify-between">

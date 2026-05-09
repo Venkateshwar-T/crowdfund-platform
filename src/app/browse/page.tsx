@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useReadContract } from 'wagmi';
@@ -26,21 +25,18 @@ export default function BrowsePage() {
     // COMPLETED: goal reached
     // ACTIVE: otherwise
     const tenDaysAgo = Date.now() - (10 * 24 * 60 * 60 * 1000);
-    // Note: In a real app we'd need creationTime from contract, 
-    // assuming for now deadline - duration = creation. 
-    // We'll approximate based on goal completion and simple timing.
+    
     let status: 'Active' | 'Completed' | 'New' = 'Active';
     if (amountCollected >= target) {
       status = 'Completed';
     } else if (Date.now() < deadlineMs && (deadlineMs - Date.now() > 20 * 24 * 60 * 60 * 1000)) {
-        // Mocking 'New' as campaigns with more than 20 days left for now
         status = 'New';
     }
 
     return {
       id: index.toString(),
       title: c.title,
-      image: c.mediaUrls?.[0] || "https://picsum.photos/seed/placeholder/800/600",
+      images: c.mediaUrls && c.mediaUrls.length > 0 ? c.mediaUrls : ["https://picsum.photos/seed/placeholder/800/600"],
       user: {
         name: `${c.owner.slice(0, 6)}...${c.owner.slice(-4)}`,
         avatar: `https://picsum.photos/seed/${c.owner}/100/100`,
