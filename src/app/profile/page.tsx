@@ -17,7 +17,7 @@ import {
   HeartHandshake,
   LayoutGrid
 } from 'lucide-react';
-import { useAccount, useBalance, useDisconnect, useReadContract } from 'wagmi';
+import { useAccount, useDisconnect, useReadContract } from 'wagmi';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
@@ -39,7 +39,7 @@ import {
   TabsContent,
   TabsList,
   TabsTrigger,
-} from "@/components/tabs";
+} from "@/components/ui/tabs";
 import { cn } from '@/lib/utils';
 import { CONTRACT_ADDRESS, CONTRACT_ABI } from '@/lib/contract';
 import { formatUnits } from 'viem';
