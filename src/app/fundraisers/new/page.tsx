@@ -1,17 +1,18 @@
+
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 import { Upload, X, Film, Image as ImageIcon, CheckCircle2, ArrowLeft, PlusCircle } from 'lucide-react';
-import { useForm } from 'react-hook-form';
+import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import Link from 'next/link';
+import dynamic from 'next/dynamic';
 
 import { cn } from '@/lib/utils';
 import { CustomButton } from '@/components/custom-button';
 import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
 import {
   Form,
   FormControl,
@@ -35,6 +36,12 @@ import { parseUnits } from 'viem';
 import { CONTRACT_ADDRESS, CONTRACT_ABI } from '@/lib/contract';
 import { useToast } from '@/hooks/use-toast';
 import { useEthPrice } from '@/hooks/use-eth-price';
+
+// Import MDE CSS
+import "easymde/dist/easymde.min.css";
+
+// Dynamic import for MDE to avoid SSR issues
+const SimpleMDE = dynamic(() => import('react-simplemde-editor'), { ssr: false });
 
 const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
 const MAX_FILES = 5;
@@ -83,7 +90,6 @@ export default function NewFundraiserPage() {
   const { isConnected } = useAccount();
   const { writeContract, isPending: isWalletLoading } = useWriteContract();
   const { prices } = useEthPrice();
-  const router = useRouter();
   const { toast } = useToast();
   const [isUploading, setIsUploading] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
@@ -105,6 +111,13 @@ export default function NewFundraiserPage() {
   });
 
   const categoryValue = form.watch('category');
+
+  const mdeOptions = useMemo(() => ({
+    spellChecker: false,
+    status: false,
+    minHeight: '200px',
+    placeholder: 'Use Markdown for rich formatting...',
+  }), []);
 
   useEffect(() => {
     const newPreviews = files.map(file => {
@@ -359,11 +372,13 @@ export default function NewFundraiserPage() {
                         Description <span className="text-destructive">*</span>
                       </FormLabel>
                       <FormControl>
-                        <Textarea 
-                          placeholder="Tell your story. What happened? Why do you need help? How will the funds be used?" 
-                          className="min-h-[120px] md:min-h-[150px] text-sm md:text-base rounded-xl border-muted-foreground/20 transition-all resize-none"
-                          {...field} 
-                        />
+                        <div className="prose prose-sm max-w-none prose-primary">
+                          <SimpleMDE 
+                            value={field.value} 
+                            onChange={field.onChange} 
+                            options={mdeOptions} 
+                          />
+                        </div>
                       </FormControl>
                       <FormMessage className="text-xs md:text-sm" />
                     </FormItem>
@@ -564,11 +579,13 @@ export default function NewFundraiserPage() {
                       Additional Notes <span className="text-muted-foreground font-normal ml-1">(Optional)</span>
                     </FormLabel>
                     <FormControl>
-                      <Textarea 
-                        placeholder="Any extra details for your supporters?" 
-                        className="min-h-[80px] md:min-h-[100px] text-sm md:text-base rounded-xl border-muted-foreground/20 transition-all resize-none"
-                        {...field} 
-                      />
+                      <div className="prose prose-sm max-w-none prose-primary">
+                        <SimpleMDE 
+                          value={field.value} 
+                          onChange={field.onChange} 
+                          options={mdeOptions} 
+                        />
+                      </div>
                     </FormControl>
                     <FormMessage className="text-xs md:text-sm" />
                   </FormItem>

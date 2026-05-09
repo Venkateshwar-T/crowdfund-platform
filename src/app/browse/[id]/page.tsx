@@ -28,6 +28,7 @@ import { formatUnits, parseEther } from 'viem';
 import { CONTRACT_ADDRESS, CONTRACT_ABI } from '@/lib/contract';
 import { useToast } from '@/hooks/use-toast';
 import { useEthPrice } from '@/hooks/use-eth-price';
+import ReactMarkdown from 'react-markdown';
 import {
   Carousel,
   CarouselContent,
@@ -413,13 +414,19 @@ export default function CampaignDetailsPage({ params }: { params: Promise<{ id: 
 
               <div className="flex flex-col gap-2">
                 <h2 className="text-[10px] md:text-sm font-bold uppercase tracking-widest text-primary">About the Campaign</h2>
-                <p className="text-xs md:text-base text-muted-foreground leading-relaxed">{campaign.description}</p>
+                <div className="prose prose-sm md:prose-base max-w-none prose-primary prose-headings:font-black prose-headings:tracking-tight prose-p:leading-relaxed prose-p:text-muted-foreground">
+                  <ReactMarkdown>{campaign.description}</ReactMarkdown>
+                </div>
               </div>
 
               {campaign.additionalNotes && (
-                <div className="flex flex-col gap-2 p-4 bg-primary/5 rounded-xl border border-primary/10">
-                  <h2 className="text-[10px] md:text-sm font-bold uppercase tracking-widest text-primary flex items-center gap-2"><Info className="h-4 w-4" />Additional Notes</h2>
-                  <p className="text-xs md:text-base text-muted-foreground italic leading-relaxed">"{campaign.additionalNotes}"</p>
+                <div className="flex flex-col gap-2 p-4 md:p-6 bg-primary/5 rounded-2xl border border-primary/10">
+                  <h2 className="text-[10px] md:text-sm font-bold uppercase tracking-widest text-primary flex items-center gap-2">
+                    <Info className="h-4 w-4" />Additional Notes
+                  </h2>
+                  <div className="prose prose-sm md:prose-base max-w-none prose-primary prose-p:italic prose-p:text-muted-foreground">
+                    <ReactMarkdown>{campaign.additionalNotes}</ReactMarkdown>
+                  </div>
                 </div>
               )}
 
