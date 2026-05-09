@@ -14,8 +14,7 @@ import {
   CheckCircle2,
   Clock
 } from 'lucide-react';
-import { MdVerifiedUser, MdOutlineReportProblem } from 'react-icons/icons';
-import { MdOutlineReportProblem as ReportIcon } from 'react-icons/md';
+import { MdVerifiedUser, MdOutlineReportProblem as ReportIcon } from 'react-icons/md';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { Input } from '@/components/ui/input';
 import { CustomButton } from '@/components/custom-button';
