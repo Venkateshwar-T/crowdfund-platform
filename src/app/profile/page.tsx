@@ -47,9 +47,9 @@ function NotConnectedView({ onConnect }: { onConnect: () => void }) {
       </p>
 
       <div className="flex flex-col items-center gap-4">
-        <div className="flex items-center gap-2 text-destructive font-bold text-xs uppercase tracking-[0.15em] animate-pulse">
-          <div className="w-2 h-2 rounded-full bg-destructive" />
-          <span>Wallet Not Connected</span>
+        <div className="flex items-center gap-2 rounded-full border border-destructive/50 bg-destructive/10 py-1 px-2">
+          <div className="w-2 h-2 rounded-full bg-destructive animate-pulse" />
+          <span className='text-destructive font-bold text-xs uppercase tracking-wider'>Wallet Not Connected</span>
         </div>
         
         <CustomButton 
@@ -187,14 +187,14 @@ function StatsGrid({
 }) {
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
-      <Card className="p-6 md:p-8 rounded-[2rem] border-white/20 bg-white/50 flex flex-col gap-4 shadow-sm hover:shadow-md transition-shadow">
+      <Card className="p-6 md:p-8 rounded-[2rem] border-white/20 bg-white/50 flex flex-row md:flex-col gap-4 shadow-sm hover:shadow-md transition-shadow">
         <div className="flex items-center justify-between">
           <div className="p-3 bg-primary/10 rounded-2xl text-primary">
             <Wallet className="h-6 w-6" />
           </div>
-          <Badge variant="secondary" className="rounded-full text-[10px] font-black uppercase tracking-widest">
+          {/* <Badge variant="secondary" className="rounded-full text-[10px] font-black uppercase tracking-widest">
             {chainName}
-          </Badge>
+          </Badge> */}
         </div>
         <div>
           <p className="text-[10px] md:text-xs text-muted-foreground font-black uppercase tracking-[0.2em] mb-1">Live Balance</p>
