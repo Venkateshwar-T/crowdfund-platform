@@ -98,6 +98,10 @@ export function CustomDatePicker({ value, onChange, placeholder, className }: Cu
     return days;
   };
 
+  const todayDate = new Date();
+  const isCurrentMonth = viewDate.getMonth() === todayDate.getMonth() && 
+                        viewDate.getFullYear() === todayDate.getFullYear();
+
   return (
     <div className={cn("relative w-full", className)} ref={popoverRef}>
       <button
@@ -126,7 +130,13 @@ export function CustomDatePicker({ value, onChange, placeholder, className }: Cu
               <button 
                 type="button" 
                 onClick={() => changeMonth(-1)} 
-                className="p-1.5 hover:bg-accent rounded-md text-muted-foreground hover:text-primary transition-colors"
+                disabled={isCurrentMonth}
+                className={cn(
+                  "p-1.5 rounded-md transition-colors",
+                  isCurrentMonth 
+                    ? "opacity-20 cursor-not-allowed text-muted-foreground" 
+                    : "hover:bg-accent text-muted-foreground hover:text-primary"
+                )}
               >
                 <ChevronLeft size={18} />
               </button>
@@ -146,19 +156,6 @@ export function CustomDatePicker({ value, onChange, placeholder, className }: Cu
             ))}
             {renderGrid()}
           </div>
-          
-          <button 
-            type="button"
-            onClick={() => {
-              const now = new Date();
-              setViewDate(now); 
-              onChange(now); 
-              setIsOpen(false);
-            }}
-            className="w-full mt-3 py-2 text-xs font-bold text-primary bg-primary/5 hover:bg-primary/10 rounded-xl transition-colors"
-          >
-            Reset to Today
-          </button>
         </div>
       )}
     </div>
