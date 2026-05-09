@@ -22,6 +22,7 @@ import { Badge } from '@/components/ui/badge';
 import { Card } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { useToast } from '@/hooks/use-toast';
+import { useAccountModal } from '@rainbow-me/rainbowkit';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -34,6 +35,7 @@ export default function ProfilePage() {
   const { address, isConnected, chain } = useAccount();
   const { data: balance } = useBalance({ address });
   const { disconnect } = useDisconnect();
+  const { openAccountModal } = useAccountModal();
   const { toast } = useToast();
   const router = useRouter();
 
@@ -200,7 +202,13 @@ export default function ProfilePage() {
               <div className="p-3 bg-primary/10 rounded-2xl text-primary">
                 <ShieldCheck className="h-6 w-6" />
               </div>
-              <ExternalLink className="h-5 w-5 text-muted-foreground/40" />
+              <button 
+                onClick={() => openAccountModal?.()}
+                className="p-1 hover:text-primary transition-colors text-muted-foreground/40 hover:bg-primary/5 rounded-md"
+                title="Open Wallet Modal"
+              >
+                <ExternalLink className="h-5 w-5" />
+              </button>
             </div>
             <div>
               <p className="text-[10px] md:text-xs text-muted-foreground font-black uppercase tracking-[0.2em] mb-1">Connected Via</p>
