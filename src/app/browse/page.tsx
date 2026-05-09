@@ -33,6 +33,9 @@ export default function BrowsePage() {
         status = 'New';
     }
 
+    // Count unique contributors
+    const uniqueDonors = new Set(c.donators.map((d: string) => d.toLowerCase()));
+
     return {
       id: index.toString(),
       title: c.title,
@@ -44,7 +47,7 @@ export default function BrowsePage() {
       },
       contributedAmount: amountCollected,
       targetAmount: target,
-      contributors: c.donators.length,
+      contributors: uniqueDonors.size,
       deadline: new Date(deadlineMs).toLocaleDateString('en-GB', {
         day: '2-digit',
         month: 'short',

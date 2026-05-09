@@ -313,11 +313,13 @@ export default function CampaignDetailsPage({ params }: { params: Promise<{ id: 
   const processedDonors = useMemo(() => {
     if (!campaignData?.donators || !campaignData?.donations) return [];
     
+    // Use lowercased address as key for map to ensure uniqueness and correct aggregation
     const donorsMap = new Map<string, bigint>();
     campaignData.donators.forEach((donator: string, idx: number) => {
+      const addr = donator.toLowerCase();
       const amount = campaignData.donations[idx] || BigInt(0);
-      const current = donorsMap.get(donator) || BigInt(0);
-      donorsMap.set(donator, current + amount);
+      const current = donorsMap.get(addr) || BigInt(0);
+      donorsMap.set(addr, current + amount);
     });
 
     return Array.from(donorsMap.entries())
@@ -409,7 +411,7 @@ export default function CampaignDetailsPage({ params }: { params: Promise<{ id: 
     },
     contributedAmount: amountCollectedUSD,
     targetAmount: targetUSD,
-    contributors: processedDonors.length,
+    contributors: processedDonors.length, // Now counts unique lowercase addresses
     deadline: new Date(deadlineMs).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }),
     status: status
   };
@@ -494,8 +496,8 @@ export default function CampaignDetailsPage({ params }: { params: Promise<{ id: 
             <div className="flex flex-col h-full items-center justify-center gap-4 order-1 md:order-2 p-4 md:p-10 bg-primary/5 rounded-2xl border border-primary/10 min-h-[250px] md:min-h-[400px]">
               <ProgressCircle progress={Math.min((campaign.contributedAmount / campaign.targetAmount) * 100, 100)} />
               <div className="text-center flex flex-col gap-3">
-                <p className="text-[11px] md:text-xl font-black text-foreground">
-                  ${campaign.contributedAmount.toLocaleString(undefined, { maximumFractionDigits: 2 })} <span className="text-muted-foreground font-medium text-sm md:text-lg">/ ${campaign.targetAmount.toLocaleString()}</span>
+                <p className="text-sm md:text-xl font-black text-foreground">
+                  ${campaign.contributedAmount.toLocaleString(undefined, { maximumFractionDigits: 2 })} <span className="text-muted-foreground font-medium text-xs md:text-lg">/ ${campaign.targetAmount.toLocaleString()}</span>
                 </p>
                 <ContributorBadge count={campaign.contributors} showSupportersLabel className="mx-auto" />
               </div>
