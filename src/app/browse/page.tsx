@@ -1,7 +1,8 @@
+
 'use client';
 
 import { useReadContract } from 'wagmi';
-import { formatEther } from 'viem';
+import { formatUnits } from 'viem';
 import { BrowseFilterBar } from '@/components/browse-filter-bar';
 import { CampaignCard } from '@/components/campaign-card';
 import { CONTRACT_ADDRESS, CONTRACT_ABI } from '@/lib/contract';
@@ -15,21 +16,31 @@ export default function BrowsePage() {
   });
 
   const campaigns = campaignsRaw ? (campaignsRaw as any[]).map((c, index) => {
-    const amountCollected = parseFloat(formatEther(c.amountCollected));
-    const target = parseFloat(formatEther(c.target));
+    // Contract units are USD with 18 decimals
+    const amountCollected = parseFloat(formatUnits(c.amountCollected, 18));
+    const target = parseFloat(formatUnits(c.target, 18));
     const deadlineMs = Number(c.deadline) * 1000;
 
+    // Status logic: 
+    // NEW: created within 10 days
+    // COMPLETED: goal reached
+    // ACTIVE: otherwise
+    const tenDaysAgo = Date.now() - (10 * 24 * 60 * 60 * 1000);
+    // Note: In a real app we'd need creationTime from contract, 
+    // assuming for now deadline - duration = creation. 
+    // We'll approximate based on goal completion and simple timing.
     let status: 'Active' | 'Completed' | 'New' = 'Active';
     if (amountCollected >= target) {
       status = 'Completed';
-    } else if (Date.now() - (deadlineMs - 30 * 24 * 60 * 60 * 1000) < 10 * 24 * 60 * 60 * 1000) {
-      status = 'New';
+    } else if (Date.now() < deadlineMs && (deadlineMs - Date.now() > 20 * 24 * 60 * 60 * 1000)) {
+        // Mocking 'New' as campaigns with more than 20 days left for now
+        status = 'New';
     }
 
     return {
       id: index.toString(),
       title: c.title,
-      image: c.mediaUrl || "https://picsum.photos/seed/placeholder/800/600",
+      image: c.mediaUrls?.[0] || "https://picsum.photos/seed/placeholder/800/600",
       user: {
         name: `${c.owner.slice(0, 6)}...${c.owner.slice(-4)}`,
         avatar: `https://picsum.photos/seed/${c.owner}/100/100`,

@@ -1,4 +1,5 @@
-export const CONTRACT_ADDRESS = "0x31557a318F0a2Ef555E36c6147c473Ea8bDa8EC6";
+
+export const CONTRACT_ADDRESS = "0x76E67473684677457fe1bDecaB8a0cE375E67971";
 
 export const CONTRACT_ABI = [
 	{
@@ -15,13 +16,18 @@ export const CONTRACT_ABI = [
 			},
 			{
 				"internalType": "string",
-				"name": "_category",
+				"name": "_additionalNotes",
 				"type": "string"
 			},
 			{
 				"internalType": "string",
-				"name": "_mediaUrl",
+				"name": "_category",
 				"type": "string"
+			},
+			{
+				"internalType": "string[]",
+				"name": "_mediaUrls",
+				"type": "string[]"
 			},
 			{
 				"internalType": "uint256",
@@ -59,6 +65,24 @@ export const CONTRACT_ABI = [
 		"type": "function"
 	},
 	{
+		"inputs": [],
+		"stateMutability": "nonpayable",
+		"type": "constructor"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "uint256",
+				"name": "_id",
+				"type": "uint256"
+			}
+		],
+		"name": "withdraw",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
 		"inputs": [
 			{
 				"internalType": "uint256",
@@ -85,12 +109,12 @@ export const CONTRACT_ABI = [
 			},
 			{
 				"internalType": "string",
-				"name": "category",
+				"name": "additionalNotes",
 				"type": "string"
 			},
 			{
 				"internalType": "string",
-				"name": "mediaUrl",
+				"name": "category",
 				"type": "string"
 			},
 			{
@@ -135,13 +159,18 @@ export const CONTRACT_ABI = [
 					},
 					{
 						"internalType": "string",
-						"name": "category",
+						"name": "additionalNotes",
 						"type": "string"
 					},
 					{
 						"internalType": "string",
-						"name": "mediaUrl",
+						"name": "category",
 						"type": "string"
+					},
+					{
+						"internalType": "string[]",
+						"name": "mediaUrls",
+						"type": "string[]"
 					},
 					{
 						"internalType": "uint256",
@@ -172,6 +201,19 @@ export const CONTRACT_ABI = [
 				"internalType": "struct Crowdfunding.Campaign[]",
 				"name": "",
 				"type": "tuple[]"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "getLatestPrice",
+		"outputs": [
+			{
+				"internalType": "uint256",
+				"name": "",
+				"type": "uint256"
 			}
 		],
 		"stateMutability": "view",

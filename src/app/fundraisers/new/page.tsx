@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState, useEffect } from 'react';
@@ -31,9 +32,10 @@ import {
 import { Card } from '@/components/ui/card';
 import { CustomDatePicker } from '@/components/custom-date-picker';
 import { useWriteContract, useAccount } from 'wagmi';
-import { parseEther } from 'viem';
+import { parseUnits } from 'viem';
 import { CONTRACT_ADDRESS, CONTRACT_ABI } from '@/lib/contract';
 import { useToast } from '@/hooks/use-toast';
+import { useEthPrice } from '@/hooks/use-eth-price';
 
 const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
 const MAX_FILES = 5;
@@ -46,7 +48,7 @@ const formSchema = z.object({
   targetAmount: z.string().refine((val) => !isNaN(Number(val)) && Number(val) > 0, {
     message: 'Amount must be a positive number',
   }),
-  currency: z.enum(['INR', 'USD', 'ETH']),
+  currency: z.enum(['USD', 'INR']),
   deadline: z.date({
     required_error: 'A deadline is required',
   }),
@@ -81,6 +83,7 @@ const PREDEFINED_CATEGORIES = [
 export default function NewFundraiserPage() {
   const { isConnected } = useAccount();
   const { writeContract, isPending: isWalletLoading } = useWriteContract();
+  const { prices } = useEthPrice();
   const router = useRouter();
   const { toast } = useToast();
   const [isUploading, setIsUploading] = useState(false);
@@ -97,7 +100,7 @@ export default function NewFundraiserPage() {
       category: '',
       otherCategory: '',
       targetAmount: '',
-      currency: 'ETH',
+      currency: 'USD',
       additionalNotes: '',
     },
   });
@@ -128,6 +131,18 @@ export default function NewFundraiserPage() {
   };
 
   const addFiles = (newFiles: File[]) => {
+    const videoCount = files.filter(f => f.type.startsWith('video/')).length;
+    const newVideoCount = newFiles.filter(f => f.type.startsWith('video/')).length;
+
+    if (videoCount + newVideoCount > 1) {
+      toast({
+        title: "Too many videos",
+        description: "Only 1 video allowed per campaign.",
+        variant: "destructive"
+      });
+      return;
+    }
+
     const validFiles = newFiles.filter(file => {
       if (file.size > MAX_FILE_SIZE) {
         toast({
@@ -180,32 +195,21 @@ export default function NewFundraiserPage() {
   async function uploadToPinata(file: File): Promise<string> {
     const formData = new FormData();
     formData.append('file', file);
-
-    const pinataMetadata = JSON.stringify({
-      name: file.name,
-    });
+    const pinataMetadata = JSON.stringify({ name: file.name });
     formData.append('pinataMetadata', pinataMetadata);
-
-    const pinataOptions = JSON.stringify({
-      cidVersion: 0,
-    });
+    const pinataOptions = JSON.stringify({ cidVersion: 0 });
     formData.append('pinataOptions', pinataOptions);
 
-    try {
-      const res = await fetch("https://api.pinata.cloud/pinning/pinFileToIPFS", {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${process.env.NEXT_PUBLIC_PINATA_JWT}`
-        },
-        body: formData
-      });
-      const resData = await res.json();
-      if (!res.ok) throw new Error(resData.error || 'Upload failed');
-      return `https://gateway.pinata.cloud/ipfs/${resData.IpfsHash}`;
-    } catch (error) {
-      console.error('Error uploading to Pinata:', error);
-      throw error;
-    }
+    const res = await fetch("https://api.pinata.cloud/pinning/pinFileToIPFS", {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${process.env.NEXT_PUBLIC_PINATA_JWT}`
+      },
+      body: formData
+    });
+    const resData = await res.json();
+    if (!res.ok) throw new Error(resData.error || 'Upload failed');
+    return `https://gateway.pinata.cloud/ipfs/${resData.IpfsHash}`;
   }
 
   async function onSubmit(values: FormValues) {
@@ -229,11 +233,16 @@ export default function NewFundraiserPage() {
 
     setIsUploading(true);
     try {
-      const mediaUrl = await uploadToPinata(files[0]);
+      // Upload all media files
+      const mediaUrls = await Promise.all(files.map(file => uploadToPinata(file)));
 
-      const finalDescription = values.additionalNotes 
-        ? `${values.description}---NOTES---${values.additionalNotes}`
-        : values.description;
+      // Currency conversion logic (USD Hub)
+      let usdAmount = parseFloat(values.targetAmount);
+      if (values.currency === 'INR' && prices?.inr) {
+        usdAmount = (usdAmount / prices.inr);
+      }
+      
+      const targetInUSD = parseUnits(usdAmount.toFixed(18), 18);
 
       writeContract({
         address: CONTRACT_ADDRESS,
@@ -241,10 +250,11 @@ export default function NewFundraiserPage() {
         functionName: 'createCampaign',
         args: [
           values.title,
-          finalDescription,
+          values.description,
+          values.additionalNotes || "",
           values.category === 'other' ? values.otherCategory! : values.category,
-          mediaUrl,
-          parseEther(values.targetAmount),
+          mediaUrls,
+          targetInUSD,
           BigInt(Math.floor(values.deadline.getTime() / 1000)),
         ],
         onSuccess: () => {
@@ -264,7 +274,7 @@ export default function NewFundraiserPage() {
       } as any);
     } catch (error: any) {
       toast({
-        title: "Upload Failed",
+        title: "Submission Failed",
         description: error.message,
         variant: "destructive"
       });
@@ -410,8 +420,27 @@ export default function NewFundraiserPage() {
               <Card className="p-4 md:p-6 border-muted-foreground/10 bg-primary/5 rounded-3xl overflow-visible">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
                   <div className="space-y-3 md:space-y-4">
-                    <FormLabel className="text-sm md:text-base font-bold">Target Amount (ETH)</FormLabel>
+                    <FormLabel className="text-sm md:text-base font-bold">Target Amount</FormLabel>
                     <div className="flex gap-2">
+                      <FormField
+                        control={form.control}
+                        name="currency"
+                        render={({ field }) => (
+                          <FormItem className="w-24">
+                            <Select onValueChange={field.onChange} defaultValue={field.value}>
+                              <FormControl>
+                                <SelectTrigger className="h-10 md:h-12 text-sm md:text-base rounded-xl border-muted-foreground/20">
+                                  <SelectValue />
+                                </SelectTrigger>
+                              </FormControl>
+                              <SelectContent>
+                                <SelectItem value="USD">USD</SelectItem>
+                                <SelectItem value="INR">INR</SelectItem>
+                              </SelectContent>
+                            </Select>
+                          </FormItem>
+                        )}
+                      />
                       <FormField
                         control={form.control}
                         name="targetAmount"
@@ -419,12 +448,11 @@ export default function NewFundraiserPage() {
                           <FormItem className="flex-grow">
                             <FormControl>
                               <div className="relative">
-                                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground font-bold">Ξ</span>
                                 <Input 
                                   type="number"
                                   step="0.01"
                                   placeholder="0.00" 
-                                  className="h-10 md:h-12 pl-8 text-sm md:text-base rounded-xl border-muted-foreground/20 transition-all bg-background"
+                                  className="h-10 md:h-12 text-sm md:text-base rounded-xl border-muted-foreground/20 transition-all bg-background"
                                   {...field} 
                                 />
                               </div>
@@ -457,7 +485,7 @@ export default function NewFundraiserPage() {
               </Card>
 
               <div className="space-y-3 md:space-y-4">
-                <FormLabel className="text-sm md:text-base font-bold">Media Upload (First file is featured)</FormLabel>
+                <FormLabel className="text-sm md:text-base font-bold">Media Upload (Max 5 files, 1 video)</FormLabel>
                 <div 
                   className={cn(
                     "relative border-2 border-dashed rounded-3xl p-6 md:p-8 transition-all duration-200 flex flex-col items-center justify-center gap-3 md:gap-4 cursor-pointer",
@@ -484,7 +512,7 @@ export default function NewFundraiserPage() {
                   </div>
                   <div className="text-center">
                     <p className="text-xs md:text-sm font-bold">Click or drag & drop</p>
-                    <p className="text-[10px] md:text-xs text-muted-foreground mt-1">Images or videos up to 10MB each</p>
+                    <p className="text-[10px] md:text-xs text-muted-foreground mt-1">Up to 5 files, Max 1 video (10MB each)</p>
                   </div>
                 </div>
 
