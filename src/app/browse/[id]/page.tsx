@@ -315,8 +315,8 @@ export default function CampaignDetailsPage({ params }: { params: Promise<{ id: 
     
     const donorsMap = new Map<string, bigint>();
     campaignData.donators.forEach((donator: string, idx: number) => {
-      const amount = campaignData.donations[idx] || 0n;
-      const current = donorsMap.get(donator) || 0n;
+      const amount = campaignData.donations[idx] || BigInt(0);
+      const current = donorsMap.get(donator) || BigInt(0);
       donorsMap.set(donator, current + amount);
     });
 

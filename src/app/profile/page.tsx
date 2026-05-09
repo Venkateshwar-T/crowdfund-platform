@@ -249,7 +249,7 @@ export default function ProfilePage() {
     // 2. My Contributions
     const myContributions = all
       .map((c, index) => {
-        let personalContribution = 0n;
+        let personalContribution = BigInt(0);
         c.donators.forEach((donator: string, dIdx: number) => {
           if (donator.toLowerCase() === userAddr) {
             personalContribution += c.donations[dIdx];
