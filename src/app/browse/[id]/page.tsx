@@ -12,11 +12,13 @@ import {
   Loader2,
   Info,
   CheckCircle2,
-  AlertCircle
+  AlertCircle,
+  Mail
 } from 'lucide-react';
 import { MdVerifiedUser, MdOutlineReportProblem as ReportIcon } from 'react-icons/md';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
 import { CustomButton } from '@/components/custom-button';
 import { StatusBadge } from '@/components/status-badge';
 import { ContributorBadge } from '@/components/contributor-badge';
@@ -39,6 +41,15 @@ import {
   CollapsibleContent,
   CollapsibleTrigger,
 } from "@/components/ui/collapsible";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+  DialogFooter
+} from "@/components/ui/dialog";
 
 function ProgressCircle({ progress }: { progress: number }) {
   const [size, setSize] = useState(140);
@@ -292,6 +303,7 @@ export default function CampaignDetailsPage({ params }: { params: Promise<{ id: 
   const { id } = use(params);
   const fundRef = useRef<HTMLDivElement>(null);
   const [isFundInView, setIsFundInView] = useState(false);
+  const [reportReason, setReportReason] = useState("");
   const { isConnected, address: userAddress } = useAccount();
   const { data: userBalance } = useBalance({ address: userAddress });
   const { toast } = useToast();
@@ -428,6 +440,8 @@ export default function CampaignDetailsPage({ params }: { params: Promise<{ id: 
     return { __html: typeof window !== 'undefined' ? DOMPurify.sanitize(html) : html };
   };
 
+  const reportMailto = `mailto:venkattiwari42@gmail.com?subject=Reporting Campaign: ${encodeURIComponent(campaign.title)}&body=${encodeURIComponent(reportReason)}`;
+
   return (
     <div className="flex flex-col min-h-screen pb-12 md:pb-20">
       <main className="max-w-4xl mx-auto px-4 py-6 md:py-10 w-full flex flex-col gap-4 md:gap-8">
@@ -435,9 +449,38 @@ export default function CampaignDetailsPage({ params }: { params: Promise<{ id: 
           <div className="flex items-center justify-between">
             <StatusBadge status={campaign.status} />
             <div className='flex flex-row gap-2'>
-              <button className='w-8 h-8 md:w-10 md:h-10 flex items-center justify-center bg-white border border-border rounded-full shadow-sm hover:shadow-md hover:border-primary/50 transition-all active:scale-90 group'>
-                <ReportIcon size={24} className="text-muted-foreground group-hover:text-primary transition-colors w-4 h-4 md:w-5 md:h-5"/>
-              </button>
+              <Dialog>
+                <DialogTrigger asChild>
+                  <button className='w-8 h-8 md:w-10 md:h-10 flex items-center justify-center bg-white border border-border rounded-full shadow-sm hover:shadow-md hover:border-primary/50 transition-all active:scale-90 group'>
+                    <ReportIcon size={24} className="text-muted-foreground group-hover:text-primary transition-colors w-4 h-4 md:w-5 md:h-5"/>
+                  </button>
+                </DialogTrigger>
+                <DialogContent className="sm:max-w-md rounded-2xl md:rounded-3xl">
+                  <DialogHeader>
+                    <DialogTitle className="text-xl font-black">Report this campaign</DialogTitle>
+                    <DialogDescription className="text-muted-foreground">
+                      Help us maintain a safe community. Please describe what's wrong with this fundraiser.
+                    </DialogDescription>
+                  </DialogHeader>
+                  <div className="flex flex-col gap-4 py-4">
+                    <Textarea 
+                      placeholder="Tell us why you are reporting this..."
+                      value={reportReason}
+                      onChange={(e) => setReportReason(e.target.value)}
+                      className="min-h-[120px] rounded-xl border-muted-foreground/20 focus-visible:ring-primary/20"
+                    />
+                  </div>
+                  <DialogFooter className="flex flex-col sm:flex-row gap-2">
+                    <CustomButton asChild className="w-full rounded-xl gap-2 font-bold h-11">
+                      <a href={reportMailto}>
+                        <Mail className="h-4 w-4" />
+                        Contact Support
+                      </a>
+                    </CustomButton>
+                  </DialogFooter>
+                </DialogContent>
+              </Dialog>
+              
               <ShareButton />
             </div>
           </div>
