@@ -452,7 +452,7 @@ export default function CampaignDetailsPage({ params }: { params: Promise<{ id: 
                     <ReportIcon size={24} className="text-muted-foreground group-hover:text-primary transition-colors w-4 h-4 md:w-5 md:h-5"/>
                   </button>
                 </DialogTrigger>
-                <DialogContent className="sm:max-w-xl rounded-2xl md:rounded-[2rem] border-white/20 bg-white/90 backdrop-blur-2xl shadow-2xl overflow-hidden p-6 md:p-10">
+                <DialogContent className="w-[calc(100%-2rem)] sm:max-w-xl rounded-2xl md:rounded-[2rem] border-white/20 bg-white/90 backdrop-blur-2xl shadow-2xl overflow-hidden p-6 md:p-10">
                   <DialogHeader className="flex flex-col items-center gap-2 mb-6 text-center">
                     <div className="w-12 h-12 rounded-2xl bg-destructive/10 flex items-center justify-center text-destructive mb-2">
                       <ReportIcon size={24} />
