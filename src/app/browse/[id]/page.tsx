@@ -302,6 +302,7 @@ export default function CampaignDetailsPage({ params }: { params: Promise<{ id: 
   const { id } = use(params);
   const fundRef = useRef<HTMLDivElement>(null);
   const [isFundInView, setIsFundInView] = useState(false);
+  const [isSupportersOpen, setIsSupportersOpen] = useState(false);
   const [reportReason, setReportReason] = useState("");
   const { isConnected, address: userAddress } = useAccount();
   const { data: userBalance } = useBalance({ address: userAddress });
@@ -554,13 +555,17 @@ export default function CampaignDetailsPage({ params }: { params: Promise<{ id: 
         </div>
 
         <div className="bg-white/70 backdrop-blur-xl rounded-2xl md:rounded-3xl border border-white/20 p-5 md:p-8 shadow-xl">
-          <Collapsible>
+          <Collapsible open={isSupportersOpen} onOpenChange={setIsSupportersOpen}>
             <div className="flex items-center justify-between">
               <div className="flex flex-col gap-1">
                 <h2 className="text-[10px] md:text-sm font-bold uppercase tracking-widest text-primary">Supporters</h2>
                 <p className="text-xs md:text-base font-bold text-foreground">{campaign.contributors.toLocaleString()} unique donors have supported this cause</p>
               </div>
-              <CollapsibleTrigger asChild><CustomButton variant="ghost" size="sm" className="rounded-full h-8 w-8 p-0 hover:bg-primary/10"><ChevronDown className="h-4 w-4 text-primary" /></ChevronButton></CollapsibleTrigger>
+              <CollapsibleTrigger asChild>
+                <CustomButton variant="ghost" size="sm" className="rounded-full h-8 w-8 p-0 hover:bg-primary/10">
+                  <ChevronDown className={cn("h-4 w-4 text-primary transition-transform duration-200", isSupportersOpen && "rotate-180")} />
+                </CustomButton>
+              </CollapsibleTrigger>
             </div>
             <CollapsibleContent className="mt-6 space-y-4">
               {processedDonors.length > 0 ? processedDonors.map((donor, index) => (
