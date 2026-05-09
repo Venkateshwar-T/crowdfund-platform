@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useState, useEffect, use, useRef } from 'react';
@@ -268,6 +267,7 @@ export default function CampaignDetailsPage({ params }: { params: Promise<{ id: 
   const { id } = use(params);
   const fundRef = useRef<HTMLDivElement>(null);
   const [isFundInView, setIsFundInView] = useState(false);
+  const [displayCurrency, setDisplayCurrency] = useState<'USD' | 'INR' | 'ETH'>('USD');
   const { isConnected, address: userAddress } = useAccount();
   const { data: userBalance } = useBalance({ address: userAddress });
   const { toast } = useToast();
@@ -346,13 +346,24 @@ export default function CampaignDetailsPage({ params }: { params: Promise<{ id: 
     );
   }
 
-  const amountCollected = parseFloat(formatUnits(campaignData.amountCollected, 18));
-  const target = parseFloat(formatUnits(campaignData.target, 18));
+  const amountCollectedUSD = parseFloat(formatUnits(campaignData.amountCollected, 18));
+  const targetUSD = parseFloat(formatUnits(campaignData.target, 18));
   const deadlineMs = Number(campaignData.deadline) * 1000;
   
   let status: 'Active' | 'Completed' | 'New' = 'Active';
-  if (amountCollected >= target) status = 'Completed';
+  if (amountCollectedUSD >= targetUSD) status = 'Completed';
   else if (Date.now() < deadlineMs && (deadlineMs - Date.now() > 20 * 24 * 60 * 60 * 1000)) status = 'New';
+
+  // Currency conversion for display
+  const getFormattedValue = (valUSD: number) => {
+    if (displayCurrency === 'INR' && ethPrices?.inr) {
+      return `₹${(valUSD * (ethPrices.inr / ethPrices.usd)).toLocaleString()}`;
+    }
+    if (displayCurrency === 'ETH' && ethPrices?.usd) {
+      return `${(valUSD / ethPrices.usd).toFixed(4)} ETH`;
+    }
+    return `$${valUSD.toLocaleString()}`;
+  };
 
   const campaign = {
     title: campaignData.title,
@@ -365,8 +376,8 @@ export default function CampaignDetailsPage({ params }: { params: Promise<{ id: 
       avatar: `https://picsum.photos/seed/${campaignData.owner}/100/100`,
       verified: true
     },
-    contributedAmount: amountCollected,
-    targetAmount: target,
+    contributedAmount: amountCollectedUSD,
+    targetAmount: targetUSD,
     contributors: campaignData.donators.length,
     deadline: new Date(deadlineMs).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }),
     status: status
@@ -391,17 +402,34 @@ export default function CampaignDetailsPage({ params }: { params: Promise<{ id: 
         <MediaGallery media={campaign.media} title={campaign.title} />
 
         <div className="bg-white/70 backdrop-blur-xl rounded-2xl md:rounded-3xl border border-white/20 p-5 md:p-8 shadow-xl flex flex-col gap-6">
-          <div className="flex items-center gap-3">
-            <Avatar className="h-8 w-8 md:h-12 md:w-12 border-2 border-background ring-1 ring-border/10">
-              <AvatarImage src={campaign.user.avatar} />
-              <AvatarFallback>{campaign.user.name[0]}</AvatarFallback>
-            </Avatar>
-            <div className="flex flex-col">
-              <div className="flex items-center gap-1">
-                <span className="text-xs md:text-base font-bold text-foreground">{campaign.user.name}</span>
-                {campaign.user.verified && <MdVerifiedUser color='#1C9A9C' className="h-3 w-3 md:h-4 md:w-4" />}
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <Avatar className="h-8 w-8 md:h-12 md:w-12 border-2 border-background ring-1 ring-border/10">
+                <AvatarImage src={campaign.user.avatar} />
+                <AvatarFallback>{campaign.user.name[0]}</AvatarFallback>
+              </Avatar>
+              <div className="flex flex-col">
+                <div className="flex items-center gap-1">
+                  <span className="text-xs md:text-base font-bold text-foreground">{campaign.user.name}</span>
+                  {campaign.user.verified && <MdVerifiedUser color='#1C9A9C' className="h-3 w-3 md:h-4 md:w-4" />}
+                </div>
+                <span className="text-[10px] md:text-xs text-muted-foreground uppercase tracking-wider font-semibold">Campaign Organizer</span>
               </div>
-              <span className="text-[10px] md:text-xs text-muted-foreground uppercase tracking-wider font-semibold">Campaign Organizer</span>
+            </div>
+            
+            <div className="flex items-center gap-1 bg-muted p-1 rounded-xl">
+              {(['USD', 'INR', 'ETH'] as const).map((curr) => (
+                <button
+                  key={curr}
+                  onClick={() => setDisplayCurrency(curr)}
+                  className={cn(
+                    "px-3 py-1.5 rounded-lg text-[10px] font-bold transition-all",
+                    displayCurrency === curr ? "bg-white text-primary shadow-sm" : "text-muted-foreground hover:text-foreground"
+                  )}
+                >
+                  {curr}
+                </button>
+              ))}
             </div>
           </div>
 
@@ -440,7 +468,7 @@ export default function CampaignDetailsPage({ params }: { params: Promise<{ id: 
               <ProgressCircle progress={Math.min((campaign.contributedAmount / campaign.targetAmount) * 100, 100)} />
               <div className="text-center flex flex-col gap-2">
                 <p className="text-[11px] md:text-sm font-bold text-foreground">
-                  ${campaign.contributedAmount.toLocaleString()} <span className="text-muted-foreground font-medium">raised of ${campaign.targetAmount.toLocaleString()}</span>
+                  {getFormattedValue(campaign.contributedAmount)} <span className="text-muted-foreground font-medium">raised of {getFormattedValue(campaign.targetAmount)}</span>
                 </p>
                 <ContributorBadge count={campaign.contributors} showSupportersLabel className="mx-auto" />
               </div>

@@ -30,7 +30,7 @@ import {
 } from '@/components/ui/select';
 import { Card } from '@/components/ui/card';
 import { CustomDatePicker } from '@/components/custom-date-picker';
-import { useWriteContract, useAccount } from 'wagmi';
+import { useWriteContract, useAccount, useWaitForTransactionReceipt } from 'wagmi';
 import { parseUnits } from 'viem';
 import { CONTRACT_ADDRESS, CONTRACT_ABI } from '@/lib/contract';
 import { useToast } from '@/hooks/use-toast';
@@ -87,11 +87,11 @@ const PREDEFINED_CATEGORIES = [
 
 export default function NewFundraiserPage() {
   const { isConnected } = useAccount();
-  const { writeContract, isPending: isWalletLoading } = useWriteContract();
+  const { data: hash, writeContract, isPending: isWalletLoading } = useWriteContract();
+  const { isLoading: isMining, isSuccess: isTransactionConfirmed } = useWaitForTransactionReceipt({ hash });
   const { prices } = useEthPrice();
   const { toast } = useToast();
   const [isUploading, setIsUploading] = useState(false);
-  const [isSuccess, setIsSuccess] = useState(false);
   const [files, setFiles] = useState<File[]>([]);
   const [previews, setPreviews] = useState<string[]>([]);
   const [dragActive, setDragActive] = useState(false);
@@ -273,9 +273,9 @@ export default function NewFundraiserPage() {
           mediaUrls,
           targetInUSD,
           BigInt(Math.floor(values.deadline.getTime() / 1000)),
-        ],
+        ]
+      }, {
         onSuccess: () => {
-          setIsSuccess(true);
           toast({
             title: "Transaction Sent",
             description: "Your campaign is being created on the blockchain.",
@@ -288,7 +288,7 @@ export default function NewFundraiserPage() {
             variant: "destructive"
           });
         }
-      } as any);
+      });
     } catch (error: any) {
       toast({
         title: "Submission Failed",
@@ -304,12 +304,11 @@ export default function NewFundraiserPage() {
     form.reset();
     setFiles([]);
     setPreviews([]);
-    setIsSuccess(false);
   };
 
-  const isSubmitting = isUploading || isWalletLoading;
+  const isSubmitting = isUploading || isWalletLoading || isMining;
 
-  if (isSuccess) {
+  if (isTransactionConfirmed) {
     return (
       <div className="flex flex-col items-center justify-center min-h-[70vh] p-4 text-center">
         <div className="bg-emerald-100 p-6 rounded-full mb-6">
@@ -317,7 +316,7 @@ export default function NewFundraiserPage() {
         </div>
         <h1 className="text-2xl md:text-4xl font-black text-foreground mb-2">Campaign Successfully Created!</h1>
         <p className="text-muted-foreground max-w-md mb-10">
-          Your fundraiser is now live on the Sepolia Testnet. It may take a few moments for the blockchain to index your transaction.
+          Your fundraiser is now live on the Sepolia Testnet. You can now start sharing it with your community.
         </p>
         
         <div className="flex flex-col md:flex-row gap-4 w-full max-w-md">
@@ -606,7 +605,7 @@ export default function NewFundraiserPage() {
                   isLoading={isSubmitting}
                 >
                   {isSubmitting ? (
-                    isUploading ? 'Uploading to IPFS...' : 'Creating Campaign...'
+                    isUploading ? 'Uploading to IPFS...' : isMining ? 'Mining Transaction...' : 'Creating Campaign...'
                   ) : (
                     'Create Campaign'
                   )}
