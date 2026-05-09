@@ -543,9 +543,8 @@ export default function NewFundraiserPage() {
                     files.length >= MAX_FILES && "opacity-50 pointer-events-none"
                   )}
                   onDragEnter={handleDrag}
-                  onDragEnter={handleDrag}
-                  onDragLeave={handleDrag}
                   onDragOver={handleDrag}
+                  onDragLeave={handleDrag}
                   onDrop={handleDrop}
                   onClick={() => document.getElementById('file-upload')?.click()}
                 >
