@@ -10,7 +10,8 @@ import {
   ChevronUp,
   Tag,
   Loader2,
-  Info
+  Info,
+  Wallet
 } from 'lucide-react';
 import { MdVerifiedUser, MdOutlineReportProblem } from 'react-icons/md';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
@@ -20,9 +21,10 @@ import { StatusBadge } from '@/components/status-badge';
 import { ContributorBadge } from '@/components/contributor-badge';
 import { ShareButton } from '@/components/share-button';
 import { cn } from '@/lib/utils';
-import { useReadContract } from 'wagmi';
-import { formatEther } from 'viem';
+import { useReadContract, useWriteContract, useAccount } from 'wagmi';
+import { formatEther, parseEther } from 'viem';
 import { CONTRACT_ADDRESS, CONTRACT_ABI } from '@/lib/contract';
+import { useToast } from '@/hooks/use-toast';
 import {
   Carousel,
   CarouselContent,
@@ -277,23 +279,29 @@ function ContributorsList({ count, donators, donations }: { count: number, donat
 
         <CollapsibleContent className="mt-6 space-y-4 animate-in slide-in-from-top-2 duration-300">
           <div className="flex flex-col gap-4">
-            {donators && donators.map((donator, index) => (
-              <div key={index} className="flex items-center justify-between pb-4 border-b border-border/50 last:border-0 last:pb-0">
-                <div className="flex items-center gap-3">
-                  <Avatar className="h-8 w-8 md:h-10 md:w-10 border border-background ring-1 ring-border/10">
-                    <AvatarImage src={`https://picsum.photos/seed/${donator}/100/100`} />
-                    <AvatarFallback>{donator[0]}</AvatarFallback>
-                  </Avatar>
-                  <div className="flex flex-col">
-                    <span className="text-xs md:text-sm font-bold text-foreground">{donator.slice(0, 6)}...{donator.slice(-4)}</span>
-                    <span className="text-[10px] text-muted-foreground">On-chain donation</span>
+            {donators && donators.length > 0 ? (
+              donators.map((donator, index) => (
+                <div key={index} className="flex items-center justify-between pb-4 border-b border-border/50 last:border-0 last:pb-0">
+                  <div className="flex items-center gap-3">
+                    <Avatar className="h-8 w-8 md:h-10 md:w-10 border border-background ring-1 ring-border/10">
+                      <AvatarImage src={`https://picsum.photos/seed/${donator}/100/100`} />
+                      <AvatarFallback>{donator[0]}</AvatarFallback>
+                    </Avatar>
+                    <div className="flex flex-col">
+                      <span className="text-xs md:text-sm font-bold text-foreground">{donator.slice(0, 6)}...{donator.slice(-4)}</span>
+                      <span className="text-[10px] text-muted-foreground">On-chain donation</span>
+                    </div>
+                  </div>
+                  <div className="text-right">
+                    <span className="text-xs md:text-sm font-black text-primary">{formatEther(donations[index])} ETH</span>
                   </div>
                 </div>
-                <div className="text-right">
-                  <span className="text-xs md:text-sm font-black text-primary">{formatEther(donations[index])} ETH</span>
-                </div>
+              ))
+            ) : (
+              <div className="py-8 text-center text-muted-foreground">
+                No supporters yet. Be the first!
               </div>
-            ))}
+            )}
           </div>
         </CollapsibleContent>
       </Collapsible>
@@ -304,7 +312,17 @@ function ContributorsList({ count, donators, donations }: { count: number, donat
 /**
  * Section 5: Static Contribution Box
  */
-function StaticContributionBox({ containerRef }: { containerRef: React.RefObject<HTMLDivElement | null> }) {
+function StaticContributionBox({ 
+  containerRef, 
+  onContribute, 
+  isLoading 
+}: { 
+  containerRef: React.RefObject<HTMLDivElement | null>,
+  onContribute: (amount: string) => void,
+  isLoading: boolean
+}) {
+  const [amount, setAmount] = useState('');
+
   return (
     <div 
       ref={containerRef}
@@ -321,10 +339,16 @@ function StaticContributionBox({ containerRef }: { containerRef: React.RefObject
           <Input 
             type="number" 
             placeholder="0"
+            value={amount}
+            onChange={(e) => setAmount(e.target.value)}
             className="bg-white/10 border-white/20 text-white pl-7 h-10 md:h-12 rounded-xl focus-visible:ring-primary focus-visible:border-primary text-sm font-bold shadow-inner"
           />
         </div>
-        <CustomButton className="h-10 md:h-12 px-6 md:px-8 rounded-xl font-black text-xs md:text-sm shadow-lg shadow-primary/20 bg-primary hover:bg-primary/90">
+        <CustomButton 
+          onClick={() => onContribute(amount)}
+          isLoading={isLoading}
+          className="h-10 md:h-12 px-6 md:px-8 rounded-xl font-black text-xs md:text-sm shadow-lg shadow-primary/20 bg-primary hover:bg-primary/90"
+        >
           Contribute
         </CustomButton>
       </div>
@@ -383,16 +407,19 @@ export default function CampaignDetailsPage({ params }: { params: Promise<{ id: 
   const { id } = use(params);
   const fundRef = useRef<HTMLDivElement>(null);
   const [isFundInView, setIsFundInView] = useState(false);
+  const { isConnected } = useAccount();
+  const { toast } = useToast();
+  const { writeContract, isPending: isMutationLoading } = useWriteContract();
 
   // Fetch campaign details from blockchain
-  const { data: campaignRaw, isLoading, isError } = useReadContract({
+  const { data: campaignsRaw, isLoading, isError, refetch } = useReadContract({
     address: CONTRACT_ADDRESS,
     abi: CONTRACT_ABI,
     functionName: 'getCampaigns',
   });
 
   const campaignIndex = parseInt(id);
-  const campaignData = (campaignRaw as any)?.[campaignIndex];
+  const campaignData = (campaignsRaw as any)?.[campaignIndex];
 
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -410,6 +437,49 @@ export default function CampaignDetailsPage({ params }: { params: Promise<{ id: 
 
     return () => observer.disconnect();
   }, []);
+
+  const handleContribute = (amount: string) => {
+    if (!isConnected) {
+      toast({
+        title: "Connect Wallet",
+        description: "Please connect your wallet to contribute.",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    if (!amount || isNaN(Number(amount)) || Number(amount) <= 0) {
+      toast({
+        title: "Invalid Amount",
+        description: "Please enter a valid ETH amount.",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    writeContract({
+      address: CONTRACT_ADDRESS,
+      abi: CONTRACT_ABI,
+      functionName: 'donateToCampaign',
+      args: [BigInt(campaignIndex)],
+      value: parseEther(amount),
+    }, {
+      onSuccess: () => {
+        toast({
+          title: "Transaction Sent",
+          description: "Your contribution is being processed on the blockchain.",
+        });
+        setTimeout(() => refetch(), 5000); // Refetch after a short delay for indexers
+      },
+      onError: (err) => {
+        toast({
+          title: "Transaction Failed",
+          description: err.message || "An error occurred during transaction.",
+          variant: "destructive"
+        });
+      }
+    });
+  };
 
   const scrollToFund = () => {
     fundRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
@@ -438,6 +508,22 @@ export default function CampaignDetailsPage({ params }: { params: Promise<{ id: 
     );
   }
 
+  // Calculate status logic
+  const amountCollected = parseFloat(formatEther(campaignData.amountCollected));
+  const target = parseFloat(formatEther(campaignData.target));
+  const deadlineMs = Number(campaignData.deadline) * 1000;
+  
+  // Heuristic for creation time (mocking it as 15 days ago for testing if not available)
+  // Real NEW status needs a creation timestamp which isn't standard in basic contracts
+  // but we follow user rule: if goal reached -> completed, otherwise check age
+  let status: 'Active' | 'Completed' | 'New' = 'Active';
+  if (amountCollected >= target) {
+    status = 'Completed';
+  } else if (Date.now() - (deadlineMs - 30 * 24 * 60 * 60 * 1000) < 10 * 24 * 60 * 60 * 1000) {
+    // Assuming 30 day standard duration if unknown, just to show 'New' logic potential
+    status = 'New';
+  }
+
   // Map contract struct to local format
   const campaign = {
     title: campaignData.title,
@@ -451,15 +537,15 @@ export default function CampaignDetailsPage({ params }: { params: Promise<{ id: 
       avatar: `https://picsum.photos/seed/${campaignData.owner}/100/100`,
       verified: true
     },
-    contributedAmount: parseFloat(formatEther(campaignData.amountCollected)),
-    targetAmount: parseFloat(formatEther(campaignData.target)),
+    contributedAmount: amountCollected,
+    targetAmount: target,
     contributors: campaignData.donators.length,
-    deadline: new Date(Number(campaignData.deadline) * 1000).toLocaleDateString('en-GB', {
+    deadline: new Date(deadlineMs).toLocaleDateString('en-GB', {
       day: '2-digit',
       month: 'short',
       year: 'numeric'
     }),
-    status: Number(campaignData.deadline) * 1000 < Date.now() ? 'Completed' : 'Active' as 'Active' | 'Completed' | 'New'
+    status: status
   };
 
   return (
@@ -469,7 +555,11 @@ export default function CampaignDetailsPage({ params }: { params: Promise<{ id: 
         <MediaGallery media={campaign.media as any} title={campaign.title} />
         <DetailsCard campaign={campaign} />
         <ContributorsList count={campaign.contributors} donators={campaignData.donators} donations={campaignData.donations} />
-        <StaticContributionBox containerRef={fundRef} />
+        <StaticContributionBox 
+          containerRef={fundRef} 
+          onContribute={handleContribute}
+          isLoading={isMutationLoading}
+        />
       </main>
       
       <FloatingCTA 

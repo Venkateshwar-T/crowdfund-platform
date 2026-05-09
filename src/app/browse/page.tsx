@@ -15,7 +15,17 @@ export default function BrowsePage() {
   });
 
   const campaigns = campaignsRaw ? (campaignsRaw as any[]).map((c, index) => {
-    // Map on-chain struct to CampaignCard props
+    const amountCollected = parseFloat(formatEther(c.amountCollected));
+    const target = parseFloat(formatEther(c.target));
+    const deadlineMs = Number(c.deadline) * 1000;
+
+    let status: 'Active' | 'Completed' | 'New' = 'Active';
+    if (amountCollected >= target) {
+      status = 'Completed';
+    } else if (Date.now() - (deadlineMs - 30 * 24 * 60 * 60 * 1000) < 10 * 24 * 60 * 60 * 1000) {
+      status = 'New';
+    }
+
     return {
       id: index.toString(),
       title: c.title,
@@ -25,15 +35,15 @@ export default function BrowsePage() {
         avatar: `https://picsum.photos/seed/${c.owner}/100/100`,
         verified: true,
       },
-      contributedAmount: parseFloat(formatEther(c.amountCollected)),
-      targetAmount: parseFloat(formatEther(c.target)),
+      contributedAmount: amountCollected,
+      targetAmount: target,
       contributors: c.donators.length,
-      deadline: new Date(Number(c.deadline) * 1000).toLocaleDateString('en-GB', {
+      deadline: new Date(deadlineMs).toLocaleDateString('en-GB', {
         day: '2-digit',
         month: 'short',
         year: 'numeric'
       }),
-      status: Number(c.deadline) * 1000 < Date.now() ? 'Completed' : 'Active' as 'Active' | 'Completed' | 'New'
+      status: status
     };
   }) : [];
 
