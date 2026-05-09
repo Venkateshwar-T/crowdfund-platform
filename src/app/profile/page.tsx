@@ -17,7 +17,6 @@ import {
   HeartHandshake,
   LayoutGrid,
   Wallet as WalletIcon,
-  Info
 } from 'lucide-react';
 import { useAccount, useDisconnect, useReadContract, useBalance } from 'wagmi';
 import { useRouter } from 'next/navigation';
@@ -103,7 +102,7 @@ function ProfileIdentityCard({
         <div className="relative group">
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Avatar className="h-24 w-24 md:h-32 md:w-32 border-4 border-background shadow-2xl ring-1 ring-border/20 cursor-pointer hover:scale-105 transition-transform">
+              <Avatar className="h-20 w-20 md:h-32 md:w-32 border-4 border-background shadow-2xl ring-1 ring-border/20 cursor-pointer hover:scale-105 transition-transform">
                 <AvatarImage src={avatarUrl || `https://picsum.photos/seed/${address}/200/200`} />
                 <AvatarFallback className="bg-primary text-white text-3xl font-bold">
                   {username[0]}
@@ -126,7 +125,7 @@ function ProfileIdentityCard({
             onClick={() => setIsEditingUsername(true)}
             className="absolute bottom-0 right-0 p-2 bg-white rounded-full shadow-lg border border-border hover:bg-primary hover:text-white transition-all group-hover:scale-110"
           >
-            <Edit2 className="h-4 w-4" />
+            <Edit2 className="h-3.5 w-3.5 md:h-4 md:w-4" />
           </button>
         </div>
 
@@ -160,7 +159,7 @@ function ProfileIdentityCard({
           </div>
 
           <div className="flex items-center gap-2 bg-muted/50 px-3 py-1 rounded-full group">
-            <span className="text-xs md:text-sm font-mono font-medium text-muted-foreground">
+            <span className="text-[10px] md:text-sm font-mono font-medium text-muted-foreground">
               {shortenedAddress}
             </span>
             <button 
@@ -174,13 +173,13 @@ function ProfileIdentityCard({
 
         <div className="flex flex-col items-center md:items-end gap-2">
           <Badge variant="outline" className={cn(
-            "rounded-full gap-2 px-3 py-1 font-bold tracking-tight border-2 capitalize",
+            "rounded-full gap-2 px-3 py-1 font-bold tracking-tight border-2 capitalize text-[10px] md:text-xs",
             chain?.id === 1 ? "bg-blue-50 text-blue-600 border-blue-200" : "bg-emerald-50 text-emerald-600 border-emerald-200"
           )}>
-            <div className={cn("w-2 h-2 rounded-full animate-pulse", chain?.id === 1 ? "bg-blue-600" : "bg-emerald-600")} />
+            <div className={cn("w-1.5 h-1.5 md:w-2 md:h-2 rounded-full animate-pulse", chain?.id === 1 ? "bg-blue-600" : "bg-emerald-600")} />
             {chain?.name || 'Unknown Network'}
           </Badge>
-          <span className="text-[10px] text-muted-foreground uppercase font-black tracking-[0.1em]">Active Network</span>
+          <span className="text-[8px] md:text-[10px] text-muted-foreground uppercase font-black tracking-[0.1em]">Active Network</span>
         </div>
       </div>
     </Card>
@@ -332,19 +331,19 @@ export default function ProfilePage() {
           chain={chain}
         />
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6 mt-8">
-          <Card className="p-6 md:p-8 rounded-[2rem] border-white/20 bg-primary/5 flex flex-col gap-4 shadow-sm border">
-            <div className="p-3 w-fit bg-primary rounded-2xl text-white">
-              <WalletIcon className="h-6 w-6" />
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6 mt-4 md:mt-8">
+          <Card className="p-5 md:p-8 rounded-[1.5rem] md:rounded-[2rem] border-white/20 bg-primary/5 flex flex-col gap-3 md:gap-4 shadow-sm border">
+            <div className="p-2.5 md:p-3 w-fit bg-primary rounded-xl md:rounded-2xl text-white">
+              <WalletIcon className="h-5 w-5 md:h-6 md:w-6" />
             </div>
             <div>
-              <p className="text-[10px] md:text-xs text-muted-foreground font-black uppercase tracking-[0.2em] mb-1">My Wallet Balance</p>
-              <h3 className="text-2xl md:text-4xl font-black text-foreground">
-                {ethValueInWallet.toFixed(4)} <span className="text-lg md:text-2xl font-bold text-muted-foreground">ETH</span>
+              <p className="text-[8px] md:text-xs text-muted-foreground font-black uppercase tracking-[0.2em] mb-1">My Wallet Balance</p>
+              <h3 className="text-xl md:text-4xl font-black text-foreground">
+                {ethValueInWallet.toFixed(4)} <span className="text-sm md:text-2xl font-bold text-muted-foreground">ETH</span>
               </h3>
-              <div className="flex items-center gap-2 mt-2">
-                <span className="text-xs font-bold text-primary bg-primary/10 px-2 py-0.5 rounded-full">${usdValueInWallet.toLocaleString(undefined, { maximumFractionDigits: 2 })}</span>
-                <span className="text-xs font-bold text-primary bg-primary/10 px-2 py-0.5 rounded-full">₹{inrValueInWallet.toLocaleString(undefined, { maximumFractionDigits: 0 })}</span>
+              <div className="flex items-center gap-1.5 md:gap-2 mt-2">
+                <span className="text-[10px] md:text-xs font-bold text-primary bg-primary/10 px-2 py-0.5 rounded-full">${usdValueInWallet.toLocaleString(undefined, { maximumFractionDigits: 2 })}</span>
+                <span className="text-[10px] md:text-xs font-bold text-primary bg-primary/10 px-2 py-0.5 rounded-full">₹{inrValueInWallet.toLocaleString(undefined, { maximumFractionDigits: 0 })}</span>
               </div>
             </div>
           </Card>
@@ -362,46 +361,46 @@ export default function ProfilePage() {
           />
         </div>
 
-        <div className="mt-8 bg-white/70 backdrop-blur-xl border border-white/20 rounded-[2.5rem] overflow-hidden shadow-xl">
+        <div className="mt-4 md:mt-8 bg-white/70 backdrop-blur-xl border border-white/20 rounded-[1.5rem] md:rounded-[2.5rem] overflow-hidden shadow-xl">
           <Tabs defaultValue="my-campaigns" className="w-full">
-            <div className="bg-muted/30 p-4 md:p-6 border-b border-border/10">
-              <TabsList className="bg-background/80 backdrop-blur-md p-1 rounded-2xl h-12 md:h-14 grid grid-cols-2 max-w-md border border-border/20">
-                <TabsTrigger value="my-campaigns" className="rounded-xl font-bold data-[state=active]:bg-primary data-[state=active]:text-white">
+            <div className="bg-muted/30 p-3 md:p-6 border-b border-border/10">
+              <TabsList className="bg-background/80 backdrop-blur-md p-1 rounded-xl md:rounded-2xl h-10 md:h-14 grid grid-cols-2 max-w-sm border border-border/20">
+                <TabsTrigger value="my-campaigns" className="rounded-lg md:rounded-xl font-bold text-xs md:text-sm data-[state=active]:bg-primary data-[state=active]:text-white">
                   My Campaigns
                 </TabsTrigger>
-                <TabsTrigger value="contributions" className="rounded-xl font-bold data-[state=active]:bg-primary data-[state=active]:text-white">
+                <TabsTrigger value="contributions" className="rounded-lg md:rounded-xl font-bold text-xs md:text-sm data-[state=active]:bg-primary data-[state=active]:text-white">
                   Contributions
                 </TabsTrigger>
               </TabsList>
             </div>
 
-            <div className="p-6 md:p-10">
+            <div className="p-4 md:p-10">
               <TabsContent value="my-campaigns" className="mt-0 outline-none">
-                <div className="flex items-center gap-2 mb-8 bg-primary/5 p-3 rounded-2xl border border-primary/10 w-fit">
-                  <LayoutGrid className="h-4 w-4 text-primary" />
-                  <span className="text-xs md:text-sm font-bold text-primary uppercase tracking-widest">
-                    Total Campaigns Launched: {processedData.myCampaigns.length}
+                <div className="flex items-center gap-2 mb-4 md:mb-8 bg-primary/5 p-2 md:p-3 rounded-lg md:rounded-2xl border border-primary/10 w-fit">
+                  <LayoutGrid className="h-3.5 w-3.5 md:h-4 md:w-4 text-primary" />
+                  <span className="text-[9px] md:text-sm font-bold text-primary uppercase tracking-widest">
+                    Total Launched: {processedData.myCampaigns.length}
                   </span>
                 </div>
 
                 {processedData.myCampaigns.length === 0 ? (
-                  <div className="p-12 text-center flex flex-col items-center gap-6">
-                    <div className="p-6 bg-muted rounded-full">
-                      <Search className="h-10 w-10 text-muted-foreground" />
+                  <div className="p-8 md:p-12 text-center flex flex-col items-center gap-4 md:gap-6">
+                    <div className="p-4 md:p-6 bg-muted rounded-full">
+                      <Search className="h-8 w-8 md:h-10 md:w-10 text-muted-foreground" />
                     </div>
                     <div>
-                      <h3 className="text-xl font-bold">No campaigns launched yet</h3>
-                      <p className="text-muted-foreground mt-2">Start your first fundraiser today and make an impact.</p>
+                      <h3 className="text-lg md:text-xl font-bold">No campaigns launched yet</h3>
+                      <p className="text-xs md:text-sm text-muted-foreground mt-1 md:mt-2">Start your first fundraiser today and make an impact.</p>
                     </div>
-                    <CustomButton asChild className="rounded-full px-8 gap-2">
+                    <CustomButton asChild className="rounded-full px-6 md:px-8 h-10 md:h-12 gap-2 text-xs md:text-base">
                       <Link href="/fundraisers/new">
-                        <PlusCircle className="h-5 w-5" />
+                        <PlusCircle className="h-4 w-4 md:h-5 md:w-5" />
                         Create Campaign
                       </Link>
                     </CustomButton>
                   </div>
                 ) : (
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 md:gap-6">
                     {processedData.myCampaigns.map((campaign: any) => (
                       <ProfileCampaignCard 
                         key={campaign.id}
@@ -416,31 +415,31 @@ export default function ProfilePage() {
               </TabsContent>
 
               <TabsContent value="contributions" className="mt-0 outline-none">
-                <div className="flex items-center gap-2 mb-8 bg-primary/5 p-3 rounded-2xl border border-primary/10 w-fit">
-                  <HeartHandshake className="h-4 w-4 text-primary" />
-                  <span className="text-xs md:text-sm font-bold text-primary uppercase tracking-widest">
-                    Total Causes Supported: {processedData.myContributions.length}
+                <div className="flex items-center gap-2 mb-4 md:mb-8 bg-primary/5 p-2 md:p-3 rounded-lg md:rounded-2xl border border-primary/10 w-fit">
+                  <HeartHandshake className="h-3.5 w-3.5 md:h-4 md:w-4 text-primary" />
+                  <span className="text-[9px] md:text-sm font-bold text-primary uppercase tracking-widest">
+                    Total Supported: {processedData.myContributions.length}
                   </span>
                 </div>
 
                 {processedData.myContributions.length === 0 ? (
-                  <div className="p-12 text-center flex flex-col items-center gap-6">
-                    <div className="p-6 bg-muted rounded-full">
-                      <HeartHandshake className="h-10 w-10 text-muted-foreground" />
+                  <div className="p-8 md:p-12 text-center flex flex-col items-center gap-4 md:gap-6">
+                    <div className="p-4 md:p-6 bg-muted rounded-full">
+                      <HeartHandshake className="h-8 w-8 md:h-10 md:w-10 text-muted-foreground" />
                     </div>
                     <div>
-                      <h3 className="text-xl font-bold">No contributions found</h3>
-                      <p className="text-muted-foreground mt-2">Support a cause and join a community of changemakers.</p>
+                      <h3 className="text-lg md:text-xl font-bold">No contributions found</h3>
+                      <p className="text-xs md:text-sm text-muted-foreground mt-1 md:mt-2">Support a cause and join a community of changemakers.</p>
                     </div>
-                    <CustomButton asChild className="rounded-full px-8 gap-2">
+                    <CustomButton asChild className="rounded-full px-6 md:px-8 h-10 md:h-12 gap-2 text-xs md:text-base">
                       <Link href="/browse">
-                        <Search className="h-5 w-5" />
+                        <Search className="h-4 w-4 md:h-5 md:w-5" />
                         Browse Campaigns
                       </Link>
                     </CustomButton>
                   </div>
                 ) : (
-                  <div className="grid grid-cols-1 gap-4">
+                  <div className="grid grid-cols-1 gap-3 md:gap-4">
                     {processedData.myContributions.map((contribution: any) => (
                       <ProfileContributionCard 
                         key={contribution.id}
@@ -454,27 +453,27 @@ export default function ProfilePage() {
           </Tabs>
         </div>
 
-        <div className="flex flex-col md:flex-row gap-3 md:gap-4 mt-8">
+        <div className="flex flex-col md:flex-row gap-3 md:gap-4 mt-6 md:mt-8">
           <CustomButton 
             onClick={handleDisconnect}
             variant="outline" 
-            className="flex-1 rounded-2xl h-12 md:h-14 border-destructive/20 text-destructive hover:bg-destructive/5 hover:text-destructive font-bold gap-2"
+            className="flex-1 rounded-xl md:rounded-2xl h-12 md:h-14 border-destructive/20 text-destructive hover:bg-destructive/5 hover:text-destructive font-bold gap-2 text-xs md:text-base"
           >
-            <LogOut className="h-5 w-5" />
+            <LogOut className="h-4 w-4 md:h-5 md:w-5" />
             Disconnect Wallet
           </CustomButton>
           
           <CustomButton 
             onClick={() => openAccountModal?.()}
             variant="secondary"
-            className="flex-1 rounded-2xl h-12 md:h-14 font-bold border border-primary/10"
+            className="flex-1 rounded-xl md:rounded-2xl h-12 md:h-14 font-bold border border-primary/10 text-xs md:text-base"
           >
-            <Settings2 className="h-5 w-5 mr-2" />
+            <Settings2 className="h-4 w-4 md:h-5 md:w-5 mr-2" />
             Wallet Settings
           </CustomButton>
         </div>
 
-        <p className="text-center text-[10px] md:text-xs text-muted-foreground/60 max-w-sm mx-auto mt-4">
+        <p className="text-center text-[8px] md:text-xs text-muted-foreground/60 max-w-sm mx-auto mt-4">
           All statistics are live and immutable, derived directly from the {chain?.name || 'blockchain'}.
         </p>
 
