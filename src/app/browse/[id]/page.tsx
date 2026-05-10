@@ -29,6 +29,7 @@ import { formatUnits, parseEther } from 'viem';
 import { CONTRACT_ADDRESS, CONTRACT_ABI } from '@/lib/contract';
 import { useToast } from '@/hooks/use-toast';
 import { useEthPrice } from '@/hooks/use-eth-price';
+import { useUserName } from '@/hooks/use-user-name';
 import DOMPurify from 'dompurify';
 import {
   Carousel,
@@ -321,6 +322,9 @@ export default function CampaignDetailsPage({ params }: { params: Promise<{ id: 
   const campaignIndex = parseInt(id);
   const campaignData = (campaignsRaw as any)?.[campaignIndex];
 
+  // Fetch the display name of the campaign owner using our hook
+  const { displayName: ownerName, loading: ownerLoading } = useUserName(campaignData?.owner);
+
   const processedDonors = useMemo(() => {
     if (!campaignData?.donators || !campaignData?.donations) return [];
     
@@ -414,10 +418,7 @@ export default function CampaignDetailsPage({ params }: { params: Promise<{ id: 
     category: campaignData.category.charAt(0).toUpperCase() + campaignData.category.slice(1),
     media: campaignData.mediaUrls || [],
     additionalNotes: campaignData.additionalNotes,
-    user: {
-      name: `${campaignData.owner.slice(0, 6)}...${campaignData.owner.slice(-4)}`,
-      verified: true
-    },
+    ownerAddress: campaignData.owner,
     contributedAmount: amountCollectedUSD,
     targetAmount: targetUSD,
     contributors: processedDonors.length,
@@ -502,8 +503,10 @@ export default function CampaignDetailsPage({ params }: { params: Promise<{ id: 
             </Avatar>
             <div className="flex flex-col">
               <div className="flex items-center gap-1">
-                <span className="text-xs md:text-base font-bold text-foreground">{campaign.user.name}</span>
-                {campaign.user.verified && <MdVerifiedUser color='#1C9A9C' className="h-3 w-3 md:h-4 md:w-4" />}
+                <span className="text-xs md:text-base font-bold text-foreground">
+                  {ownerLoading ? "..." : ownerName}
+                </span>
+                <MdVerifiedUser color='#1C9A9C' className="h-3 w-3 md:h-4 md:w-4" />
               </div>
               <span className="text-[10px] md:text-xs text-muted-foreground uppercase tracking-wider font-semibold">Campaign Organizer</span>
             </div>

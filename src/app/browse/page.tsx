@@ -20,8 +20,6 @@ export default function BrowsePage() {
     const target = parseFloat(formatUnits(c.target, 18));
     const deadlineMs = Number(c.deadline) * 1000;
 
-    const tenDaysAgo = Date.now() - (10 * 24 * 60 * 60 * 1000);
-    
     let status: 'Active' | 'Completed' | 'New' = 'Active';
     if (amountCollected >= target) {
       status = 'Completed';
@@ -36,10 +34,7 @@ export default function BrowsePage() {
       id: index.toString(),
       title: c.title,
       images: c.mediaUrls && c.mediaUrls.length > 0 ? c.mediaUrls : [],
-      user: {
-        name: `${c.owner.slice(0, 6)}...${c.owner.slice(-4)}`,
-        verified: true,
-      },
+      ownerAddress: c.owner,
       contributedAmount: amountCollected,
       targetAmount: target,
       contributors: uniqueDonors.size,

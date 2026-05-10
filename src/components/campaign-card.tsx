@@ -3,9 +3,10 @@
 import { useState, useEffect } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { Users, Calendar, Wallet, User } from 'lucide-react';
+import { Users, Calendar, Wallet, User, Loader2 } from 'lucide-react';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { MdVerifiedUser  } from "react-icons/md";
+import { useUserName } from '@/hooks/use-user-name';
 
 import { cn } from '@/lib/utils';
 
@@ -13,10 +14,7 @@ export interface CampaignCardProps {
   id: string;
   title: string;
   images: string[];
-  user: {
-    name: string;
-    verified?: boolean;
-  };
+  ownerAddress: string;
   contributedAmount: number;
   targetAmount: number;
   contributors: number;
@@ -29,7 +27,7 @@ export function CampaignCard({
   id,
   title,
   images,
-  user,
+  ownerAddress,
   contributedAmount,
   targetAmount,
   contributors,
@@ -39,6 +37,7 @@ export function CampaignCard({
 }: CampaignCardProps) {
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const progress = Math.min((contributedAmount / targetAmount) * 100, 100);
+  const { displayName, loading: nameLoading } = useUserName(ownerAddress);
 
   useEffect(() => {
     if (images.length <= 1) return;
@@ -113,10 +112,12 @@ export function CampaignCard({
                 <User size={12} className="md:w-4 md:h-4" />
               </AvatarFallback>
             </Avatar>
-            <span className="text-[10px] md:text-sm font-bold tracking-tight text-foreground/80 truncate">
-              {user.name}
-            </span>
-            {user.verified && <MdVerifiedUser color='#1C9A9C' className="h-2.5 w-2.5 md:h-3.5 md:w-3.5" />}
+            <div className="flex items-center gap-1 min-w-0">
+              <span className="text-[10px] md:text-sm font-bold tracking-tight text-foreground/80 truncate">
+                {nameLoading ? "..." : displayName}
+              </span>
+              <MdVerifiedUser color='#1C9A9C' className="h-2.5 w-2.5 md:h-3.5 md:w-3.5 flex-shrink-0" />
+            </div>
           </div>
 
           {/* Headline */}

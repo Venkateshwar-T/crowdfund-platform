@@ -2,17 +2,21 @@
   "firestore": {
     "collections": {
       "users": {
-        "description": "Stores off-chain user profile data indexed by wallet address.",
+        "description": "Stores user profile data linked to Firebase Auth UID and indexed by wallet address.",
         "documents": {
-          "{address}": {
+          "{uid}": {
             "fields": {
               "name": {
                 "type": "string",
-                "description": "User defined display name."
+                "description": "User-defined display name."
+              },
+              "walletAddress": {
+                "type": "string",
+                "description": "The linked blockchain wallet address (lowercase)."
               },
               "updatedAt": {
                 "type": "timestamp",
-                "description": "Last time the profile was updated."
+                "description": "Timestamp of the last update."
               }
             }
           }

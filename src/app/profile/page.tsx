@@ -37,12 +37,9 @@ import { cn } from '@/lib/utils';
 import { CONTRACT_ADDRESS, CONTRACT_ABI } from '@/lib/contract';
 import { formatUnits } from 'viem';
 import { ProfileStatCard, ProfileCampaignCard, ProfileContributionCard } from '@/components/profile-cards';
-import { db } from '@/lib/firebase';
-import { doc, getDoc, setDoc } from 'firebase/firestore';
+import { db, auth } from '@/lib/firebase';
+import { doc, getDoc, setDoc, collection, query, where, getDocs, limit } from 'firebase/firestore';
 
-/**
- * Sub-component for the state when no wallet is connected
- */
 function NotConnectedView({ onConnect }: { onConnect: () => void }) {
   return (
     <div className="flex flex-col items-center justify-center min-h-[70vh] p-4 text-center">
@@ -72,9 +69,6 @@ function NotConnectedView({ onConnect }: { onConnect: () => void }) {
   );
 }
 
-/**
- * Sub-component for the main profile identity card
- */
 function ProfileIdentityCard({ 
   username, 
   setUsername, 
@@ -170,9 +164,6 @@ function ProfileIdentityCard({
   );
 }
 
-/**
- * Main Profile Page component
- */
 export default function ProfilePage() {
   const { address, isConnected, chain } = useAccount();
   const { prices: ethPrices } = useEthPrice();
@@ -188,21 +179,26 @@ export default function ProfilePage() {
   const [username, setUsername] = useState('');
   const [isSavingName, setIsSavingName] = useState(false);
 
-  // Fetch all campaigns from contract to calculate history
-  const { data: campaignsRaw, isLoading: isCampaignsLoading } = useReadContract({
-    address: CONTRACT_ADDRESS,
-    abi: CONTRACT_ABI,
-    functionName: 'getCampaigns',
-  });
-
-  // Fetch username from Firestore
+  // Fetch username from Firestore by searching for the document keyed by current UID
   useEffect(() => {
     async function fetchUsername() {
-      if (address) {
+      if (auth.currentUser) {
         try {
-          const userDoc = await getDoc(doc(db, 'users', address.toLowerCase()));
+          const userDoc = await getDoc(doc(db, 'users', auth.currentUser.uid));
           if (userDoc.exists()) {
             setUsername(userDoc.data().name);
+          } else if (address) {
+            // Fallback: If no UID-based doc exists, try querying by wallet address
+            // in case the user migrated or reset their auth state
+            const q = query(
+              collection(db, 'users'),
+              where('walletAddress', '==', address.toLowerCase()),
+              limit(1)
+            );
+            const querySnapshot = await getDocs(q);
+            if (!querySnapshot.empty) {
+              setUsername(querySnapshot.docs[0].data().name);
+            }
           }
         } catch (error) {
           console.error("Error fetching username:", error);
@@ -213,29 +209,46 @@ export default function ProfilePage() {
   }, [address]);
 
   const handleSaveName = async () => {
-    if (!address) return;
+    if (!auth.currentUser || !address) {
+      toast({
+        title: "Authentication required",
+        description: "Firebase session not active.",
+        variant: "destructive"
+      });
+      return;
+    }
+
     setIsSavingName(true);
     try {
-      await setDoc(doc(db, 'users', address.toLowerCase()), {
+      // Key the document by the Firebase UID for security rules consistency
+      await setDoc(doc(db, 'users', auth.currentUser.uid), {
         name: username,
+        walletAddress: address.toLowerCase(),
         updatedAt: new Date(),
       }, { merge: true });
+      
       setIsEditingUsername(false);
       toast({
         title: "Profile Updated",
-        description: "Your display name has been saved.",
+        description: "Your display name has been saved securely.",
       });
-    } catch (error) {
+    } catch (error: any) {
       console.error("Error saving username:", error);
       toast({
         title: "Update Failed",
-        description: "Could not save your display name. Please try again.",
+        description: error.message || "Could not save name.",
         variant: "destructive",
       });
     } finally {
       setIsSavingName(false);
     }
   };
+
+  const { data: campaignsRaw, isLoading: isCampaignsLoading } = useReadContract({
+    address: CONTRACT_ADDRESS,
+    abi: CONTRACT_ABI,
+    functionName: 'getCampaigns',
+  });
 
   const processedData = useMemo(() => {
     if (!campaignsRaw || !address) return { 
@@ -248,7 +261,6 @@ export default function ProfilePage() {
     const all = (campaignsRaw as any[]) || [];
     const userAddr = address.toLowerCase();
 
-    // 1. My Created Campaigns
     const myCampaigns = all
       .map((c, index) => {
         const amountCollected = parseFloat(formatUnits(c.amountCollected, 18));
@@ -259,7 +271,6 @@ export default function ProfilePage() {
         if (amountCollected >= target) status = 'Completed';
         else if (Date.now() < deadlineMs && (deadlineMs - Date.now() > 20 * 24 * 60 * 60 * 1000)) status = 'New';
 
-        // Count unique supporters using lowercase addresses
         const uniqueSupporters = new Set(c.donators.map((d: string) => d.toLowerCase()));
 
         return {
@@ -275,7 +286,6 @@ export default function ProfilePage() {
 
     const totalUSD = myCampaigns.reduce((acc, c) => acc + c.amountCollected, 0);
 
-    // 2. My Contributions
     let totalPersonalETH = BigInt(0);
     const myContributions = all
       .map((c, index) => {
@@ -304,7 +314,6 @@ export default function ProfilePage() {
       })
       .filter(c => c.personalContribution > 0);
 
-    // Convert total contributed ETH to USD based on current prices
     const totalContributedUSD = parseFloat(formatUnits(totalPersonalETH, 18)) * (ethPrices?.usd || 0);
 
     return { myCampaigns, myContributions, totalUSD, totalContributedUSD };
