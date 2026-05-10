@@ -1,0 +1,23 @@
+{
+  "firestore": {
+    "collections": {
+      "users": {
+        "description": "Stores off-chain user profile data indexed by wallet address.",
+        "documents": {
+          "{address}": {
+            "fields": {
+              "name": {
+                "type": "string",
+                "description": "User defined display name."
+              },
+              "updatedAt": {
+                "type": "timestamp",
+                "description": "Last time the profile was updated."
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

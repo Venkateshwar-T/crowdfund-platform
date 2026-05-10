@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { 
   User, 
   Copy, 
@@ -37,6 +37,8 @@ import { cn } from '@/lib/utils';
 import { CONTRACT_ADDRESS, CONTRACT_ABI } from '@/lib/contract';
 import { formatUnits } from 'viem';
 import { ProfileStatCard, ProfileCampaignCard, ProfileContributionCard } from '@/components/profile-cards';
+import { db } from '@/lib/firebase';
+import { doc, getDoc, setDoc } from 'firebase/firestore';
 
 /**
  * Sub-component for the state when no wallet is connected
@@ -82,7 +84,9 @@ function ProfileIdentityCard({
   shortenedAddress,
   isCopied,
   copyAddress,
-  chain
+  chain,
+  onSaveName,
+  isSavingName
 }: any) {
   return (
     <Card className="p-8 md:p-10 rounded-3xl md:rounded-[2.5rem] bg-white/70 backdrop-blur-xl border-white/20 shadow-xl overflow-hidden relative">
@@ -106,15 +110,27 @@ function ProfileIdentityCard({
                   onChange={(e) => setUsername(e.target.value)}
                   className="h-8 md:h-10 text-lg md:text-2xl font-bold rounded-xl"
                   autoFocus
-                  onBlur={() => setIsEditingUsername(false)}
-                  onKeyDown={(e) => e.key === 'Enter' && setIsEditingUsername(false)}
+                  onKeyDown={(e) => e.key === 'Enter' && onSaveName()}
                 />
-                <CustomButton size="sm" className="rounded-xl h-8 px-4" onClick={() => setIsEditingUsername(false)}>Save</CustomButton>
+                <CustomButton 
+                  size="sm" 
+                  className="rounded-xl h-8 px-4" 
+                  onClick={onSaveName}
+                  isLoading={isSavingName}
+                >
+                  Save
+                </CustomButton>
+                <button 
+                  onClick={() => setIsEditingUsername(false)}
+                  className="text-xs text-muted-foreground hover:text-foreground"
+                >
+                  Cancel
+                </button>
               </div>
             ) : (
               <>
                 <h1 className="text-xl md:text-3xl font-black text-foreground">
-                  {username}
+                  {username || shortenedAddress}
                 </h1>
                 <button 
                   onClick={() => setIsEditingUsername(true)}
@@ -169,7 +185,8 @@ export default function ProfilePage() {
 
   const [isCopied, setIsCopied] = useState(false);
   const [isEditingUsername, setIsEditingUsername] = useState(false);
-  const [username, setUsername] = useState('New Supporter');
+  const [username, setUsername] = useState('');
+  const [isSavingName, setIsSavingName] = useState(false);
 
   // Fetch all campaigns from contract to calculate history
   const { data: campaignsRaw, isLoading: isCampaignsLoading } = useReadContract({
@@ -177,6 +194,48 @@ export default function ProfilePage() {
     abi: CONTRACT_ABI,
     functionName: 'getCampaigns',
   });
+
+  // Fetch username from Firestore
+  useEffect(() => {
+    async function fetchUsername() {
+      if (address) {
+        try {
+          const userDoc = await getDoc(doc(db, 'users', address.toLowerCase()));
+          if (userDoc.exists()) {
+            setUsername(userDoc.data().name);
+          }
+        } catch (error) {
+          console.error("Error fetching username:", error);
+        }
+      }
+    }
+    fetchUsername();
+  }, [address]);
+
+  const handleSaveName = async () => {
+    if (!address) return;
+    setIsSavingName(true);
+    try {
+      await setDoc(doc(db, 'users', address.toLowerCase()), {
+        name: username,
+        updatedAt: new Date(),
+      }, { merge: true });
+      setIsEditingUsername(false);
+      toast({
+        title: "Profile Updated",
+        description: "Your display name has been saved.",
+      });
+    } catch (error) {
+      console.error("Error saving username:", error);
+      toast({
+        title: "Update Failed",
+        description: "Could not save your display name. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsSavingName(false);
+    }
+  };
 
   const processedData = useMemo(() => {
     if (!campaignsRaw || !address) return { 
@@ -303,6 +362,8 @@ export default function ProfilePage() {
           isCopied={isCopied}
           copyAddress={copyAddress}
           chain={chain}
+          onSaveName={handleSaveName}
+          isSavingName={isSavingName}
         />
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6 mt-4 md:mt-8">
