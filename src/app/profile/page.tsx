@@ -217,7 +217,22 @@ export default function ProfilePage() {
         </div>
         <div className="bg-white/70 backdrop-blur-xl border rounded-[2.5rem] overflow-hidden shadow-xl">
           <Tabs defaultValue="my-campaigns" className="w-full">
-            <div className="bg-muted/30 p-4 border-b"><TabsList className="bg-background/80 p-1 rounded-2xl h-12 grid grid-cols-2 max-w-sm border"><TabsTrigger value="my-campaigns" className="rounded-xl font-bold text-xs data-[state=active]:bg-primary data-[state=active]:text-white">My Campaigns</TabsTrigger><TabsTrigger value="contributions" className="rounded-xl font-bold text-xs data-[state=active]:bg-primary data-[state=active]:text-white">Contributions</TabsTrigger></TabsList></div>
+            <div className="bg-muted/30 p-4 border-b">
+              <TabsList className="bg-background/80 p-1 rounded-2xl h-12 grid grid-cols-2 max-w-md border">
+                <TabsTrigger value="my-campaigns" className="rounded-xl font-bold text-xs data-[state=active]:bg-primary data-[state=active]:text-white flex items-center gap-2">
+                  My Campaigns
+                  <span className="flex items-center justify-center bg-muted/20 text-[10px] h-5 w-5 rounded-full border border-current opacity-70">
+                    {processedData.myCampaigns.length}
+                  </span>
+                </TabsTrigger>
+                <TabsTrigger value="contributions" className="rounded-xl font-bold text-xs data-[state=active]:bg-primary data-[state=active]:text-white flex items-center gap-2">
+                  Contributions
+                  <span className="flex items-center justify-center bg-muted/20 text-[10px] h-5 w-5 rounded-full border border-current opacity-70">
+                    {processedData.myContributions.length}
+                  </span>
+                </TabsTrigger>
+              </TabsList>
+            </div>
             <div className="p-6">
               <TabsContent value="my-campaigns" className="mt-0">
                 {processedData.myCampaigns.length > 0 ? (
