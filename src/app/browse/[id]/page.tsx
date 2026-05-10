@@ -1,33 +1,38 @@
 
 'use client';
 
-import { useState, useEffect, use, useRef } from 'react';
-import { useQuery, gql } from '@apollo/client';
+import { useState, useEffect, use, useRef, useMemo } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { 
   Calendar,
+  ChevronDown,
   Tag,
   Loader2,
+  Info,
   CheckCircle2,
   AlertCircle,
+  Mail,
   User,
   ExternalLink,
-  Coins,
-  Users
+  Coins
 } from 'lucide-react';
-import { MdVerifiedUser } from 'react-icons/md';
+import { MdVerifiedUser, MdOutlineReportProblem as ReportIcon } from 'react-icons/md';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
 import { CustomButton } from '@/components/custom-button';
 import { StatusBadge } from '@/components/status-badge';
+import { ContributorBadge } from '@/components/contributor-badge';
 import { ShareButton } from '@/components/share-button';
+import { cn } from '@/lib/utils';
 import { useWriteContract, useAccount, useWaitForTransactionReceipt, useBalance } from 'wagmi';
 import { formatUnits, parseEther } from 'viem';
 import { CONTRACT_ADDRESS, CONTRACT_ABI } from '@/lib/contract';
 import { useToast } from '@/hooks/use-toast';
 import { useEthPrice } from '@/hooks/use-eth-price';
 import { useUserName } from '@/hooks/use-user-name';
+import { useQuery, gql } from '@apollo/client';
 import DOMPurify from 'dompurify';
 import {
   Carousel,
@@ -35,6 +40,20 @@ import {
   CarouselItem,
   type CarouselApi,
 } from "@/components/ui/carousel";
+import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from "@/components/ui/collapsible";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+  DialogFooter
+} from "@/components/ui/dialog";
 
 const GET_CAMPAIGN_DETAIL = gql`
   query GetCampaignDetail($id: ID!) {
@@ -67,9 +86,12 @@ function shortenAddress(address: string) {
 }
 
 function ProgressCircle({ progress }: { progress: number }) {
-  const [size, setSize] = useState(220);
+  const [size, setSize] = useState(140);
+
   useEffect(() => {
-    const handleResize = () => setSize(window.innerWidth >= 768 ? 220 : 140);
+    const handleResize = () => {
+      setSize(window.innerWidth >= 768 ? 220 : 140);
+    };
     handleResize();
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
@@ -84,8 +106,27 @@ function ProgressCircle({ progress }: { progress: number }) {
   return (
     <div className="relative" style={{ width: size, height: size }}>
       <svg width={size} height={size} className="transform -rotate-90">
-        <circle cx={center} cy={center} r={radius} stroke="currentColor" strokeWidth={strokeWidth} fill="transparent" className="text-primary/10" />
-        <circle cx={center} cy={center} r={radius} stroke="currentColor" strokeWidth={strokeWidth} fill="transparent" strokeDasharray={circumference} style={{ strokeDashoffset: offset }} strokeLinecap="round" className="text-primary transition-all duration-1000 ease-out" />
+        <circle
+          cx={center}
+          cy={center}
+          r={radius}
+          stroke="currentColor"
+          strokeWidth={strokeWidth}
+          fill="transparent"
+          className="text-primary/10"
+        />
+        <circle
+          cx={center}
+          cy={center}
+          r={radius}
+          stroke="currentColor"
+          strokeWidth={strokeWidth}
+          fill="transparent"
+          strokeDasharray={circumference}
+          style={{ strokeDashoffset: offset }}
+          strokeLinecap="round"
+          className="text-primary transition-all duration-1000 ease-out"
+        />
       </svg>
       <div className="absolute inset-0 flex flex-col items-center justify-center">
         <span className="text-xl md:text-4xl font-black text-primary">{Math.round(progress)}%</span>
@@ -94,28 +135,103 @@ function ProgressCircle({ progress }: { progress: number }) {
   );
 }
 
-function ContributionBox({ 
-  targetUSD,
-  collectedUSD,
+function MediaGallery({ media, title }: { media: string[]; title: string }) {
+  const [api, setApi] = useState<CarouselApi>();
+  const [current, setCurrent] = useState(0);
+
+  useEffect(() => {
+    if (!api) return;
+    setCurrent(api.selectedScrollSnap());
+    api.on("select", () => {
+      setCurrent(api.selectedScrollSnap());
+    });
+  }, [api]);
+
+  return (
+    <div className="relative w-full overflow-hidden rounded-2xl md:rounded-3xl border border-border/50 bg-muted aspect-video shadow-lg">
+      <Carousel 
+        setApi={setApi} 
+        className="w-full h-full"
+        opts={{ align: "start", loop: true }}
+      >
+        <CarouselContent className="ml-0 h-full">
+          {media.map((url, index) => {
+            const isVideo = url.toLowerCase().includes('.mp4') || url.toLowerCase().includes('.webm');
+            return (
+              <CarouselItem key={index} className="pl-0 h-full relative">
+                <div className="relative w-full h-full min-h-[200px] md:min-h-[400px]">
+                  {isVideo ? (
+                    <video 
+                      src={url} 
+                      controls 
+                      className="w-full h-full object-cover"
+                    />
+                  ) : (
+                    <Image
+                      src={url}
+                      alt={`${title} media ${index}`}
+                      fill
+                      className="object-cover"
+                      priority={index === 0}
+                      data-ai-hint="campaign gallery media"
+                    />
+                  )}
+                </div>
+              </CarouselItem>
+            );
+          })}
+        </CarouselContent>
+      </Carousel>
+      
+      {media.length > 1 && (
+        <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex items-center gap-1.5 z-10 px-3 py-1.5 rounded-full bg-black/30 backdrop-blur-md border border-white/10">
+          {media.map((_, index) => (
+            <div
+              key={index}
+              className={`h-1 rounded-full transition-all duration-300 ${
+                current === index ? 'w-4 bg-white' : 'w-1 bg-white/50'
+              }`}
+            />
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
+function StaticContributionBox({ 
+  containerRef, 
   onContribute, 
   isConfirming,
   isMining,
   isSuccess,
   ethPrice,
-  userBalance
-}: any) {
+  userBalance,
+  remainingUSD
+}: { 
+  containerRef: React.RefObject<HTMLDivElement | null>,
+  onContribute: (amount: string) => void,
+  isConfirming: boolean,
+  isMining: boolean,
+  isSuccess: boolean,
+  ethPrice: any,
+  userBalance: any,
+  remainingUSD: number
+}) {
   const [amount, setAmount] = useState('');
-  const remainingUSD = Math.max(targetUSD - collectedUSD, 0);
   
   let ethEstimate = 0;
+  let inrEstimate = 0;
   if (amount && ethPrice) {
-    ethEstimate = parseFloat(amount) / ethPrice.usd;
+    const usdVal = parseFloat(amount);
+    ethEstimate = usdVal / ethPrice.usd;
+    inrEstimate = usdVal * (ethPrice.inr / ethPrice.usd);
   }
 
   const handleAmountChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     let val = e.target.value;
     if (parseFloat(val) > remainingUSD) {
-        val = remainingUSD.toFixed(2);
+      val = remainingUSD.toFixed(2);
     }
     setAmount(val);
   };
@@ -123,16 +239,19 @@ function ContributionBox({
   const isInsufficient = userBalance && parseFloat(userBalance.formatted) < ethEstimate;
 
   return (
-    <div className="p-6 md:p-8 bg-foreground rounded-3xl text-white flex flex-col items-center gap-6 shadow-2xl ring-1 ring-white/10 w-full max-w-md mx-auto">
+    <div 
+      ref={containerRef}
+      className="p-5 md:p-8 bg-foreground rounded-2xl md:rounded-3xl text-white flex flex-col items-center gap-6 shadow-2xl ring-1 ring-white/10 scroll-mt-24"
+    >
       <div className="text-center w-full">
-        <h3 className="text-lg md:text-xl font-black uppercase tracking-widest">Fund this Campaign</h3>
-        <p className="text-xs md:text-sm text-white/60 mt-1">Target remaining: ${remainingUSD.toLocaleString()}</p>
+        <h3 className="text-base md:text-lg font-bold">Fund this Campaign</h3>
+        <p className="text-xs md:text-sm text-white/60">Target remaining: ${remainingUSD.toLocaleString(undefined, { maximumFractionDigits: 2 })}</p>
       </div>
       
       {isSuccess ? (
-        <div className="w-full flex items-center justify-center gap-3 bg-primary/20 px-6 py-4 rounded-2xl border border-primary/30 animate-in zoom-in">
+        <div className="w-full flex items-center justify-center gap-3 bg-primary/20 px-6 py-4 rounded-2xl border border-primary/30 animate-in zoom-in-95">
           <CheckCircle2 className="h-6 w-6 text-primary" />
-          <span className="text-base font-bold text-white">Gift Received!</span>
+          <span className="text-base font-bold text-white">Contribution Successful!</span>
         </div>
       ) : (
         <div className="w-full flex flex-col gap-4">
@@ -141,30 +260,36 @@ function ContributionBox({
               <span className="absolute left-3 top-1/2 -translate-y-1/2 text-white/40 font-bold text-sm">$</span>
               <Input 
                 type="number" 
-                placeholder="0.00" 
-                value={amount} 
-                onChange={handleAmountChange} 
-                disabled={isConfirming || isMining} 
-                className="bg-white/10 border-white/20 text-white pl-7 h-12 rounded-xl text-base font-bold focus:ring-primary/40" 
+                placeholder="0.00"
+                value={amount}
+                onChange={handleAmountChange}
+                disabled={isConfirming || isMining}
+                className="bg-white/10 border-white/20 text-white pl-7 h-12 rounded-xl focus-visible:ring-primary focus-visible:border-primary text-base font-bold shadow-inner"
               />
             </div>
             <CustomButton 
-              onClick={() => onContribute(amount)} 
-              isLoading={isConfirming || isMining} 
-              disabled={isInsufficient || !amount || parseFloat(amount) <= 0} 
-              className="h-12 px-8 rounded-xl font-black text-sm bg-primary hover:bg-primary/90"
+              onClick={() => onContribute(amount)}
+              isLoading={isConfirming || isMining}
+              disabled={isInsufficient || !amount || parseFloat(amount) <= 0}
+              className="h-12 px-8 rounded-xl font-black text-sm shadow-lg shadow-primary/20 bg-primary hover:bg-primary/90 min-w-[140px]"
             >
-              Contribute
+              {isConfirming ? 'Confirming...' : isMining ? 'Processing...' : 'Contribute'}
             </CustomButton>
           </div>
+          
           {amount && ethPrice && (
-            <div className="flex items-center justify-between px-2">
-                <span className="text-xs font-bold text-primary italic">{ethEstimate.toFixed(6)} ETH</span>
+            <div className="flex flex-col gap-1.5 px-2">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2 text-xs md:text-sm font-medium text-white/60">
+                  <span className="text-primary font-bold">{ethEstimate.toFixed(6)} ETH</span> | <span className="text-primary font-bold">₹{inrEstimate.toLocaleString(undefined, { maximumFractionDigits: 2 })}</span>
+                </div>
                 {isInsufficient && (
-                  <span className="text-[10px] text-destructive font-black uppercase tracking-wider flex items-center gap-1">
-                    <AlertCircle className="h-3 w-3" /> Insufficient Funds
-                  </span>
+                  <div className="flex items-center gap-1.5 text-xs text-destructive font-bold animate-pulse">
+                    <AlertCircle className="h-4 w-4" />
+                    Insufficient Balance
+                  </div>
                 )}
+              </div>
             </div>
           )}
         </div>
@@ -173,15 +298,90 @@ function ContributionBox({
   );
 }
 
+function FloatingCTA({ onContribute, visible }: { onContribute: () => void, visible: boolean }) {
+  const [isNavVisible, setIsNavVisible] = useState(true);
+  const [lastScrollY, setLastScrollY] = useState(0);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      const currentScrollY = window.scrollY;
+      if (currentScrollY > lastScrollY && currentScrollY > 50) {
+        setIsNavVisible(false);
+      } else {
+        setIsNavVisible(true);
+      }
+      setLastScrollY(currentScrollY);
+    };
+
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, [lastScrollY]);
+
+  return (
+    <div 
+      className={cn(
+        "fixed left-0 right-0 z-40 px-4 transition-all duration-500 ease-in-out md:left-1/2 md:-translate-x-1/2 md:max-w-4xl md:px-0",
+        visible ? "translate-y-0 opacity-100" : "translate-y-10 opacity-0 pointer-events-none",
+        "md:bottom-8",
+        isNavVisible ? "bottom-[calc(4rem+1rem)]" : "bottom-4"
+      )}
+    >
+      <div className="p-3 md:p-4 bg-foreground/90 backdrop-blur-xl rounded-2xl md:rounded-3xl text-white flex items-center justify-between gap-4 shadow-2xl ring-1 ring-white/10">
+        <div className="pl-2">
+          <p className="text-[10px] md:text-xs text-white/60 font-bold uppercase tracking-widest">Drive Impact</p>
+          <p className="text-xs md:text-sm font-bold">Help this cause</p>
+        </div>
+        <CustomButton 
+          onClick={onContribute}
+          className="h-10 md:h-12 px-6 md:px-8 rounded-xl font-black text-xs md:text-sm shadow-lg shadow-primary/20 bg-primary hover:bg-primary/90"
+        >
+          Contribute Now
+        </CustomButton>
+      </div>
+    </div>
+  );
+}
+
+function SupporterRow({ address, amountUSD, timestamp }: { address: string, amountUSD: number, timestamp: string }) {
+  const { displayName, loading } = useUserName(address);
+  
+  return (
+    <div className="flex items-center justify-between pb-4 border-b border-border/50 last:border-0 last:pb-0">
+      <div className="flex items-center gap-3">
+        <Avatar className="h-8 w-8 md:h-10 md:w-10 border border-background ring-1 ring-border/10">
+          <AvatarFallback className="bg-muted text-muted-foreground">
+            <User size={16} className="md:w-5 md:h-5" />
+          </AvatarFallback>
+        </Avatar>
+        <div className="flex flex-col min-w-0">
+          <span className="text-xs md:text-sm font-bold text-foreground truncate">
+            {loading ? "..." : displayName}
+          </span>
+          <span className="text-[9px] text-muted-foreground uppercase font-black tracking-tighter">
+            {new Date(Number(timestamp) * 1000).toLocaleDateString()} • {shortenAddress(address)}
+          </span>
+        </div>
+      </div>
+      <div className="text-right shrink-0">
+        <span className="text-xs md:text-base font-black text-primary">
+          ${amountUSD.toLocaleString(undefined, { maximumFractionDigits: 2 })}
+        </span>
+      </div>
+    </div>
+  );
+}
+
 export default function CampaignDetailsPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params);
+  const fundRef = useRef<HTMLDivElement>(null);
+  const [isFundInView, setIsFundInView] = useState(false);
+  const [isSupportersOpen, setIsSupportersOpen] = useState(false);
+  const [reportReason, setReportReason] = useState("");
   const { isConnected, address: userAddress } = useAccount();
   const { data: userBalance } = useBalance({ address: userAddress });
   const { toast } = useToast();
   const { prices: ethPrices } = useEthPrice();
-  const [api, setApi] = useState<CarouselApi>();
-  const [current, setCurrent] = useState(0);
-
+  
   const { data: hash, writeContract, isPending: isConfirmingInWallet } = useWriteContract();
   const { isLoading: isMining, isSuccess: isTransactionConfirmed } = useWaitForTransactionReceipt({ hash });
 
@@ -190,34 +390,38 @@ export default function CampaignDetailsPage({ params }: { params: Promise<{ id: 
     pollInterval: 10000,
   });
 
-  const campaign = apolloData?.campaign;
-  const { displayName: ownerName } = useUserName(campaign?.owner);
-
-  useEffect(() => {
-    if (!api) return;
-    setCurrent(api.selectedScrollSnap() + 1);
-    api.on("select", () => {
-      setCurrent(api.selectedScrollSnap() + 1);
-    });
-  }, [api]);
+  const campaignData = apolloData?.campaign;
+  const { displayName: ownerName, loading: ownerLoading } = useUserName(campaignData?.owner);
 
   useEffect(() => {
     if (isTransactionConfirmed) {
-      toast({ title: "Confirmed", description: "Transaction finalized on the ledger." });
+      toast({ title: "Confirmed!", description: "Transaction has been recorded on the blockchain." });
       refetch();
     }
   }, [isTransactionConfirmed, refetch, toast]);
 
+  useEffect(() => {
+    const observer = new IntersectionObserver(([entry]) => setIsFundInView(entry.isIntersecting), { 
+      threshold: 0,
+      rootMargin: '-100px 0px 0px 0px'
+    });
+    if (fundRef.current) observer.observe(fundRef.current);
+    return () => observer.disconnect();
+  }, []);
+
   const handleAction = (functionName: 'donateToCampaign' | 'withdraw' | 'claimRefund', amount?: string) => {
-    if (!isConnected) return toast({ title: "Connect Wallet", description: "Login required for this action.", variant: "destructive" });
+    if (!isConnected) {
+      toast({ title: "Connect Wallet", description: "Login required for this action.", variant: "destructive" });
+      return;
+    }
 
     const args = [BigInt(id)];
     let value = undefined;
 
     if (functionName === 'donateToCampaign') {
-        if (!amount) return;
-        const ethValue = parseFloat(amount) / ethPrices?.usd;
-        value = parseEther(ethValue.toFixed(18));
+      if (!amount || isNaN(Number(amount)) || Number(amount) <= 0) return;
+      const ethValue = parseFloat(amount) / ethPrices?.usd;
+      value = parseEther(ethValue.toFixed(18));
     }
 
     writeContract({
@@ -226,163 +430,236 @@ export default function CampaignDetailsPage({ params }: { params: Promise<{ id: 
       functionName,
       args,
       value
+    }, {
+      onError: (err) => toast({ title: "Action Failed", description: err.message, variant: "destructive" })
     });
   };
 
-  if (isInitialLoading) return <div className="flex flex-col items-center justify-center min-h-[60vh] gap-4"><Loader2 className="h-12 w-12 animate-spin text-primary" /><h1 className="text-lg font-black uppercase tracking-widest">Syncing Graph...</h1></div>;
-  if (error || !campaign) return <div className="flex flex-col items-center justify-center min-h-[60vh] text-center gap-4"><h1 className="text-2xl font-black">Campaign Not Found</h1><Link href="/browse"><CustomButton variant="outline" className="rounded-full">Back to Browse</CustomButton></Link></div>;
+  if (isInitialLoading) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-[60vh] gap-4 p-4 text-center">
+        <Loader2 className="h-12 w-12 animate-spin text-primary" />
+        <h1 className="text-lg font-bold text-muted-foreground">Syncing decentralized graph...</h1>
+      </div>
+    );
+  }
 
-  const targetUSD = parseFloat(formatUnits(campaign.target, 18));
-  const collectedUSD = parseFloat(formatUnits(campaign.amountCollectedUsd, 18));
-  const progress = Math.min((collectedUSD / targetUSD) * 100, 100);
-  const isOwner = userAddress?.toLowerCase() === campaign.owner.toLowerCase();
-  const deadlineDate = new Date(Number(campaign.deadline) * 1000).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' });
+  if (error || !campaignData) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-[60vh] gap-4 p-4 text-center">
+        <h1 className="text-2xl font-bold">Campaign not found</h1>
+        <p className="text-muted-foreground">The campaign ID might be invalid or the graph is still syncing.</p>
+        <Link href="/browse"><CustomButton variant="outline" className="rounded-full">Back to Browse</CustomButton></Link>
+      </div>
+    );
+  }
+
+  const amountCollectedUSD = parseFloat(formatUnits(campaignData.amountCollectedUsd, 18));
+  const targetUSD = parseFloat(formatUnits(campaignData.target, 18));
+  const deadlineMs = Number(campaignData.deadline) * 1000;
+  const isOwner = userAddress?.toLowerCase() === campaignData.owner.toLowerCase();
+  const remainingUSD = Math.max(targetUSD - amountCollectedUSD, 0);
+
+  const campaign = {
+    title: campaignData.title,
+    description: campaignData.description,
+    category: campaignData.category.charAt(0).toUpperCase() + campaignData.category.slice(1),
+    media: campaignData.mediaUrls || [],
+    additionalNotes: campaignData.additionalNotes,
+    ownerAddress: campaignData.owner,
+    contributedAmount: amountCollectedUSD,
+    targetAmount: targetUSD,
+    contributors: campaignData.donations?.length || 0,
+    deadline: new Date(deadlineMs).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }),
+    status: campaignData.status
+  };
+
+  const scrollToFund = () => {
+    fundRef.current?.scrollIntoView({ 
+      behavior: 'smooth', 
+      block: 'center' 
+    });
+  };
+
+  const sanitizeHTML = (html: string) => {
+    return { __html: typeof window !== 'undefined' ? DOMPurify.sanitize(html) : html };
+  };
+
+  const reportMailto = `mailto:support@crowdfund.io?subject=Reporting Campaign: ${encodeURIComponent(campaign.title)}&body=${encodeURIComponent(reportReason)}`;
 
   return (
-    <div className="flex flex-col min-h-screen pb-20 bg-transparent">
-      <main className="max-w-6xl mx-auto px-4 py-8 md:py-16 w-full flex flex-col gap-10">
-        
-        {/* Header Section */}
-        <div className="flex flex-col gap-4">
+    <div className="flex flex-col min-h-screen pb-12 md:pb-20">
+      <main className="max-w-4xl mx-auto px-4 py-6 md:py-10 w-full flex flex-col gap-4 md:gap-8">
+        <div className="flex flex-col gap-2">
+          <div className="flex items-center justify-between">
+            <StatusBadge status={campaign.status} />
+            <div className='flex flex-row gap-2'>
+              <Dialog>
+                <DialogTrigger asChild>
+                  <button className='w-8 h-8 md:w-10 md:h-10 flex items-center justify-center bg-white border border-border rounded-full shadow-sm hover:shadow-md hover:border-primary/50 transition-all active:scale-90 group'>
+                    <ReportIcon size={24} className="text-muted-foreground group-hover:text-primary transition-colors w-4 h-4 md:w-5 md:h-5"/>
+                  </button>
+                </DialogTrigger>
+                <DialogContent className="w-[calc(100%-2rem)] sm:max-w-xl rounded-2xl md:rounded-[2rem] border-white/20 bg-white/90 backdrop-blur-2xl shadow-2xl overflow-hidden p-4 md:p-6">
+                  <DialogHeader className="flex flex-col items-center gap-2 mb-2 text-center">
+                    <div className="w-10 h-10 md:w-12 md:h-12 rounded-2xl bg-destructive/10 flex items-center justify-center text-destructive mb-1">
+                      <ReportIcon size={22} className="md:w-6 md:h-6" />
+                    </div>
+                    <DialogTitle className="text-lg md:text-xl font-black text-foreground">Report Campaign</DialogTitle>
+                    <DialogDescription className="text-xs md:text-sm text-muted-foreground max-w-sm mx-auto">
+                      Please describe your concerns regarding this fundraiser.
+                    </DialogDescription>
+                  </DialogHeader>
+                  
+                  <div className="flex flex-col gap-3 py-1">
+                    <div className="space-y-1">
+                      <label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground px-1">Reason for Report</label>
+                      <Textarea 
+                        placeholder="Provide details..."
+                        value={reportReason}
+                        onChange={(e) => setReportReason(e.target.value)}
+                        className="min-h-[100px] rounded-2xl border-muted-foreground/20 focus-visible:ring-primary/20 bg-muted/30 p-3 text-sm"
+                      />
+                    </div>
+                  </div>
+                  
+                  <DialogFooter className="mt-4">
+                    <CustomButton asChild className="w-full rounded-2xl gap-3 font-black h-11 text-sm shadow-lg shadow-primary/10">
+                      <a href={reportMailto}>
+                        <Mail className="h-5 w-5" />
+                        Send Report via Email
+                      </a>
+                    </CustomButton>
+                  </DialogFooter>
+                </DialogContent>
+              </Dialog>
+              
+              <ShareButton />
+            </div>
+          </div>
+          <h1 className="text-xl md:text-3xl font-black leading-tight tracking-tight text-foreground">{campaign.title}</h1>
+        </div>
+
+        <MediaGallery media={campaign.media} title={campaign.title} />
+
+        <div className="bg-white/70 backdrop-blur-xl rounded-2xl md:rounded-3xl border border-white/20 p-5 md:p-8 shadow-xl flex flex-col gap-6">
+          <div className="flex items-center gap-3">
+            <Avatar className="h-8 w-8 md:h-12 md:w-12 border-2 border-background ring-1 ring-border/10">
+              <AvatarFallback className="bg-muted text-muted-foreground">
+                <User size={24} className="md:w-8 md:h-8" />
+              </AvatarFallback>
+            </Avatar>
+            <div className="flex flex-col min-w-0">
+              <div className="flex items-center gap-1">
+                <span className="text-xs md:text-base font-bold text-foreground truncate">
+                  {ownerLoading ? "..." : ownerName}
+                </span>
+                <MdVerifiedUser color='#1C9A9C' className="h-3 w-3 md:h-4 md:w-4 flex-shrink-0" />
+              </div>
+              <span className="text-[10px] md:text-xs text-muted-foreground font-mono truncate">
+                {shortenAddress(campaign.ownerAddress)}
+              </span>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-start">
+            <div className="flex flex-col gap-6 order-2 md:order-1">
+              <div className="flex flex-col gap-2">
+                <h2 className="text-[10px] md:text-sm font-bold uppercase tracking-widest text-primary">Category</h2>
+                <div className="flex items-center gap-2"><Tag className="h-4 w-4 text-primary" /><span className="text-xs md:text-base font-bold text-foreground">{campaign.category}</span></div>
+              </div>
+
+              <div className="flex flex-col gap-2">
+                <h2 className="text-[10px] md:text-sm font-bold uppercase tracking-widest text-primary">About</h2>
+                <div 
+                  className="prose prose-teal prose-sm md:prose-base max-w-none prose-headings:font-black prose-headings:tracking-tight prose-p:leading-relaxed prose-p:text-muted-foreground [overflow-wrap:break-word] [word-break:normal]"
+                  dangerouslySetInnerHTML={sanitizeHTML(campaign.description)}
+                />
+              </div>
+
+              {campaign.additionalNotes && campaign.additionalNotes !== '<p></p>' && (
+                <div className="flex flex-col gap-2 p-4 md:p-6 bg-primary/5 rounded-2xl border border-primary/10">
+                  <h2 className="text-[10px] md:text-sm font-bold uppercase tracking-widest text-primary flex items-center gap-2">
+                    <Info className="h-4 w-4" />Additional Notes
+                  </h2>
+                  <div 
+                    className="prose prose-teal prose-sm md:prose-base max-w-none prose-p:italic prose-p:text-muted-foreground [overflow-wrap:break-word] [word-break:normal]"
+                    dangerouslySetInnerHTML={sanitizeHTML(campaign.additionalNotes)}
+                  />
+                </div>
+              )}
+
+              <div className="flex flex-col gap-2">
+                <h2 className="text-[10px] md:text-sm font-bold uppercase tracking-widest text-primary">Deadline</h2>
+                <div className="flex items-center gap-2"><Calendar className="h-4 w-4 text-primary" /><span className="text-xs md:text-base font-bold text-foreground">{campaign.deadline}</span></div>
+              </div>
+            </div>
+
+            <div className="flex flex-col h-full items-center justify-center gap-4 order-1 md:order-2 p-4 md:p-10 bg-primary/5 rounded-2xl border border-primary/10 min-h-[250px] md:min-h-[400px]">
+              <ProgressCircle progress={Math.min((campaign.contributedAmount / campaign.targetAmount) * 100, 100)} />
+              <div className="text-center flex flex-col gap-3">
+                <p className="text-sm md:text-xl font-black text-foreground">
+                  ${campaign.contributedAmount.toLocaleString(undefined, { maximumFractionDigits: 2 })} <span className="text-muted-foreground font-medium text-xs md:text-lg">/ ${campaign.targetAmount.toLocaleString()}</span>
+                </p>
+                <ContributorBadge count={campaign.contributors} showSupportersLabel className="mx-auto" />
+              </div>
+            </div>
+          </div>
+
+          {/* Owner Actions */}
+          {isOwner && campaign.status === 'Successful' && !campaignData.withdrawn && (
+            <CustomButton onClick={() => handleAction('withdraw')} className="w-full h-14 rounded-2xl bg-primary text-base font-black gap-2 shadow-xl shadow-primary/20" isLoading={isMining}>
+              <ExternalLink size={20} /> Withdraw Funds
+            </CustomButton>
+          )}
+          {campaign.status === 'Failed' && (
+            <CustomButton onClick={() => handleAction('claimRefund')} variant="outline" className="w-full h-14 rounded-2xl gap-2 text-destructive border-destructive/20 font-black text-base" isLoading={isMining}>
+              <Coins size={20} /> Claim My Refund
+            </CustomButton>
+          )}
+        </div>
+
+        <div className="bg-white/70 backdrop-blur-xl rounded-2xl md:rounded-3xl border border-white/20 p-5 md:p-8 shadow-xl">
+          <Collapsible open={isSupportersOpen} onOpenChange={setIsSupportersOpen}>
             <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <StatusBadge status={campaign.status} />
-                  <div className="px-3 py-1 rounded-full bg-primary/10 border border-primary/20 text-primary text-[10px] font-black uppercase tracking-widest flex items-center gap-1.5">
-                    <Tag className="h-3 w-3" />
-                    {campaign.category}
-                  </div>
-                </div>
-                <ShareButton />
+              <div className="flex flex-col gap-1">
+                <h2 className="text-[10px] md:text-sm font-bold uppercase tracking-widest text-primary">Supporters</h2>
+                <p className="text-xs md:text-base font-bold text-foreground">{campaign.contributors.toLocaleString()} gifts received from the community</p>
+              </div>
+              <CollapsibleTrigger asChild>
+                <CustomButton variant="ghost" size="sm" className="rounded-full h-8 w-8 p-0 hover:bg-primary/10">
+                  <ChevronDown className={cn("h-4 w-4 text-primary transition-transform duration-200", isSupportersOpen && "rotate-180")} />
+                </CustomButton>
+              </CollapsibleTrigger>
             </div>
-            <h1 className="text-3xl md:text-5xl font-black leading-[1.1] tracking-tighter max-w-4xl">{campaign.title}</h1>
+            <CollapsibleContent className="mt-6 space-y-4">
+              {campaignData.donations && campaignData.donations.length > 0 ? campaignData.donations.map((d: any, index: number) => (
+                <SupporterRow key={index} address={d.donator} amountUSD={parseFloat(formatUnits(d.amountUsd, 18))} timestamp={d.timestamp} />
+              )) : <div className="py-8 text-center text-muted-foreground">No supporters yet. Be the first!</div>}
+            </CollapsibleContent>
+          </Collapsible>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-10">
-            {/* Left Column: Media & Info */}
-            <div className="lg:col-span-8 flex flex-col gap-10">
-                {/* Carousel */}
-                {campaign.mediaUrls && campaign.mediaUrls.length > 0 && (
-                  <div className="relative group">
-                    <Carousel setApi={setApi} className="w-full rounded-[2.5rem] overflow-hidden border shadow-2xl bg-white">
-                      <CarouselContent>
-                        {campaign.mediaUrls.map((url: string, index: number) => (
-                          <CarouselItem key={index}>
-                            <div className="relative aspect-video">
-                              <Image src={url} alt={`Media ${index}`} fill className="object-cover" />
-                            </div>
-                          </CarouselItem>
-                        ))}
-                      </CarouselContent>
-                    </Carousel>
-                    <div className="absolute bottom-6 right-6 px-4 py-2 rounded-full bg-black/60 backdrop-blur-md text-white text-xs font-black tracking-widest">
-                      {current} / {campaign.mediaUrls.length}
-                    </div>
-                  </div>
-                )}
-
-                {/* Main Content Card */}
-                <div className="bg-white/70 backdrop-blur-xl rounded-[2.5rem] border p-8 md:p-12 shadow-xl flex flex-col gap-8">
-                    <div className="flex items-center gap-4">
-                        <Avatar className="h-14 w-14 border-2 border-primary/20 p-0.5">
-                          <AvatarFallback className="bg-muted text-muted-foreground"><User size={28} /></AvatarFallback>
-                        </Avatar>
-                        <div className="flex flex-col">
-                            <span className="text-lg font-black flex items-center gap-1.5">{ownerName} <MdVerifiedUser className="h-5 w-5 text-[#1C9A9C]" /></span>
-                            <span className="text-xs text-muted-foreground font-mono bg-muted/50 px-2 py-0.5 rounded-md w-fit">{shortenAddress(campaign.owner)}</span>
-                        </div>
-                    </div>
-
-                    <div className="prose prose-sm md:prose-lg max-w-none text-muted-foreground leading-relaxed" dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(campaign.description) }} />
-                    
-                    {/* Metadata Ribbon */}
-                    <div className="grid grid-cols-2 md:grid-cols-3 gap-6 py-8 border-y border-border/50">
-                        <div className="flex flex-col gap-1">
-                          <span className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Goal</span>
-                          <span className="text-xl font-black text-foreground">${targetUSD.toLocaleString()}</span>
-                        </div>
-                        <div className="flex flex-col gap-1">
-                          <span className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Deadline</span>
-                          <span className="text-xl font-black text-foreground flex items-center gap-2"><Calendar className="h-5 w-5 text-primary" /> {deadlineDate}</span>
-                        </div>
-                        <div className="flex flex-col gap-1 hidden md:flex">
-                          <span className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Status</span>
-                          <span className="text-xl font-black text-foreground">{campaign.status}</span>
-                        </div>
-                    </div>
-
-                    {/* Owner Actions */}
-                    {isOwner && campaign.status === 'Successful' && !campaign.withdrawn && (
-                        <CustomButton onClick={() => handleAction('withdraw')} className="w-full h-16 rounded-2xl bg-primary text-lg font-black gap-2 shadow-xl shadow-primary/20 hover:scale-[1.02]" isLoading={isMining}>
-                            <ExternalLink size={24} /> Withdraw Funds
-                        </CustomButton>
-                    )}
-                    {campaign.status === 'Failed' && (
-                        <CustomButton onClick={() => handleAction('claimRefund')} variant="outline" className="w-full h-16 rounded-2xl gap-2 text-destructive border-destructive/20 hover:bg-destructive/5 font-black text-lg" isLoading={isMining}>
-                            <Coins size={24} /> Claim My Refund
-                        </CustomButton>
-                    )}
-
-                    {/* Supporters List */}
-                    {campaign.donations && campaign.donations.length > 0 && (
-                      <div className="space-y-6">
-                        <h3 className="text-xl font-black flex items-center gap-2">
-                          <Users className="h-6 w-6 text-primary" /> 
-                          Recent Supporters ({campaign.donations.length})
-                        </h3>
-                        <div className="flex flex-col gap-3">
-                          {campaign.donations.map((d: any, i: number) => (
-                            <div key={i} className="flex items-center justify-between p-4 rounded-2xl bg-white border border-border/50 shadow-sm transition-transform hover:scale-[1.01]">
-                              <div className="flex items-center gap-3">
-                                <Avatar className="h-8 w-8"><AvatarFallback><User size={16} /></AvatarFallback></Avatar>
-                                <div className="flex flex-col">
-                                  <span className="text-sm font-bold">{shortenAddress(d.donator)}</span>
-                                  <span className="text-[10px] text-muted-foreground uppercase font-black tracking-tighter">
-                                    {new Date(Number(d.timestamp) * 1000).toLocaleDateString()}
-                                  </span>
-                                </div>
-                              </div>
-                              <div className="text-right">
-                                <span className="text-sm font-black text-primary">${parseFloat(formatUnits(d.amountUsd, 18)).toLocaleString()}</span>
-                                <div className="text-[9px] text-muted-foreground font-bold italic">{parseFloat(formatUnits(d.amountEth, 18)).toFixed(6)} ETH</div>
-                              </div>
-                            </div>
-                          ))}
-                        </div>
-                      </div>
-                    )}
-                </div>
-            </div>
-
-            {/* Right Column: Progress & CTA */}
-            <div className="lg:col-span-4 flex flex-col gap-8 lg:sticky lg:top-24 h-fit">
-                {/* Stats Card */}
-                <div className="bg-white/80 backdrop-blur-xl rounded-[2.5rem] border p-10 shadow-xl flex flex-col items-center justify-center gap-8 relative overflow-hidden">
-                    <div className="absolute top-0 left-0 w-full h-1 bg-primary/20" />
-                    <ProgressCircle progress={progress} />
-                    <div className="text-center space-y-2">
-                        <p className="text-4xl font-black text-foreground">${collectedUSD.toLocaleString()}</p>
-                        <p className="text-xs font-black uppercase tracking-widest text-muted-foreground">
-                          Raised out of <span className="text-primary">${targetUSD.toLocaleString()}</span> goal
-                        </p>
-                    </div>
-                </div>
-
-                {/* CTA Card */}
-                {campaign.status === 'Active' && !isOwner && (
-                    <ContributionBox 
-                      targetUSD={targetUSD} 
-                      collectedUSD={collectedUSD} 
-                      onContribute={(amt: string) => handleAction('donateToCampaign', amt)} 
-                      isConfirming={isConfirmingInWallet} 
-                      isMining={isMining} 
-                      isSuccess={isTransactionConfirmed} 
-                      ethPrice={ethPrices} 
-                      userBalance={userBalance} 
-                    />
-                )}
-            </div>
-        </div>
+        {campaign.status === 'Active' && !isOwner && (
+          <StaticContributionBox 
+            containerRef={fundRef} 
+            onContribute={(amt) => handleAction('donateToCampaign', amt)}
+            isConfirming={isConfirmingInWallet}
+            isMining={isMining}
+            isSuccess={isTransactionConfirmed}
+            ethPrice={ethPrices}
+            userBalance={userBalance}
+            remainingUSD={remainingUSD}
+          />
+        )}
       </main>
+      
+      {campaign.status === 'Active' && !isOwner && (
+        <FloatingCTA 
+          onContribute={scrollToFund} 
+          visible={!isFundInView} 
+        />
+      )}
     </div>
   );
 }
