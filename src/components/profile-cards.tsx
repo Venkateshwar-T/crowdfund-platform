@@ -42,7 +42,7 @@ interface ProfileCampaignCardProps {
   id: string;
   title: string;
   contributors: number;
-  status: 'Active' | 'Completed' | 'New';
+  status: 'Active' | 'Successful' | 'Failed';
 }
 
 export function ProfileCampaignCard({ id, title, contributors, status }: ProfileCampaignCardProps) {

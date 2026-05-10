@@ -19,7 +19,7 @@ export interface CampaignCardProps {
   targetAmount: number;
   contributors: number;
   deadline: string;
-  status: 'Active' | 'Completed' | 'New';
+  status: 'Active' | 'Successful' | 'Failed';
   className?: string;
 }
 
@@ -62,7 +62,7 @@ export function CampaignCard({
       )}>
         {/* Media Container */}
         <div className="relative aspect-[16/10] m-2 md:m-3 rounded-xl overflow-hidden">
-          {images.map((img, idx) => (
+          {images.length > 0 ? images.map((img, idx) => (
             <Image
               key={idx}
               src={img}
@@ -74,7 +74,11 @@ export function CampaignCard({
               )}
               data-ai-hint="campaign image"
             />
-          ))}
+          )) : (
+            <div className="absolute inset-0 bg-muted flex items-center justify-center">
+              <Users className="h-10 w-10 text-muted-foreground/20" />
+            </div>
+          )}
           
           {/* Overlay Content */}
           <div className="absolute inset-0 p-1.5 md:p-2 flex flex-col justify-between">
@@ -82,8 +86,8 @@ export function CampaignCard({
               <span className={cn(
                 "px-1.5 py-0.5 rounded-sm text-[8px] md:text-[10px] font-bold uppercase tracking-wider backdrop-blur-md border border-white/20",
                 status === 'Active' ? "bg-white/80 text-primary" : 
-                status === 'New' ? "bg-blue-500/80 text-white" : 
-                "bg-green-500/80 text-white"
+                status === 'Successful' ? "bg-green-500/80 text-white" : 
+                "bg-red-500/80 text-white"
               )}>
                 {status}
               </span>
@@ -133,7 +137,7 @@ export function CampaignCard({
                 <span className="text-[7px] md:text-[10px] font-bold uppercase tracking-wider">Contributed</span>
               </div>
               <div className="text-xs md:text-sm font-black text-foreground">
-                {formatCurrency(Number(contributedAmount.toLocaleString(undefined, { maximumFractionDigits: 2 })))} <span className="text-[9px] md:text-[12px] text-muted-foreground font-medium">/ {formatCurrency(targetAmount)}</span>
+                {formatCurrency(contributedAmount)} <span className="text-[9px] md:text-[12px] text-muted-foreground font-medium">/ {formatCurrency(targetAmount)}</span>
               </div>
             </div>
             

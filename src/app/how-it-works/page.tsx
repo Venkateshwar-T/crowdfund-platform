@@ -36,7 +36,7 @@ const STEPS = [
   {
     number: "03",
     title: "Contributing with Confidence",
-    description: "Supporters donate ETH. Our contract utilize a Chainlink Price Oracle to check the current market price and record the value in USD immediately.",
+    description: "Supporters donate ETH. Our contract utilizes a Chainlink Price Oracle to check the current market price and record the value in USD immediately.",
     tech: "The Oracle acts as a bridge, ensuring the fundraiser's progress is accurate regardless of ETH price fluctuations.",
     icon: Zap,
     color: "bg-amber-500/10 text-amber-600 border-amber-200"
@@ -46,9 +46,9 @@ const STEPS = [
     title: "Campaign Status & Badges",
     description: "Every campaign moves through three automated stages based on time and funding. This is enforced by code, not humans.",
     list: [
-      { label: "NEW", desc: "First 10 days to gain initial momentum." },
-      { label: "ACTIVE", desc: "Established and open for contributions." },
-      { label: "COMPLETED", desc: "Reached successfully." }
+      { label: "ACTIVE", desc: "The campaign is live and currently accepting contributions." },
+      { label: "SUCCESSFUL", desc: "The USD target was reached before the deadline." },
+      { label: "FAILED", desc: "The deadline passed without hitting the funding target." }
     ],
     icon: ShieldCheck,
     color: "bg-emerald-500/10 text-emerald-600 border-emerald-200"
@@ -57,7 +57,7 @@ const STEPS = [
     number: "05",
     title: "The Outcome: Withdrawal",
     description: "Our smart contract acts as a neutral escrow. If your campaign reaches its USD target, you can trigger a Withdrawal.",
-    security: "The contract releases the collected ETH directly to your wallet. If a goal isn't met, the funds remain protected by the contract's logic.",
+    security: "The contract releases the collected ETH directly to your wallet. If a goal isn't met, the funds remain protected by the contract's logic for refunds.",
     icon: RefreshCcw,
     color: "bg-rose-500/10 text-rose-600 border-rose-200"
   },
@@ -159,9 +159,9 @@ export default function HowItWorksPage() {
                             <div key={i} className="flex items-center gap-3 p-2.5 rounded-xl bg-primary/5 border border-primary/10">
                               <span className={cn(
                                 "px-2 py-0.5 rounded-full text-[9px] md:text-[10px] font-bold uppercase tracking-wider backdrop-blur-md border border-white/20 shadow-sm",
-                                item.label === "NEW" && "bg-blue-500/80 text-white",
                                 item.label === "ACTIVE" && "bg-white/80 text-primary border-primary/20",
-                                item.label === "COMPLETED" && "bg-green-500/80 text-white"
+                                item.label === "SUCCESSFUL" && "bg-green-500/80 text-white",
+                                item.label === "FAILED" && "bg-red-500/80 text-white"
                               )}>
                                 {item.label}
                               </span>
