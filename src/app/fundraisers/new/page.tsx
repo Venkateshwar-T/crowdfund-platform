@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { Upload, X, Image as ImageIcon, CheckCircle2, ArrowLeft, PlusCircle, Bold, Italic, Underline as UnderlineIcon, List, ListOrdered, Heading1 } from 'lucide-react';
+import { Upload, X, Image as ImageIcon, CheckCircle2, ArrowLeft, PlusCircle, Bold, Italic, Underline as UnderlineIcon, List, ListOrdered, Heading1, AlertCircle } from 'lucide-react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
@@ -158,6 +158,7 @@ export default function NewFundraiserPage() {
   const [files, setFiles] = useState<File[]>([]);
   const [previews, setPreviews] = useState<string[]>([]);
   const [dragActive, setDragActive] = useState(false);
+  const [fileError, setFileError] = useState<string | null>(null);
 
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
@@ -203,19 +204,24 @@ export default function NewFundraiserPage() {
   };
 
   const addFiles = (newFiles: File[]) => {
+    setFileError(null);
     const validFiles = newFiles.filter(file => {
       if (!file.type.startsWith('image/')) {
+        const errorMsg = `Only images are allowed. ${file.name} was rejected.`;
+        setFileError(errorMsg);
         toast({
           title: "Invalid file type",
-          description: `Only images are allowed. ${file.name} was rejected.`,
+          description: errorMsg,
           variant: "destructive"
         });
         return false;
       }
       if (file.size > MAX_FILE_SIZE) {
+        const errorMsg = `File ${file.name} exceeds 5MB limit.`;
+        setFileError(errorMsg);
         toast({
           title: "File too large",
-          description: `File ${file.name} exceeds 5MB limit.`,
+          description: errorMsg,
           variant: "destructive"
         });
         return false;
@@ -226,9 +232,11 @@ export default function NewFundraiserPage() {
     setFiles(prev => {
       const combined = [...prev, ...validFiles];
       if (combined.length > MAX_FILES) {
+        const errorMsg = `Max ${MAX_FILES} images allowed.`;
+        setFileError(errorMsg);
         toast({
           title: "Too many files",
-          description: `Max ${MAX_FILES} images allowed.`,
+          description: errorMsg,
           variant: "destructive"
         });
         return combined.slice(0, MAX_FILES);
@@ -239,6 +247,7 @@ export default function NewFundraiserPage() {
 
   const removeFile = (index: number) => {
     setFiles(prev => prev.filter((_, i) => i !== index));
+    setFileError(null);
   };
 
   const handleDrag = (e: React.DragEvent) => {
@@ -291,6 +300,7 @@ export default function NewFundraiserPage() {
     }
 
     if (files.length === 0) {
+      setFileError("Please upload at least one image.");
       toast({
         title: "Media required",
         description: "Please upload at least one image.",
@@ -349,6 +359,7 @@ export default function NewFundraiserPage() {
     setFiles([]);
     setPreviews([]);
     setShowSuccess(false);
+    setFileError(null);
   };
 
   const isSubmitting = isUploading || isWalletLoading || isMining;
@@ -568,6 +579,13 @@ export default function NewFundraiserPage() {
                     <p className="text-[10px] md:text-xs text-muted-foreground mt-1">Up to 5 images, Max 5MB each</p>
                   </div>
                 </div>
+
+                {fileError && (
+                  <div className="flex items-center gap-2 text-destructive bg-destructive/5 p-3 rounded-xl border border-destructive/10 animate-in fade-in slide-in-from-top-1">
+                    <AlertCircle className="h-4 w-4 shrink-0" />
+                    <p className="text-xs font-bold">{fileError}</p>
+                  </div>
+                )}
 
                 {files.length > 0 && (
                   <div className="grid grid-cols-3 md:grid-cols-5 gap-3 md:gap-4">
