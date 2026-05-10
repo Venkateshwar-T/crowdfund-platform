@@ -1,9 +1,9 @@
 'use client';
 
-import { HeroSection } from '@/components/hero-section';
-import { WhyChooseUs } from '@/components/why-choose-us';
-import { CategoryBubbles } from '@/components/category-bubbles';
-import { ScrollToTop } from '@/components/scroll-to-top';
+import { HeroSection } from '@/components/HomePage/hero-section';
+import { WhyChooseUs } from '@/components/HomePage/why-choose-us';
+import { CategoryBubbles } from '@/components/HomePage/category-bubbles';
+import { ScrollToTop } from '@/components/HomePage/scroll-to-top';
 
 export default function Home() {
   return (

@@ -1,9 +1,9 @@
 import type {Metadata} from 'next';
 import './globals.css';
-import { Navbar } from '@/components/navbar';
-import { Footer } from '@/components/footer';
-import { BottomNav } from '@/components/bottom-nav';
-import { Web3Provider } from '@/components/web3-provider';
+import { Navbar } from '@/components/shared/navbar';
+import { Footer } from '@/components/shared/footer';
+import { BottomNav } from '@/components/shared/bottom-nav';
+import { Web3Provider } from '@/components/shared/web3-provider';
 
 export const metadata: Metadata = {
   title: 'CrowdFund | Launch Your Dreams',

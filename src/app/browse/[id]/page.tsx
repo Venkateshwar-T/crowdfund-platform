@@ -1,29 +1,28 @@
 'use client';
 
-import { useState, useEffect, use, useRef, useMemo } from 'react';
-import Image from 'next/image';
+import { useState, useEffect, use, useRef } from 'react';
 import Link from 'next/link';
 import { 
   Calendar,
-  ChevronDown,
   Tag,
   Loader2,
   Info,
-  CheckCircle2,
-  AlertCircle,
   Mail,
-  User,
   ExternalLink,
   Coins
 } from 'lucide-react';
 import { MdVerifiedUser, MdOutlineReportProblem as ReportIcon } from 'react-icons/md';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
-import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
-import { CustomButton } from '@/components/custom-button';
-import { StatusBadge } from '@/components/status-badge';
-import { ContributorBadge } from '@/components/contributor-badge';
-import { ShareButton } from '@/components/share-button';
+import { CustomButton } from '@/components/shared/custom-button';
+import { StatusBadge } from '@/components/shared/status-badge';
+import { ContributorBadge } from '@/components/shared/contributor-badge';
+import { ShareButton } from '@/components/CampaignPage/share-button';
+import { ProgressCircle } from '@/components/CampaignPage/progress-circle';
+import { MediaGallery } from '@/components/CampaignPage/media-gallery';
+import { StaticContributionBox } from '@/components/CampaignPage/static-contribution-box';
+import { FloatingCTA } from '@/components/CampaignPage/floating-cta';
+import { SupporterRow } from '@/components/CampaignPage/supporter-row';
 import { cn, shortenAddress } from '@/lib/utils';
 import { useWriteContract, useAccount, useWaitForTransactionReceipt, useBalance } from 'wagmi';
 import { useConnectModal } from '@rainbow-me/rainbowkit';
@@ -33,14 +32,7 @@ import { useToast } from '@/hooks/use-toast';
 import { useEthPrice } from '@/hooks/use-eth-price';
 import { useUserName } from '@/hooks/use-user-name';
 import { useQuery, gql } from '@apollo/client';
-import { FALLBACK_IMAGE } from '@/lib/constants';
 import DOMPurify from 'dompurify';
-import {
-  Carousel,
-  CarouselContent,
-  CarouselItem,
-  type CarouselApi,
-} from "@/components/ui/carousel";
 import {
   Collapsible,
   CollapsibleContent,
@@ -80,283 +72,6 @@ const GET_CAMPAIGN_DETAIL = gql`
     }
   }
 `;
-
-function ProgressCircle({ progress }: { progress: number }) {
-  const [size, setSize] = useState(140);
-
-  useEffect(() => {
-    const handleResize = () => {
-      setSize(window.innerWidth >= 768 ? 220 : 140);
-    };
-    handleResize();
-    window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
-  }, []);
-
-  const strokeWidth = size >= 200 ? 14 : 10;
-  const center = size / 2;
-  const radius = center - strokeWidth;
-  const circumference = 2 * Math.PI * radius;
-  const offset = circumference - (progress / 100) * circumference;
-
-  return (
-    <div className="relative" style={{ width: size, height: size }}>
-      <svg width={size} height={size} className="transform -rotate-90">
-        <circle
-          cx={center}
-          cy={center}
-          r={radius}
-          stroke="currentColor"
-          strokeWidth={strokeWidth}
-          fill="transparent"
-          className="text-primary/10"
-        />
-        <circle
-          cx={center}
-          cy={center}
-          r={radius}
-          stroke="currentColor"
-          strokeWidth={strokeWidth}
-          fill="transparent"
-          strokeDasharray={circumference}
-          style={{ strokeDashoffset: offset }}
-          strokeLinecap="round"
-          className="text-primary transition-all duration-1000 ease-out"
-        />
-      </svg>
-      <div className="absolute inset-0 flex flex-col items-center justify-center">
-        <span className="text-xl md:text-4xl font-black text-primary">{Math.round(progress)}%</span>
-      </div>
-    </div>
-  );
-}
-
-function MediaGallery({ media, title }: { media: string[]; title: string }) {
-  const [api, setApi] = useState<CarouselApi>();
-  const [current, setCurrent] = useState(0);
-
-  useEffect(() => {
-    if (!api) return;
-    setCurrent(api.selectedScrollSnap());
-    api.on("select", () => {
-      setCurrent(api.selectedScrollSnap());
-    });
-  }, [api]);
-
-  const images = media.length > 0 ? media : [FALLBACK_IMAGE];
-
-  return (
-    <div className="relative w-full overflow-hidden rounded-2xl md:rounded-3xl border border-border/50 bg-muted aspect-video shadow-lg">
-      <Carousel 
-        setApi={setApi} 
-        className="w-full h-full"
-        opts={{ align: "start", loop: true }}
-      >
-        <CarouselContent className="ml-0 h-full">
-          {images.map((url, index) => (
-            <CarouselItem key={index} className="pl-0 h-full relative">
-              <div className="relative w-full h-full min-h-[200px] md:min-h-[400px]">
-                <Image
-                  src={url}
-                  alt={`${title} media ${index}`}
-                  fill
-                  className="object-cover"
-                  priority={index === 0}
-                  data-ai-hint="campaign detail media"
-                />
-              </div>
-            </CarouselItem>
-          ))}
-        </CarouselContent>
-      </Carousel>
-      
-      {images.length > 1 && (
-        <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex items-center gap-1.5 z-10 px-3 py-1.5 rounded-full bg-black/30 backdrop-blur-md border border-white/10">
-          {images.map((_, index) => (
-            <div
-              key={index}
-              className={`h-1 rounded-full transition-all duration-300 ${
-                current === index ? 'w-4 bg-white' : 'w-1 bg-white/50'
-              }`}
-            />
-          ))}
-        </div>
-      )}
-    </div>
-  );
-}
-
-function StaticContributionBox({ 
-  containerRef, 
-  onContribute, 
-  isConfirming,
-  isMining,
-  isSuccess,
-  ethPrice,
-  userBalance,
-  remainingUSD
-}: { 
-  containerRef: React.RefObject<HTMLDivElement | null>,
-  onContribute: (amount: string) => void,
-  isConfirming: boolean,
-  isMining: boolean,
-  isSuccess: boolean,
-  ethPrice: any,
-  userBalance: any,
-  remainingUSD: number
-}) {
-  const [amount, setAmount] = useState('');
-  
-  let ethEstimate = 0;
-  let inrEstimate = 0;
-  if (amount && ethPrice) {
-    const usdVal = parseFloat(amount);
-    ethEstimate = usdVal / ethPrice.usd;
-    inrEstimate = usdVal * (ethPrice.inr / ethPrice.usd);
-  }
-
-  const isInsufficient = userBalance && parseFloat(userBalance.formatted) < ethEstimate;
-
-  const handleAmountChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    let val = e.target.value;
-    if (parseFloat(val) > remainingUSD) {
-      val = remainingUSD.toFixed(2);
-    }
-    setAmount(val);
-  };
-
-  return (
-    <div 
-      ref={containerRef}
-      className="p-5 md:p-8 bg-foreground rounded-2xl md:rounded-3xl text-white flex flex-col items-center gap-6 shadow-2xl ring-1 ring-white/10 scroll-mt-24"
-    >
-      <div className="text-center w-full">
-        <h3 className="text-base md:text-lg font-bold">Fund this Campaign</h3>
-        <p className="text-xs md:text-sm text-white/60">Target remaining: ${remainingUSD.toLocaleString(undefined, { maximumFractionDigits: 2 })}</p>
-      </div>
-      
-      {isSuccess ? (
-        <div className="w-full flex items-center justify-center gap-3 bg-primary/20 px-6 py-4 rounded-2xl border border-primary/30 animate-in zoom-in-95">
-          <CheckCircle2 className="h-6 w-6 text-primary" />
-          <span className="text-base font-bold text-white">Contribution Successful!</span>
-        </div>
-      ) : (
-        <div className="w-full flex flex-col gap-4">
-          <div className="flex w-full items-center gap-3">
-            <div className="relative flex-grow">
-              <span className="absolute left-3 top-1/2 -translate-y-1/2 text-white/40 font-bold text-sm">$</span>
-              <Input 
-                type="number" 
-                placeholder="0.00"
-                value={amount}
-                onChange={handleAmountChange}
-                disabled={isConfirming || isMining}
-                className="bg-white/10 border-white/20 text-white pl-7 h-12 rounded-xl focus-visible:ring-primary focus-visible:border-primary text-base font-bold shadow-inner"
-              />
-            </div>
-            <CustomButton 
-              onClick={() => onContribute(amount)}
-              isLoading={isConfirming || isMining}
-              disabled={isInsufficient || !amount || parseFloat(amount) <= 0}
-              className="h-12 px-8 rounded-xl font-black text-sm shadow-lg shadow-primary/20 bg-primary hover:bg-primary/90 min-w-[140px]"
-            >
-              {isConfirming ? 'Confirming...' : isMining ? 'Processing...' : 'Contribute'}
-            </CustomButton>
-          </div>
-          
-          {amount && ethPrice && (
-            <div className="flex flex-col gap-1.5 px-2">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2 text-xs md:text-sm font-medium text-white/60">
-                  <span className="text-primary font-bold">{ethEstimate.toFixed(6)} ETH</span> | <span className="text-primary font-bold">₹{inrEstimate.toLocaleString(undefined, { maximumFractionDigits: 2 })}</span>
-                </div>
-                {isInsufficient && (
-                  <div className="flex items-center gap-1.5 text-xs text-destructive font-bold animate-pulse">
-                    <AlertCircle className="h-4 w-4" />
-                    Insufficient Balance
-                  </div>
-                )}
-              </div>
-            </div>
-          )}
-        </div>
-      )}
-    </div>
-  );
-}
-
-function FloatingCTA({ onContribute, visible }: { onContribute: () => void, visible: boolean }) {
-  const [isNavVisible, setIsNavVisible] = useState(true);
-  const [lastScrollY, setLastScrollY] = useState(0);
-
-  useEffect(() => {
-    const handleScroll = () => {
-      const currentScrollY = window.scrollY;
-      if (currentScrollY > lastScrollY && currentScrollY > 50) {
-        setIsNavVisible(false);
-      } else {
-        setIsNavVisible(true);
-      }
-      setLastScrollY(currentScrollY);
-    };
-
-    window.addEventListener('scroll', handleScroll, { passive: true });
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, [lastScrollY]);
-
-  return (
-    <div 
-      className={cn(
-        "fixed left-0 right-0 z-40 px-4 transition-all duration-500 ease-in-out md:left-1/2 md:-translate-x-1/2 md:max-w-4xl md:px-0",
-        visible ? "translate-y-0 opacity-100" : "translate-y-10 opacity-0 pointer-events-none",
-        "md:bottom-8",
-        isNavVisible ? "bottom-[calc(4rem+1rem)]" : "bottom-4"
-      )}
-    >
-      <div className="p-3 md:p-4 bg-foreground/90 backdrop-blur-xl rounded-2xl md:rounded-3xl text-white flex items-center justify-between gap-4 shadow-2xl ring-1 ring-white/10">
-        <div className="pl-2">
-          <p className="text-[10px] md:text-xs text-white/60 font-bold uppercase tracking-widest">Drive Impact</p>
-          <p className="text-xs md:text-sm font-bold">Help this cause</p>
-        </div>
-        <CustomButton 
-          onClick={onContribute}
-          className="h-10 md:h-12 px-6 md:px-8 rounded-xl font-black text-xs md:text-sm shadow-lg shadow-primary/20 bg-primary hover:bg-primary/90"
-        >
-          Contribute Now
-        </CustomButton>
-      </div>
-    </div>
-  );
-}
-
-function SupporterRow({ address, amountUSD, timestamp }: { address: string, amountUSD: number, timestamp: string }) {
-  const { displayName, loading } = useUserName(address);
-  
-  return (
-    <div className="flex items-center justify-between pb-4 border-b border-border/50 last:border-0 last:pb-0">
-      <div className="flex items-center gap-3">
-        <Avatar className="h-8 w-8 md:h-10 md:w-10 border border-background ring-1 ring-border/10">
-          <AvatarFallback className="bg-muted text-muted-foreground">
-            <User size={16} className="md:w-5 md:h-5" />
-          </AvatarFallback>
-        </Avatar>
-        <div className="flex flex-col min-w-0">
-          <span className="text-xs md:text-sm font-bold text-foreground truncate">
-            {loading ? "..." : displayName}
-          </span>
-          <span className="text-[9px] text-muted-foreground uppercase font-black tracking-tighter">
-            {new Date(Number(timestamp) * 1000).toLocaleDateString()} • {shortenAddress(address)}
-          </span>
-        </div>
-      </div>
-      <div className="text-right shrink-0">
-        <span className="text-xs md:text-base font-black text-primary">
-          ${amountUSD.toLocaleString(undefined, { maximumFractionDigits: 2 })}
-        </span>
-      </div>
-    </div>
-  );
-}
 
 export default function CampaignDetailsPage({ params }: { params: Promise<{ id: string }> }) {
   const { id: slug } = use(params);
@@ -403,18 +118,14 @@ export default function CampaignDetailsPage({ params }: { params: Promise<{ id: 
       openConnectModal?.();
       return;
     }
-
     const blockchainId = BigInt(campaignData.id); 
     const args = [blockchainId] as const;
-    
     let value: bigint | undefined = undefined;
-
     if (functionName === 'donateToCampaign') {
       if (!amount || isNaN(Number(amount)) || Number(amount) <= 0) return;
       const ethValue = parseFloat(amount) / ethPrices?.usd;
       value = parseEther(ethValue.toFixed(18));
     }
-
     writeContract({
       address: CONTRACT_ADDRESS,
       abi: CONTRACT_ABI,
@@ -466,10 +177,7 @@ export default function CampaignDetailsPage({ params }: { params: Promise<{ id: 
   };
 
   const scrollToFund = () => {
-    fundRef.current?.scrollIntoView({ 
-      behavior: 'smooth', 
-      block: 'center' 
-    });
+    fundRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
   };
 
   const sanitizeHTML = (html: string) => {
@@ -501,7 +209,6 @@ export default function CampaignDetailsPage({ params }: { params: Promise<{ id: 
                       Please describe your concerns regarding this fundraiser.
                     </DialogDescription>
                   </DialogHeader>
-                  
                   <div className="flex flex-col gap-3 py-1">
                     <div className="space-y-1">
                       <label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground px-1">Reason for Report</label>
@@ -513,7 +220,6 @@ export default function CampaignDetailsPage({ params }: { params: Promise<{ id: 
                       />
                     </div>
                   </div>
-                  
                   <DialogFooter className="mt-4">
                     <CustomButton asChild className="w-full rounded-2xl gap-3 font-black h-11 text-sm shadow-lg shadow-primary/10">
                       <a href={reportMailto}>
@@ -524,7 +230,6 @@ export default function CampaignDetailsPage({ params }: { params: Promise<{ id: 
                   </DialogFooter>
                 </DialogContent>
               </Dialog>
-              
               <ShareButton />
             </div>
           </div>
@@ -559,7 +264,6 @@ export default function CampaignDetailsPage({ params }: { params: Promise<{ id: 
                 <h2 className="text-[10px] md:text-sm font-bold uppercase tracking-widest text-primary">Category</h2>
                 <div className="flex items-center gap-2"><Tag className="h-4 w-4 text-primary" /><span className="text-xs md:text-base font-bold text-foreground">{campaign.category}</span></div>
               </div>
-
               <div className="flex flex-col gap-2">
                 <h2 className="text-[10px] md:text-sm font-bold uppercase tracking-widest text-primary">About</h2>
                 <div 
@@ -567,7 +271,6 @@ export default function CampaignDetailsPage({ params }: { params: Promise<{ id: 
                   dangerouslySetInnerHTML={sanitizeHTML(campaign.description)}
                 />
               </div>
-
               {campaign.additionalNotes && campaign.additionalNotes !== '<p></p>' && (
                 <div className="flex flex-col gap-2 p-4 md:p-6 bg-primary/5 rounded-2xl border border-primary/10">
                   <h2 className="text-[10px] md:text-sm font-bold uppercase tracking-widest text-primary flex items-center gap-2">
@@ -579,13 +282,11 @@ export default function CampaignDetailsPage({ params }: { params: Promise<{ id: 
                   />
                 </div>
               )}
-
               <div className="flex flex-col gap-2">
                 <h2 className="text-[10px] md:text-sm font-bold uppercase tracking-widest text-primary">Deadline</h2>
                 <div className="flex items-center gap-2"><Calendar className="h-4 w-4 text-primary" /><span className="text-xs md:text-base font-bold text-foreground">{campaign.deadline}</span></div>
               </div>
             </div>
-
             <div className="flex flex-col h-full items-center justify-center gap-4 order-1 md:order-2 p-4 md:p-10 bg-primary/5 rounded-2xl border border-primary/10 min-h-[250px] md:min-h-[400px]">
               <ProgressCircle progress={Math.min((campaign.contributedAmount / campaign.targetAmount) * 100, 100)} />
               <div className="text-center flex flex-col gap-3">
@@ -596,8 +297,6 @@ export default function CampaignDetailsPage({ params }: { params: Promise<{ id: 
               </div>
             </div>
           </div>
-
-          {/* Owner Actions */}
           {isOwner && campaign.status === 'Successful' && !campaignData.withdrawn && (
             <CustomButton onClick={() => handleAction('withdraw')} className="w-full h-14 rounded-2xl bg-primary text-base font-black gap-2 shadow-xl shadow-primary/20" isLoading={isMining}>
               <ExternalLink size={20} /> Withdraw Funds
@@ -644,12 +343,8 @@ export default function CampaignDetailsPage({ params }: { params: Promise<{ id: 
           />
         )}
       </main>
-      
       {campaign.status === 'Active' && !isOwner && (
-        <FloatingCTA 
-          onContribute={scrollToFund} 
-          visible={!isFundInView} 
-        />
+        <FloatingCTA onContribute={scrollToFund} visible={!isFundInView} />
       )}
     </div>
   );

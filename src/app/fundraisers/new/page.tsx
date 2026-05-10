@@ -1,16 +1,13 @@
-
 'use client';
 
 import { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
 import { Upload, X, Image as ImageIcon, CheckCircle2, ArrowLeft, PlusCircle, Bold, Italic, Underline as UnderlineIcon, List, ListOrdered, Heading1, AlertCircle } from 'lucide-react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import Link from 'next/link';
-
 import { cn } from '@/lib/utils';
-import { CustomButton } from '@/components/custom-button';
+import { CustomButton } from '@/components/shared/custom-button';
 import { Input } from '@/components/ui/input';
 import {
   Form,
@@ -29,18 +26,18 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { Card } from '@/components/ui/card';
-import { CustomDatePicker } from '@/components/custom-date-picker';
+import { CustomDatePicker } from '@/components/shared/custom-date-picker';
 import { useWriteContract, useAccount, useWaitForTransactionReceipt } from 'wagmi';
 import { useConnectModal } from '@rainbow-me/rainbowkit';
 import { parseUnits } from 'viem';
 import { CONTRACT_ADDRESS, CONTRACT_ABI } from '@/lib/contract';
 import { useToast } from '@/hooks/use-toast';
 import { useEthPrice } from '@/hooks/use-eth-price';
-
 import { useEditor, EditorContent } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
 import UnderlineExtension from '@tiptap/extension-underline';
 import Placeholder from '@tiptap/extension-placeholder';
+import { CAMPAIGN_CATEGORIES } from '@/lib/constants';
 
 const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
 const MAX_FILES = 5;
@@ -75,24 +72,8 @@ const formSchema = z.object({
 
 type FormValues = z.infer<typeof formSchema>;
 
-const PREDEFINED_CATEGORIES = [
-  { id: 'medical', label: 'Medical' },
-  { id: 'environment', label: 'Environment' },
-  { id: 'education', label: 'Education' },
-  { id: 'animals', label: 'Animals' },
-  { id: 'arts', label: 'Arts and Media' },
-  { id: 'women', label: 'Women' },
-  { id: 'community', label: 'Community' },
-  { id: 'technology', label: 'Technology' },
-  { id: 'sports', label: 'Sports' },
-  { id: 'disaster', label: 'Disaster Relief' },
-  { id: 'development', label: 'Development' },
-  { id: 'other', label: 'Other' },
-];
-
 const MenuBar = ({ editor }: { editor: any }) => {
   if (!editor) return null;
-
   const buttons = [
     { icon: Bold, action: () => editor.chain().focus().toggleBold().run(), active: 'bold' },
     { icon: Italic, action: () => editor.chain().focus().toggleItalic().run(), active: 'italic' },
@@ -101,19 +82,10 @@ const MenuBar = ({ editor }: { editor: any }) => {
     { icon: List, action: () => editor.chain().focus().toggleBulletList().run(), active: 'bulletList' },
     { icon: ListOrdered, action: () => editor.chain().focus().toggleOrderedList().run(), active: 'orderedList' },
   ];
-
   return (
     <div className="flex flex-wrap gap-1 p-2 border-b bg-muted/30">
       {buttons.map((btn, i) => (
-        <button
-          key={i}
-          type="button"
-          onClick={btn.action}
-          className={cn(
-            "p-2 rounded-lg transition-colors hover:bg-primary/10",
-            editor.isActive(btn.active) ? "text-primary bg-primary/20" : "text-muted-foreground"
-          )}
-        >
+        <button key={i} type="button" onClick={btn.action} className={cn("p-2 rounded-lg transition-colors hover:bg-primary/10", editor.isActive(btn.active) ? "text-primary bg-primary/20" : "text-muted-foreground")}>
           <btn.icon size={18} />
         </button>
       ))}
@@ -123,24 +95,11 @@ const MenuBar = ({ editor }: { editor: any }) => {
 
 const TiptapEditor = ({ value, onChange, placeholder }: { value: string, onChange: (val: string) => void, placeholder: string }) => {
   const editor = useEditor({
-    extensions: [
-      StarterKit,
-      UnderlineExtension,
-      Placeholder.configure({
-        placeholder,
-      }),
-    ],
+    extensions: [StarterKit, UnderlineExtension, Placeholder.configure({ placeholder })],
     content: value,
-    onUpdate: ({ editor }) => {
-      onChange(editor.getHTML());
-    },
-    editorProps: {
-      attributes: {
-        class: 'prose prose-sm md:prose-base focus:outline-none min-h-[150px] p-4 max-w-none [overflow-wrap:break-word] [word-break:normal]',
-      },
-    },
+    onUpdate: ({ editor }) => { onChange(editor.getHTML()); },
+    editorProps: { attributes: { class: 'prose prose-sm md:prose-base focus:outline-none min-h-[150px] p-4 max-w-none [overflow-wrap:break-word] [word-break:normal]' } },
   });
-
   return (
     <div className="w-full border rounded-xl overflow-hidden bg-background focus-within:ring-2 focus-within:ring-primary/20 focus-within:border-primary transition-all border-muted-foreground/20">
       <MenuBar editor={editor} />
@@ -154,7 +113,6 @@ export default function NewFundraiserPage() {
   const { openConnectModal } = useConnectModal();
   const { data: hash, writeContract, isPending: isWalletLoading } = useWriteContract();
   const { isLoading: isMining, isSuccess: isTransactionConfirmed } = useWaitForTransactionReceipt({ hash });
-  const { prices } = useEthPrice();
   const { toast } = useToast();
   const [isUploading, setIsUploading] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
@@ -165,498 +123,134 @@ export default function NewFundraiserPage() {
 
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
-    defaultValues: {
-      title: '',
-      description: '',
-      category: '',
-      otherCategory: '',
-      targetAmount: '',
-      additionalNotes: '',
-    },
+    defaultValues: { title: '', description: '', category: '', otherCategory: '', targetAmount: '', additionalNotes: '' },
   });
 
   const categoryValue = form.watch('category');
 
   useEffect(() => {
-    if (isTransactionConfirmed) {
-      setShowSuccess(true);
-    }
+    if (isTransactionConfirmed) setShowSuccess(true);
   }, [isTransactionConfirmed]);
 
   useEffect(() => {
-    const newPreviews = files.map(file => {
-      if (file.type.startsWith('image/')) {
-        return URL.createObjectURL(file);
-      }
-      return '';
-    });
+    const newPreviews = files.map(file => URL.createObjectURL(file));
     setPreviews(newPreviews);
-
-    return () => {
-      newPreviews.forEach(url => {
-        if (url) URL.revokeObjectURL(url);
-      });
-    };
+    return () => newPreviews.forEach(url => URL.revokeObjectURL(url));
   }, [files]);
-
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files) {
-      const newFiles = Array.from(e.target.files);
-      addFiles(newFiles);
-    }
-  };
 
   const addFiles = (newFiles: File[]) => {
     setFileError(null);
     const validFiles = newFiles.filter(file => {
-      if (!file.type.startsWith('image/')) {
-        const errorMsg = `Only images are allowed. ${file.name} was rejected.`;
-        setFileError(errorMsg);
-        toast({
-          title: "Invalid file type",
-          description: errorMsg,
-          variant: "destructive"
-        });
-        return false;
-      }
-      if (file.size > MAX_FILE_SIZE) {
-        const errorMsg = `File ${file.name} exceeds 5MB limit.`;
-        setFileError(errorMsg);
-        toast({
-          title: "File too large",
-          description: errorMsg,
-          variant: "destructive"
-        });
-        return false;
-      }
+      if (!file.type.startsWith('image/')) return false;
+      if (file.size > MAX_FILE_SIZE) return false;
       return true;
     });
-
     setFiles(prev => {
       const combined = [...prev, ...validFiles];
-      if (combined.length > MAX_FILES) {
-        const errorMsg = `Max ${MAX_FILES} images allowed.`;
-        setFileError(errorMsg);
-        toast({
-          title: "Too many files",
-          description: errorMsg,
-          variant: "destructive"
-        });
-        return combined.slice(0, MAX_FILES);
-      }
-      return combined;
+      return combined.slice(0, MAX_FILES);
     });
   };
 
-  const removeFile = (index: number) => {
-    setFiles(prev => prev.filter((_, i) => i !== index));
-    setFileError(null);
-  };
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => { if (e.target.files) addFiles(Array.from(e.target.files)); };
+  const removeFile = (index: number) => setFiles(prev => prev.filter((_, i) => i !== index));
 
-  const handleDrag = (e: React.DragEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-    if (e.type === "dragenter" || e.type === "dragover") {
-      setDragActive(true);
-    } else if (e.type === "dragleave") {
-      setDragActive(false);
-    }
-  };
-
-  const handleDrop = (e: React.DragEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-    setDragActive(false);
-    if (e.dataTransfer.files && e.dataTransfer.files[0]) {
-      addFiles(Array.from(e.dataTransfer.files));
-    }
-  };
+  const handleDrag = (e: React.DragEvent) => { e.preventDefault(); e.stopPropagation(); setDragActive(e.type === "dragenter" || e.type === "dragover"); };
+  const handleDrop = (e: React.DragEvent) => { e.preventDefault(); e.stopPropagation(); setDragActive(false); if (e.dataTransfer.files) addFiles(Array.from(e.dataTransfer.files)); };
 
   async function uploadToPinata(file: File): Promise<string> {
     const formData = new FormData();
     formData.append('file', file);
-    const pinataMetadata = JSON.stringify({ name: file.name });
-    formData.append('pinataMetadata', pinataMetadata);
-    const pinataOptions = JSON.stringify({ cidVersion: 0 });
-    formData.append('pinataOptions', pinataOptions);
-
     const res = await fetch("https://api.pinata.cloud/pinning/pinFileToIPFS", {
       method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${process.env.NEXT_PUBLIC_PINATA_JWT}`
-      },
+      headers: { 'Authorization': `Bearer ${process.env.NEXT_PUBLIC_PINATA_JWT}` },
       body: formData
     });
     const resData = await res.json();
-    if (!res.ok) throw new Error(resData.error || 'Upload failed');
     return `https://gateway.pinata.cloud/ipfs/${resData.IpfsHash}`;
   }
 
   async function onSubmit(values: FormValues) {
     if (!isConnected) {
-      toast({
-        title: "Connect Wallet",
-        description: "Please connect your wallet first to continue.",
-        variant: "destructive"
-      });
+      toast({ title: "Connect Wallet", description: "Please connect your wallet first to continue.", variant: "destructive" });
       openConnectModal?.();
       return;
     }
-
-    if (files.length === 0) {
-      setFileError("Please upload at least one image.");
-      toast({
-        title: "Media required",
-        description: "Please upload at least one image.",
-        variant: "destructive"
-      });
-      return;
-    }
-
+    if (files.length === 0) return toast({ title: "Media required", description: "Please upload at least one image.", variant: "destructive" });
     setIsUploading(true);
     try {
       const mediaUrls = await Promise.all(files.map(file => uploadToPinata(file)));
-      const usdAmount = parseFloat(values.targetAmount);
-      const targetInUSD = parseUnits(usdAmount.toFixed(18), 18);
-
       writeContract({
         address: CONTRACT_ADDRESS,
         abi: CONTRACT_ABI,
         functionName: 'createCampaign',
-        args: [
-          values.title,
-          values.description,
-          values.additionalNotes || "",
-          values.category === 'other' ? values.otherCategory! : values.category,
-          mediaUrls,
-          targetInUSD,
-          BigInt(Math.floor(values.deadline.getTime() / 1000)),
-        ]
-      }, {
-        onSuccess: () => {
-          toast({
-            title: "Transaction Sent",
-            description: "Your campaign is being created on the blockchain.",
-          });
-        },
-        onError: (error) => {
-          toast({
-            title: "Contract Error",
-            description: error.message,
-            variant: "destructive"
-          });
-        }
+        args: [values.title, values.description, values.additionalNotes || "", values.category === 'other' ? values.otherCategory! : values.category, mediaUrls, parseUnits(parseFloat(values.targetAmount).toFixed(18), 18), BigInt(Math.floor(values.deadline.getTime() / 1000))],
       });
-    } catch (error: any) {
-      toast({
-        title: "Submission Failed",
-        description: error.message,
-        variant: "destructive"
-      });
-    } finally {
-      setIsUploading(false);
-    }
+    } catch (error: any) { toast({ title: "Submission Failed", description: error.message, variant: "destructive" }); } finally { setIsUploading(false); }
   }
 
-  const resetPage = () => {
-    form.reset();
-    setFiles([]);
-    setPreviews([]);
-    setShowSuccess(false);
-    setFileError(null);
-  };
-
-  const isSubmitting = isUploading || isWalletLoading || isMining;
-
-  if (showSuccess) {
-    return (
-      <div className="flex flex-col items-center justify-center min-h-[70vh] p-4 text-center">
-        <div className="bg-emerald-100 p-6 rounded-full mb-6">
-          <CheckCircle2 className="h-16 w-16 text-emerald-600 animate-in zoom-in duration-500" />
-        </div>
-        <h1 className="text-2xl md:text-4xl font-black text-foreground mb-2">Campaign Successfully Created!</h1>
-        <p className="text-muted-foreground max-w-md mb-10">
-          Your fundraiser is now live on the Sepolia Testnet. You can now start sharing it with your community.
-        </p>
-        
-        <div className="flex flex-col md:flex-row gap-4 w-full max-w-md">
-          <CustomButton asChild variant="outline" className="flex-1 h-12 rounded-2xl font-bold gap-2">
-            <Link href="/">
-              <ArrowLeft className="h-4 w-4" />
-              Back to Home
-            </Link>
-          </CustomButton>
-          <CustomButton onClick={resetPage} className="flex-1 h-12 rounded-2xl font-bold gap-2">
-            <PlusCircle className="h-4 w-4" />
-            Create New Campaign
-          </CustomButton>
-        </div>
+  if (showSuccess) return (
+    <div className="flex flex-col items-center justify-center min-h-[70vh] p-4 text-center">
+      <div className="bg-emerald-100 p-6 rounded-full mb-6"><CheckCircle2 className="h-16 w-16 text-emerald-600 animate-in zoom-in duration-500" /></div>
+      <h1 className="text-2xl md:text-4xl font-black text-foreground mb-2">Campaign Successfully Created!</h1>
+      <p className="text-muted-foreground max-w-md mb-10">Your fundraiser is now live on the Sepolia Testnet.</p>
+      <div className="flex flex-col md:flex-row gap-4 w-full max-w-md">
+        <CustomButton asChild variant="outline" className="flex-1 h-12 rounded-2xl font-bold gap-2"><Link href="/"><ArrowLeft className="h-4 w-4" />Back to Home</Link></CustomButton>
+        <CustomButton onClick={() => setShowSuccess(false)} className="flex-1 h-12 rounded-2xl font-bold gap-2"><PlusCircle className="h-4 w-4" />Create New Campaign</CustomButton>
       </div>
-    );
-  }
+    </div>
+  );
 
   return (
     <div className="flex flex-col min-h-screen bg-transparent">
       <main className="flex-grow py-6 md:py-8 px-4">
         <div className="max-w-3xl mx-auto">
-          <div className="mb-8 text-center md:text-left">
-            <h1 className="text-2xl md:text-4xl font-black tracking-tight text-foreground">Launch a Fundraiser</h1>
-            <p className="text-muted-foreground mt-2">Fill out the details below to start your on-chain journey.</p>
-          </div>
-
+          <h1 className="text-2xl md:text-4xl font-black tracking-tight text-foreground mb-8">Launch a Fundraiser</h1>
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6 md:space-y-8">
-              
-              <div className="space-y-4 md:space-y-6">
-                <FormField
-                  control={form.control}
-                  name="title"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel className="text-sm md:text-base font-bold">
-                        Campaign Title <span className="text-destructive">*</span>
-                      </FormLabel>
-                      <FormControl>
-                        <Input 
-                          placeholder="e.g. Help Sarah's Medical Recovery" 
-                          className="h-10 md:h-12 text-sm md:text-base rounded-xl border-muted-foreground/20 transition-all focus-visible:ring-primary/20"
-                          {...field} 
-                        />
-                      </FormControl>
-                      <FormDescription className="text-xs md:text-sm">Make it catchy and clear about the cause.</FormDescription>
-                      <FormMessage className="text-xs md:text-sm" />
-                    </FormItem>
-                  )}
-                />
-
-                <FormField
-                  control={form.control}
-                  name="description"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel className="text-sm md:text-base font-bold">
-                        Description <span className="text-destructive">*</span>
-                      </FormLabel>
-                      <FormControl>
-                        <TiptapEditor 
-                          value={field.value} 
-                          onChange={field.onChange} 
-                          placeholder="Tell your story here..." 
-                        />
-                      </FormControl>
-                      <FormMessage className="text-xs md:text-sm" />
-                    </FormItem>
-                  )}
-                />
-
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
-                  <FormField
-                    control={form.control}
-                    name="category"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel className="text-sm md:text-base font-bold">
-                          Category <span className="text-destructive">*</span>
-                        </FormLabel>
-                        <Select onValueChange={field.onChange} defaultValue={field.value}>
-                          <FormControl>
-                            <SelectTrigger className="h-10 md:h-12 text-sm md:text-base rounded-xl border-muted-foreground/20 focus:ring-primary/20">
-                              <SelectValue placeholder="Select a domain" />
-                            </SelectTrigger>
-                          </FormControl>
-                          <SelectContent className="rounded-xl">
-                            {PREDEFINED_CATEGORIES.map((cat) => (
-                              <SelectItem key={cat.id} value={cat.id}>
-                                {cat.label}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                        <FormMessage className="text-xs md:text-sm" />
-                      </FormItem>
-                    )}
-                  />
-
-                  {categoryValue === 'other' && (
-                    <FormField
-                      control={form.control}
-                      name="otherCategory"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel className="text-sm md:text-base font-bold">Category Name <span className="text-destructive">*</span></FormLabel>
-                          <FormControl>
-                            <Input 
-                              placeholder="Specify domain" 
-                              className="h-10 md:h-12 text-sm md:text-base rounded-xl border-muted-foreground/20 focus-visible:ring-primary/20"
-                              {...field} 
-                            />
-                          </FormControl>
-                          <FormMessage className="text-xs md:text-sm" />
-                        </FormItem>
-                      )}
-                    />
-                  )}
-                </div>
+              <FormField control={form.control} name="title" render={({ field }) => (
+                <FormItem><FormLabel className="text-sm md:text-base font-bold">Campaign Title *</FormLabel>
+                <FormControl><Input placeholder="e.g. Help Sarah's Medical Recovery" className="h-10 md:h-12 rounded-xl" {...field} /></FormControl>
+                <FormMessage /></FormItem>
+              )} />
+              <FormField control={form.control} name="description" render={({ field }) => (
+                <FormItem><FormLabel className="text-sm md:text-base font-bold">Description *</FormLabel>
+                <FormControl><TiptapEditor value={field.value} onChange={field.onChange} placeholder="Tell your story here..." /></FormControl>
+                <FormMessage /></FormItem>
+              )} />
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
+                <FormField control={form.control} name="category" render={({ field }) => (
+                  <FormItem><FormLabel className="text-sm md:text-base font-bold">Category *</FormLabel>
+                  <Select onValueChange={field.onChange} defaultValue={field.value}>
+                    <FormControl><SelectTrigger className="h-10 md:h-12 rounded-xl"><SelectValue placeholder="Select a domain" /></SelectTrigger></FormControl>
+                    <SelectContent>{CAMPAIGN_CATEGORIES.map(cat => <SelectItem key={cat.id} value={cat.id}>{cat.label}</SelectItem>)}<SelectItem value="other">Other</SelectItem></SelectContent>
+                  </Select><FormMessage /></FormItem>
+                )} />
+                {categoryValue === 'other' && <FormField control={form.control} name="otherCategory" render={({ field }) => (
+                  <FormItem><FormLabel className="text-sm md:text-base font-bold">Category Name *</FormLabel>
+                  <FormControl><Input placeholder="Specify domain" className="h-10 md:h-12 rounded-xl" {...field} /></FormControl><FormMessage /></FormItem>
+                )} />}
               </div>
-
-              <Card className="p-4 md:p-6 border-muted-foreground/10 bg-primary/5 rounded-3xl overflow-visible">
+              <Card className="p-4 md:p-6 border-muted-foreground/10 bg-primary/5 rounded-3xl">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
-                  <div className="space-y-3 md:space-y-4">
-                    <FormLabel className="text-sm md:text-base font-bold">
-                      Target Amount (USD) <span className="text-destructive">*</span>
-                    </FormLabel>
-                    <FormField
-                      control={form.control}
-                      name="targetAmount"
-                      render={({ field }) => (
-                        <FormItem className="flex-grow">
-                          <FormControl>
-                            <div className="relative">
-                              <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground font-bold text-sm">$</span>
-                              <Input 
-                                type="number"
-                                step="0.01"
-                                placeholder="0.00" 
-                                className="h-10 md:h-12 pl-7 text-sm md:text-base rounded-xl border-muted-foreground/20 transition-all bg-background focus-visible:ring-primary/20"
-                                {...field} 
-                              />
-                            </div>
-                          </FormControl>
-                          <FormMessage className="text-xs md:text-sm" />
-                        </FormItem>
-                      )}
-                    />
-                  </div>
-
-                  <FormField
-                    control={form.control}
-                    name="deadline"
-                    render={({ field }) => (
-                      <FormItem className="flex flex-col gap-1.5">
-                        <FormLabel className="text-sm md:text-base font-bold">
-                          Deadline Date <span className="text-destructive">*</span>
-                        </FormLabel>
-                        <FormControl>
-                          <CustomDatePicker 
-                            value={field.value} 
-                            onChange={field.onChange}
-                            placeholder="Select end date"
-                          />
-                        </FormControl>
-                        <FormMessage className="text-xs md:text-sm" />
-                      </FormItem>
-                    )}
-                  />
+                  <FormField control={form.control} name="targetAmount" render={({ field }) => (
+                    <FormItem><FormLabel className="text-sm md:text-base font-bold">Target Amount (USD) *</FormLabel>
+                    <FormControl><div className="relative"><span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground font-bold text-sm">$</span><Input type="number" step="0.01" className="h-10 md:h-12 pl-7 rounded-xl" {...field} /></div></FormControl><FormMessage /></FormItem>
+                  )} />
+                  <FormField control={form.control} name="deadline" render={({ field }) => (
+                    <FormItem className="flex flex-col gap-1.5"><FormLabel className="text-sm md:text-base font-bold">Deadline Date *</FormLabel>
+                    <FormControl><CustomDatePicker value={field.value} onChange={field.onChange} /></FormControl><FormMessage /></FormItem>
+                  )} />
                 </div>
               </Card>
-
-              <div className="space-y-3 md:space-y-4">
-                <FormLabel className="text-sm md:text-base font-bold">
-                  Image Upload (Max 5 images) <span className="text-destructive">*</span>
-                </FormLabel>
-                <div 
-                  className={cn(
-                    "relative border-2 border-dashed rounded-3xl p-6 md:p-8 transition-all duration-200 flex flex-col items-center justify-center gap-3 md:gap-4 cursor-pointer",
-                    dragActive ? "border-primary bg-primary/5" : "border-muted-foreground/20 hover:border-primary/50 hover:bg-primary/5",
-                    files.length >= MAX_FILES && "opacity-50 pointer-events-none"
-                  )}
-                  onDragEnter={handleDrag}
-                  onDragOver={handleDrag}
-                  onDragLeave={handleDrag}
-                  onDrop={handleDrop}
-                  onClick={() => document.getElementById('file-upload')?.click()}
-                >
-                  <input 
-                    id="file-upload"
-                    type="file" 
-                    className="hidden" 
-                    multiple 
-                    accept="image/*"
-                    onChange={handleFileChange}
-                    disabled={files.length >= MAX_FILES}
-                  />
-                  <div className="h-12 w-12 md:h-16 md:w-16 rounded-2xl bg-primary/10 flex items-center justify-center text-primary">
-                    <ImageIcon className="h-6 w-6 md:h-8 md:w-8" />
-                  </div>
-                  <div className="text-center">
-                    <p className="text-xs md:text-sm font-bold">Click or drag & drop</p>
-                    <p className="text-[10px] md:text-xs text-muted-foreground mt-1">Up to 5 images, Max 5MB each</p>
-                  </div>
+              <div className="space-y-4">
+                <FormLabel className="text-sm md:text-base font-bold">Image Upload (Max 5) *</FormLabel>
+                <div className={cn("relative border-2 border-dashed rounded-3xl p-6 md:p-8 flex flex-col items-center justify-center gap-3 cursor-pointer", dragActive ? "border-primary bg-primary/5" : "border-muted-foreground/20 hover:border-primary/50")} onDragOver={handleDrag} onDrop={handleDrop} onClick={() => document.getElementById('file-upload')?.click()}>
+                  <input id="file-upload" type="file" className="hidden" multiple accept="image/*" onChange={handleFileChange} />
+                  <ImageIcon className="h-8 w-8 text-primary" /><p className="text-xs font-bold">Click or drag & drop</p>
                 </div>
-
-                {fileError && (
-                  <div className="flex items-center gap-2 text-destructive bg-destructive/5 p-3 rounded-xl border border-destructive/10 animate-in fade-in slide-in-from-top-1">
-                    <AlertCircle className="h-4 w-4 shrink-0" />
-                    <p className="text-xs font-bold">{fileError}</p>
-                  </div>
-                )}
-
-                {files.length > 0 && (
-                  <div className="grid grid-cols-3 md:grid-cols-5 gap-3 md:gap-4">
-                    {files.map((file, i) => {
-                      return (
-                        <div key={i} className="group relative aspect-square rounded-2xl bg-muted border overflow-hidden">
-                          {previews[i] ? (
-                            <img src={previews[i]} alt="Preview" className="h-full w-full object-cover" />
-                          ) : (
-                            <div className="absolute inset-0 flex items-center justify-center text-muted-foreground">
-                              <ImageIcon className="h-5 w-5 md:h-6 md:w-6" />
-                            </div>
-                          )}
-                          <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col items-center justify-center p-2">
-                            <p className="text-[8px] md:text-[10px] text-white font-medium truncate w-full text-center mb-1 md:mb-2">{file.name}</p>
-                            <button 
-                              type="button"
-                              onClick={(e) => { e.stopPropagation(); removeFile(i); }}
-                              className="bg-destructive text-destructive-foreground p-1 rounded-full hover:scale-110 transition-transform"
-                            >
-                              <X className="h-3 w-3" />
-                            </button>
-                          </div>
-                        </div>
-                      );
-                    })}
-                  </div>
-                )}
+                {files.length > 0 && <div className="grid grid-cols-5 gap-3">{files.map((_, i) => <div key={i} className="relative aspect-square rounded-xl overflow-hidden border"><img src={previews[i]} className="object-cover w-full h-full" /><button onClick={(e) => { e.stopPropagation(); removeFile(i); }} className="absolute top-1 right-1 bg-destructive text-white p-1 rounded-full"><X size={12} /></button></div>)}</div>}
               </div>
-
-              <FormField
-                control={form.control}
-                name="additionalNotes"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel className="text-sm md:text-base font-bold">
-                      Additional Notes <span className="text-muted-foreground font-normal ml-1">(Optional)</span>
-                    </FormLabel>
-                    <FormControl>
-                      <TiptapEditor 
-                        value={field.value || ''} 
-                        onChange={field.onChange} 
-                        placeholder="Any extra info for your donors..." 
-                      />
-                    </FormControl>
-                    <FormMessage className="text-xs md:text-sm" />
-                  </FormItem>
-                )}
-              />
-
-              <div className="pt-6 md:pt-8 flex flex-col gap-3 md:gap-4">
-                <CustomButton 
-                  type="submit" 
-                  className="w-full h-10 md:h-14 text-sm md:text-lg font-bold rounded-full shadow-lg hover:shadow-primary/20"
-                  isLoading={isSubmitting}
-                >
-                  {isSubmitting ? (
-                    isUploading ? 'Uploading to IPFS...' : isMining ? 'Mining Transaction...' : 'Creating Campaign...'
-                  ) : (
-                    'Create Campaign'
-                  )}
-                </CustomButton>
-                <p className="text-center text-[10px] md:text-xs text-muted-foreground">
-                  By creating a campaign, you agree to our Terms of Service and Privacy Policy.
-                </p>
-              </div>
-
+              <CustomButton type="submit" className="w-full h-12 md:h-14 rounded-full font-bold" isLoading={isUploading || isWalletLoading || isMining}>Create Campaign</CustomButton>
             </form>
           </Form>
         </div>

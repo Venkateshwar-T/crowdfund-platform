@@ -4,10 +4,10 @@ import { useState, useEffect, useMemo } from 'react';
 import { useQuery, gql } from '@apollo/client';
 import { useSearchParams } from 'next/navigation';
 import { formatUnits } from 'viem';
-import { BrowseFilterBar, type FilterState } from '@/components/browse-filter-bar';
-import { CampaignCard } from '@/components/campaign-card';
+import { BrowseFilterBar, type FilterState } from '@/components/BrowsePage/browse-filter-bar';
+import { CampaignCard } from '@/components/shared/campaign-card';
 import { Loader2 } from 'lucide-react';
-import { CustomButton } from '@/components/custom-button';
+import { CustomButton } from '@/components/shared/custom-button';
 
 const GET_CAMPAIGNS = gql`
   query GetCampaigns($first: Int!, $skip: Int!, $where: Campaign_filter, $orderBy: Campaign_orderBy, $orderDirection: OrderDirection) {
@@ -45,37 +45,25 @@ export default function BrowsePage() {
     categories: [],
   });
 
-  // Construct the "where" clause for Subgraph
   const filterVariables = useMemo(() => {
     const where: any = {};
-
-    // 1. Search Query
     if (q) {
       where.or = [
         { title_contains_nocase: q },
         { category_contains_nocase: q }
       ];
     }
-
-    // 2. Status Filter
     if (filters.status !== 'all') {
       where.status = filters.status;
     }
-
-    // 3. Category Filter
     if (filters.categories.length > 0) {
-      // Use category_in for multiple selection
       where.category_in = filters.categories.map(c => c.toLowerCase());
     }
-
-    // 4. Order By logic
     let orderBy = 'deadline';
     let orderDirection = 'desc';
-
     if (filters.time === 'oldest') {
       orderDirection = 'asc';
     }
-
     return { where, orderBy, orderDirection };
   }, [q, filters]);
 
@@ -95,10 +83,9 @@ export default function BrowsePage() {
     }
   });
 
-  // Reset pagination when query or filters change
   useEffect(() => {
     setSkip(0);
-    setAllCampaigns([]); // Clear current list to force a fresh fetch
+    setAllCampaigns([]);
   }, [q, filters]);
 
   const handleLoadMore = async () => {
@@ -161,7 +148,6 @@ export default function BrowsePage() {
                   <CampaignCard key={campaign.id} {...campaign} />
                 ))}
               </div>
-              
               {data?.campaigns.length === PAGE_SIZE && (
                 <div className="mt-12 flex justify-center">
                   <CustomButton 

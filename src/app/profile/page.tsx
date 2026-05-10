@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useState, useMemo, useEffect } from 'react';
@@ -9,20 +8,17 @@ import {
   LogOut, 
   Edit2, 
   Loader2, 
-  Search, 
-  PlusCircle, 
-  Settings2,
   TrendingUp,
   HeartHandshake,
-  LayoutGrid,
   Wallet as WalletIcon,
+  Settings2,
 } from 'lucide-react';
 import { useAccount, useDisconnect, useBalance } from 'wagmi';
 import { useQuery, gql } from '@apollo/client';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
-import { CustomButton } from '@/components/custom-button';
+import { CustomButton } from '@/components/shared/custom-button';
 import { Badge } from '@/components/ui/badge';
 import { Card } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -35,11 +31,11 @@ import {
   TabsList,
   TabsTrigger,
 } from "@/components/ui/tabs";
-import { cn } from '@/lib/utils';
+import { cn, shortenAddress } from '@/lib/utils';
 import { formatUnits } from 'viem';
-import { ProfileStatCard, ProfileCampaignCard, ProfileContributionCard } from '@/components/profile-cards';
+import { ProfileStatCard, ProfileCampaignCard, ProfileContributionCard } from '@/components/shared/profile-cards';
 import { db, auth } from '@/lib/firebase';
-import { doc, getDoc, setDoc, collection, query, where, getDocs, limit } from 'firebase/firestore';
+import { doc, getDoc, setDoc } from 'firebase/firestore';
 
 const GET_USER_DATA = gql`
   query GetUserData($owner: Bytes!) {
@@ -87,61 +83,6 @@ function NotConnectedView({ onConnect }: { onConnect: () => void }) {
   );
 }
 
-function ProfileIdentityCard({ 
-  username, 
-  setUsername, 
-  isEditingUsername, 
-  setIsEditingUsername,
-  shortenedAddress,
-  isCopied,
-  copyAddress,
-  chain,
-  onSaveName,
-  isSavingName
-}: any) {
-  return (
-    <Card className="p-8 md:p-10 rounded-3xl md:rounded-[2.5rem] bg-white/70 backdrop-blur-xl border-white/20 shadow-xl overflow-hidden relative">
-      <div className="absolute top-0 left-0 w-full h-24 md:h-32 bg-gradient-to-r from-primary/10 to-accent/20 -z-10" />
-      <div className="flex flex-col md:flex-row items-center md:items-end gap-6 md:gap-8">
-        <Avatar className="h-24 w-24 md:h-32 md:w-32 border-4 border-background shadow-2xl ring-1 ring-border/20 transition-transform">
-          <AvatarFallback className="bg-muted text-muted-foreground">
-            <User size={64} className="md:w-20 md:h-20" />
-          </AvatarFallback>
-        </Avatar>
-        <div className="flex flex-col items-center md:items-start flex-1 gap-2">
-          <div className="flex items-center gap-2">
-            {isEditingUsername ? (
-              <div className="flex items-center gap-2">
-                <Input value={username} onChange={(e) => setUsername(e.target.value)} className="h-8 md:h-10 text-lg md:text-2xl font-bold rounded-xl" autoFocus onKeyDown={(e) => e.key === 'Enter' && onSaveName()} />
-                <CustomButton size="sm" className="rounded-xl h-8 px-4" onClick={onSaveName} isLoading={isSavingName}>Save</CustomButton>
-                <button onClick={() => setIsEditingUsername(false)} className="text-xs text-muted-foreground hover:text-foreground">Cancel</button>
-              </div>
-            ) : (
-              <>
-                <h1 className="text-xl md:text-3xl font-black text-foreground">{username || "Anonymous"}</h1>
-                <button onClick={() => setIsEditingUsername(true)} className="p-1 hover:text-primary transition-colors"><Edit2 className="h-4 w-4 md:h-5 md:w-5" /></button>
-              </>
-            )}
-          </div>
-          <div className="flex items-center gap-2 bg-muted/50 px-3 py-1 rounded-full group">
-            <span className="text-xs md:text-sm font-mono font-medium text-muted-foreground">{shortenedAddress}</span>
-            <button onClick={copyAddress} className="p-1 hover:text-primary transition-all active:scale-90">
-              {isCopied ? <Check className="h-3 w-3 text-emerald-500" /> : <Copy className="h-3 w-3" />}
-            </button>
-          </div>
-        </div>
-        <div className="flex flex-col items-center md:items-end gap-2">
-          <Badge variant="outline" className={cn("rounded-full gap-2 px-3 py-1 font-bold tracking-tight border-2 capitalize text-xs", chain?.id === 1 ? "bg-blue-50 text-blue-600 border-blue-200" : "bg-emerald-50 text-emerald-600 border-emerald-200")}>
-            <div className={cn("w-1.5 h-1.5 md:w-2 md:h-2 rounded-full animate-pulse", chain?.id === 1 ? "bg-blue-600" : "bg-emerald-600")} />
-            {chain?.name || 'Unknown Network'}
-          </Badge>
-          <span className="text-[10px] text-muted-foreground uppercase font-black tracking-[0.1em]">Active Network</span>
-        </div>
-      </div>
-    </Card>
-  );
-}
-
 export default function ProfilePage() {
   const { address, isConnected, chain } = useAccount();
   const { prices: ethPrices } = useEthPrice();
@@ -150,7 +91,6 @@ export default function ProfilePage() {
   const { openAccountModal } = useAccountModal();
   const { openConnectModal } = useConnectModal();
   const { toast } = useToast();
-  const router = useRouter();
 
   const [isCopied, setIsCopied] = useState(false);
   const [isEditingUsername, setIsEditingUsername] = useState(false);
@@ -192,10 +132,8 @@ export default function ProfilePage() {
 
   const processedData = useMemo(() => {
     if (!subgraphData) return { myCampaigns: [], myContributions: [], totalUSD: 0, totalContributedUSD: 0 };
-
     const totalUSD = subgraphData.myCampaigns.reduce((acc: number, c: any) => acc + parseFloat(formatUnits(c.amountCollectedUsd, 18)), 0);
     const totalContributedUSD = subgraphData.myDonations.reduce((acc: number, d: any) => acc + parseFloat(formatUnits(d.amountUsd, 18)), 0);
-
     const myContributions = subgraphData.myDonations.map((d: any) => ({
       id: d.campaign.id,
       title: d.campaign.title,
@@ -204,18 +142,12 @@ export default function ProfilePage() {
       target: parseFloat(formatUnits(d.campaign.target, 18)),
       progress: Math.min((parseFloat(formatUnits(d.campaign.amountCollectedUsd, 18)) / parseFloat(formatUnits(d.campaign.target, 18))) * 100, 100)
     }));
-
-    return { 
-      myCampaigns: subgraphData.myCampaigns, 
-      myContributions, 
-      totalUSD, 
-      totalContributedUSD 
-    };
+    return { myCampaigns: subgraphData.myCampaigns, myContributions, totalUSD, totalContributedUSD };
   }, [subgraphData]);
 
   const ethValueInWallet = parseFloat(userBalance?.formatted || '0');
   const usdValueInWallet = ethValueInWallet * (ethPrices?.usd || 0);
-  const shortenedAddress = address ? `${address.slice(0, 6)}...${address.slice(-4)}` : 'Not connected';
+  const displayAddress = shortenAddress(address || "");
 
   const copyAddress = () => {
     if (address) {
@@ -232,7 +164,45 @@ export default function ProfilePage() {
   return (
     <div className="max-w-6xl mx-auto px-4 py-8 md:py-16 w-full">
       <div className="flex flex-col gap-6 md:gap-8">
-        <ProfileIdentityCard username={username} setUsername={setUsername} isEditingUsername={isEditingUsername} setIsEditingUsername={setIsEditingUsername} shortenedAddress={shortenedAddress} isCopied={isCopied} copyAddress={copyAddress} chain={chain} onSaveName={handleSaveName} isSavingName={isSavingName} />
+        <Card className="p-8 md:p-10 rounded-3xl md:rounded-[2.5rem] bg-white/70 backdrop-blur-xl border-white/20 shadow-xl overflow-hidden relative">
+          <div className="absolute top-0 left-0 w-full h-24 md:h-32 bg-gradient-to-r from-primary/10 to-accent/20 -z-10" />
+          <div className="flex flex-col md:flex-row items-center md:items-end gap-6 md:gap-8">
+            <Avatar className="h-24 w-24 md:h-32 md:w-32 border-4 border-background shadow-2xl ring-1 ring-border/20 transition-transform">
+              <AvatarFallback className="bg-muted text-muted-foreground">
+                <User size={64} className="md:w-20 md:h-20" />
+              </AvatarFallback>
+            </Avatar>
+            <div className="flex flex-col items-center md:items-start flex-1 gap-2">
+              <div className="flex items-center gap-2">
+                {isEditingUsername ? (
+                  <div className="flex items-center gap-2">
+                    <Input value={username} onChange={(e) => setUsername(e.target.value)} className="h-8 md:h-10 text-lg md:text-2xl font-bold rounded-xl" autoFocus onKeyDown={(e) => e.key === 'Enter' && handleSaveName()} />
+                    <CustomButton size="sm" className="rounded-xl h-8 px-4" onClick={handleSaveName} isLoading={isSavingName}>Save</CustomButton>
+                    <button onClick={() => setIsEditingUsername(false)} className="text-xs text-muted-foreground hover:text-foreground">Cancel</button>
+                  </div>
+                ) : (
+                  <>
+                    <h1 className="text-xl md:text-3xl font-black text-foreground">{username || "Anonymous"}</h1>
+                    <button onClick={() => setIsEditingUsername(true)} className="p-1 hover:text-primary transition-colors"><Edit2 className="h-4 w-4 md:h-5 md:w-5" /></button>
+                  </>
+                )}
+              </div>
+              <div className="flex items-center gap-2 bg-muted/50 px-3 py-1 rounded-full group">
+                <span className="text-xs md:text-sm font-mono font-medium text-muted-foreground">{displayAddress}</span>
+                <button onClick={copyAddress} className="p-1 hover:text-primary transition-all active:scale-90">
+                  {isCopied ? <Check className="h-3 w-3 text-emerald-500" /> : <Copy className="h-3 w-3" />}
+                </button>
+              </div>
+            </div>
+            <div className="flex flex-col items-center md:items-end gap-2">
+              <Badge variant="outline" className={cn("rounded-full gap-2 px-3 py-1 font-bold tracking-tight border-2 capitalize text-xs", chain?.id === 1 ? "bg-blue-50 text-blue-600 border-blue-200" : "bg-emerald-50 text-emerald-600 border-emerald-200")}>
+                <div className={cn("w-1.5 h-1.5 md:w-2 md:h-2 rounded-full animate-pulse", chain?.id === 1 ? "bg-blue-600" : "bg-emerald-600")} />
+                {chain?.name || 'Unknown Network'}
+              </Badge>
+              <span className="text-[10px] text-muted-foreground uppercase font-black tracking-[0.1em]">Active Network</span>
+            </div>
+          </div>
+        </Card>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6 mt-4">
           <Card className="p-6 md:p-8 rounded-3xl bg-primary/5 flex flex-col gap-3 shadow-sm border">
             <div className="p-3 w-fit bg-primary rounded-2xl text-white"><WalletIcon className="h-6 w-6" /></div>
