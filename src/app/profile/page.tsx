@@ -41,6 +41,7 @@ const GET_USER_DATA = gql`
   query GetUserData($owner: Bytes!) {
     myCampaigns: campaigns(where: { owner: $owner }) {
       id
+      slug
       title
       target
       amountCollectedUsd
@@ -52,6 +53,7 @@ const GET_USER_DATA = gql`
       amountUsd
       campaign {
         id
+        slug
         title
         target
         amountCollectedUsd
@@ -135,7 +137,7 @@ export default function ProfilePage() {
     const totalUSD = subgraphData.myCampaigns.reduce((acc: number, c: any) => acc + parseFloat(formatUnits(c.amountCollectedUsd, 18)), 0);
     const totalContributedUSD = subgraphData.myDonations.reduce((acc: number, d: any) => acc + parseFloat(formatUnits(d.amountUsd, 18)), 0);
     const myContributions = subgraphData.myDonations.map((d: any) => ({
-      id: d.campaign.id,
+      id: d.campaign.slug,
       title: d.campaign.title,
       personalContribution: parseFloat(formatUnits(d.amountEth, 18)),
       amountCollected: parseFloat(formatUnits(d.campaign.amountCollectedUsd, 18)),
@@ -215,10 +217,10 @@ export default function ProfilePage() {
           <ProfileStatCard title="Raised (USD)" value={`$${processedData.totalUSD.toLocaleString()}`} icon={TrendingUp} />
           <ProfileStatCard title="Contributed (USD)" value={`$${processedData.totalContributedUSD.toLocaleString()}`} icon={HeartHandshake} />
         </div>
-        <div className="bg-white/70 backdrop-blur-xl border rounded-[2.5rem] overflow-hidden shadow-xl">
+        <div className="bg-white/70 backdrop-blur-xl border rounded-[1.5rem] md:rounded-[2.5rem] overflow-hidden shadow-xl">
           <Tabs defaultValue="my-campaigns" className="w-full">
             <div className="bg-muted/30 p-4 border-b">
-              <TabsList className="bg-background/80 p-1 rounded-2xl h-12 grid grid-cols-2 max-w-md border">
+              <TabsList className="bg-background/80 px-2 rounded-2xl h-12 grid gap-1 grid-cols-2 max-w-md border">
                 <TabsTrigger value="my-campaigns" className="rounded-xl font-bold text-xs data-[state=active]:bg-primary data-[state=active]:text-white flex items-center gap-2">
                   My Campaigns
                   <span className="flex items-center justify-center bg-muted/20 text-[10px] h-5 w-5 rounded-full border border-current opacity-70">
@@ -238,7 +240,7 @@ export default function ProfilePage() {
                 {processedData.myCampaigns.length > 0 ? (
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                     {processedData.myCampaigns.map((c: any) => (
-                      <ProfileCampaignCard key={c.id} id={c.id} title={c.title} contributors={0} status={c.status} />
+                      <ProfileCampaignCard key={c.id} id={c.slug} title={c.title} contributors={0} status={c.status} />
                     ))}
                   </div>
                 ) : (
@@ -270,10 +272,10 @@ export default function ProfilePage() {
                     </div>
                     <div className="space-y-1">
                       <p className="font-bold text-foreground">No contributions yet</p>
-                      <p className="text-xs text-muted-foreground">You haven't supported any causes yet.</p>
+                      <p className="text-xs text-muted-foreground">You haven't supported any fundraisers yet.</p>
                     </div>
                     <CustomButton asChild variant="outline" size="sm" className="rounded-full">
-                      <Link href="/browse">Explore Causes</Link>
+                      <Link href="/browse">Explore Fundraisers</Link>
                     </CustomButton>
                   </div>
                 )}
@@ -281,7 +283,18 @@ export default function ProfilePage() {
             </div>
           </Tabs>
         </div>
-        <div className="flex flex-col md:flex-row gap-4"><CustomButton onClick={() => disconnect()} variant="outline" className="flex-1 rounded-2xl h-14 border-destructive/20 text-destructive font-bold gap-2"><LogOut className="h-5 w-5" />Disconnect</CustomButton><CustomButton onClick={() => openAccountModal?.()} variant="secondary" className="flex-1 rounded-2xl h-14 font-bold border"><Settings2 className="h-5 w-5 mr-2" />Settings</CustomButton></div>
+        <div className="flex flex-col md:flex-row gap-4">
+          <CustomButton 
+          onClick={() => disconnect()} variant="outline" 
+          className="flex-1 rounded-2xl h-14 border-destructive/20 text-destructive font-bold gap-2">
+            <LogOut className="h-5 w-5" />Disconnect
+          </CustomButton>
+          <CustomButton 
+          onClick={() => openAccountModal?.()} variant="secondary" 
+          className="flex-1 rounded-2xl h-14 font-bold border">
+            <Settings2 className="h-5 w-5 mr-2" />Wallet Settings
+          </CustomButton>
+        </div>
       </div>
     </div>
   );

@@ -316,7 +316,7 @@ export default function CampaignDetailsPage({ params }: { params: Promise<{ id: 
             <div className="flex items-center justify-between">
               <div className="flex flex-col gap-1">
                 <h2 className="text-[10px] md:text-sm font-bold uppercase tracking-widest text-primary">Supporters</h2>
-                <p className="text-xs md:text-base font-bold text-foreground">{campaign.contributors.toLocaleString()} gifts received from the community</p>
+                <p className="text-xs md:text-base font-bold text-foreground">{campaign.contributors.toLocaleString()} people supported this campaign</p>
               </div>
               <CollapsibleTrigger asChild>
                 <CustomButton variant="ghost" size="sm" className="rounded-full h-8 w-8 p-0 hover:bg-primary/10">
@@ -327,7 +327,7 @@ export default function CampaignDetailsPage({ params }: { params: Promise<{ id: 
             <CollapsibleContent className="mt-6 space-y-4">
               {campaignData.donations && campaignData.donations.length > 0 ? campaignData.donations.map((d: any, index: number) => (
                 <SupporterRow key={index} address={d.donator} amountUSD={parseFloat(formatUnits(d.amountUsd, 18))} timestamp={d.timestamp} />
-              )) : <div className="py-8 text-center text-muted-foreground">No supporters yet. Be the first!</div>}
+              )) : <div className="py-8 text-center text-muted-foreground">{isOwner ? "No supporters yet." : "No supporters yet. Be the first!"}</div>}
             </CollapsibleContent>
           </Collapsible>
         </div>

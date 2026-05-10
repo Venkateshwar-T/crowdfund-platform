@@ -21,6 +21,7 @@ const SEARCH_SUGGESTIONS = gql`
       }
     ) {
       id
+      slug
       title
       category
     }
@@ -130,7 +131,7 @@ export function NavSearch({ isSearching, setIsSearching, placeholder, mode = 'ov
                   {data.campaigns.map((c: any) => (
                     <Link
                       key={c.id}
-                      href={`/browse/${c.id}`}
+                      href={`/browse/${c.slug}`}
                       onClick={() => {
                         setIsSearching(false);
                         setSearchQuery('');
