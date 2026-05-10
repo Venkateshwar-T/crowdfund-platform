@@ -1,3 +1,4 @@
+
 enum CampaignStatus {
   Active
   Successful
@@ -8,10 +9,24 @@ type Campaign @entity {
   id: ID!
   owner: Bytes!
   title: String!
+  description: String!
+  category: String!
   target: BigInt!
   deadline: BigInt!
   amountCollectedUsd: BigInt!
   ethRaised: BigInt!
   withdrawn: Boolean!
   status: CampaignStatus!
+  donations: [Donation!]! @derivedFrom(field: "campaign")
+  mediaUrls: [String!]
+}
+
+type Donation @entity {
+  id: ID!
+  campaign: Campaign!
+  donator: Bytes!
+  amountEth: BigInt!
+  amountUsd: BigInt!
+  timestamp: BigInt!
+  blockNumber: BigInt!
 }

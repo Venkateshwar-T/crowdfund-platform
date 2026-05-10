@@ -1,3 +1,4 @@
+
 'use client';
 
 import '@rainbow-me/rainbowkit/styles.css';
@@ -5,6 +6,8 @@ import { getDefaultConfig, RainbowKitProvider } from '@rainbow-me/rainbowkit';
 import { WagmiProvider } from 'wagmi';
 import { sepolia } from 'wagmi/chains';
 import { QueryClientProvider, QueryClient } from "@tanstack/react-query";
+import { ApolloProvider } from '@apollo/client';
+import { apolloClient } from '@/lib/apollo-client';
 
 const config = getDefaultConfig({
   appName: 'CrowdFund',
@@ -19,9 +22,11 @@ export function Web3Provider({ children }: { children: React.ReactNode }) {
   return (
     <WagmiProvider config={config}>
       <QueryClientProvider client={queryClient}>
-        <RainbowKitProvider>
-          {children}
-        </RainbowKitProvider>
+        <ApolloProvider client={apolloClient}>
+          <RainbowKitProvider>
+            {children}
+          </RainbowKitProvider>
+        </ApolloProvider>
       </QueryClientProvider>
     </WagmiProvider>
   );
