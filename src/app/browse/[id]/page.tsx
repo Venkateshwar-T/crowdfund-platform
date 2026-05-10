@@ -52,6 +52,11 @@ import {
   DialogFooter
 } from "@/components/ui/dialog";
 
+function shortenAddress(address: string) {
+  if (!address) return "";
+  return `${address.slice(0, 6)}...${address.slice(-4)}`;
+}
+
 function ProgressCircle({ progress }: { progress: number }) {
   const [size, setSize] = useState(140);
 
@@ -315,7 +320,7 @@ function SupporterRow({ address, amountUSD }: { address: string, amountUSD: numb
             {loading ? "..." : displayName}
           </span>
           <span className="text-[10px] text-muted-foreground font-mono truncate">
-            {address}
+            {shortenAddress(address)}
           </span>
         </div>
       </div>
@@ -351,7 +356,6 @@ export default function CampaignDetailsPage({ params }: { params: Promise<{ id: 
   const campaignIndex = parseInt(id);
   const campaignData = (campaignsRaw as any)?.[campaignIndex];
 
-  // Fetch the display name of the campaign owner using our hook
   const { displayName: ownerName, loading: ownerLoading } = useUserName(campaignData?.owner);
 
   const processedDonors = useMemo(() => {
@@ -538,7 +542,7 @@ export default function CampaignDetailsPage({ params }: { params: Promise<{ id: 
                 <MdVerifiedUser color='#1C9A9C' className="h-3 w-3 md:h-4 md:w-4 flex-shrink-0" />
               </div>
               <span className="text-[10px] md:text-xs text-muted-foreground font-mono truncate max-w-[200px] md:max-w-sm">
-                {campaign.ownerAddress}
+                {shortenAddress(campaign.ownerAddress)}
               </span>
             </div>
           </div>
