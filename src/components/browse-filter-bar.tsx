@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState, useEffect } from 'react';
@@ -15,20 +16,7 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Label } from '@/components/ui/label';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Separator } from '@/components/ui/separator';
-
-const CATEGORIES = [
-  { id: 'medical', label: 'Medical' },
-  { id: 'environment', label: 'Environment' },
-  { id: 'education', label: 'Education' },
-  { id: 'animals', label: 'Animals' },
-  { id: 'arts', label: 'Arts and Media' },
-  { id: 'women', label: 'Women' },
-  { id: 'community', label: 'Community' },
-  { id: 'technology', label: 'Technology' },
-  { id: 'sports', label: 'Sports' },
-  { id: 'disaster', label: 'Disaster Relief' },
-  { id: 'development', label: 'Development' },
-];
+import { CAMPAIGN_CATEGORIES } from '@/lib/constants';
 
 export interface FilterState {
   time: string;
@@ -46,7 +34,6 @@ export function BrowseFilterBar({ onFilterChange }: BrowseFilterBarProps) {
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
   const [isAllCategories, setIsAllCategories] = useState(true);
 
-  // Sync with parent whenever internal state changes
   useEffect(() => {
     onFilterChange?.({
       time: timeFilter,
@@ -153,7 +140,6 @@ export function BrowseFilterBar({ onFilterChange }: BrowseFilterBarProps) {
                 <div className="space-y-4">
                   <h3 className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground/70">Domains</h3>
                   <div className="grid grid-cols-1 gap-4">
-                    {/* All Categories Option */}
                     <div className="flex items-center space-x-3 group cursor-pointer">
                       <Checkbox 
                         id="cat-all" 
@@ -166,9 +152,8 @@ export function BrowseFilterBar({ onFilterChange }: BrowseFilterBarProps) {
                       </Label>
                     </div>
 
-                    {/* Specific Categories */}
                     <div className="grid grid-cols-1 gap-3 pl-0.5">
-                      {CATEGORIES.map((category) => (
+                      {CAMPAIGN_CATEGORIES.map((category) => (
                         <div key={category.id} className="flex items-center space-x-3 group cursor-pointer">
                           <Checkbox 
                             id={`cat-${category.id}`} 

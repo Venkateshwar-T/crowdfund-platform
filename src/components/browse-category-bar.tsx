@@ -1,25 +1,10 @@
+
 'use client';
 
 import { useRef } from 'react';
-import { ChevronLeft, ChevronRight, Heart, Sprout, GraduationCap, Cat, Palette, Cpu, Trophy, ShieldAlert, Users } from 'lucide-react';
-import { IoWoman } from "react-icons/io5";
-import { MdElderly } from "react-icons/md";
-import { GiProgression } from "react-icons/gi";
+import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { cn } from '@/lib/utils';
-
-export const CATEGORIES = [
-  { id: 'medical', label: 'Medical', icon: Heart },
-  { id: 'environment', label: 'Environment', icon: Sprout },
-  { id: 'education', label: 'Education', icon: GraduationCap },
-  { id: 'animals', label: 'Animals', icon: Cat },
-  { id: 'arts', label: 'Arts and Media', icon: Palette },
-  { id: 'women', label: 'Women', icon: IoWoman },
-  { id: 'community', label: 'Community', icon: Users },
-  { id: 'technology', label: 'Technology', icon: Cpu },
-  { id: 'sports', label: 'Sports', icon: Trophy },
-  { id: 'disaster', label: 'Disaster Relief', icon: ShieldAlert },
-  { id: 'development', label: 'Development', icon: GiProgression },
-];
+import { CAMPAIGN_CATEGORIES } from '@/lib/constants';
 
 export function BrowseCategoryBar() {
   const scrollRef = useRef<HTMLDivElement>(null);
@@ -52,7 +37,7 @@ export function BrowseCategoryBar() {
           className="flex items-center gap-4 md:gap-8 overflow-x-auto no-scrollbar scroll-smooth px-4 md:px-8 w-full h-full"
           style={{ msOverflowStyle: 'none', scrollbarWidth: 'none' }}
         >
-          {CATEGORIES.map((category) => {
+          {CAMPAIGN_CATEGORIES.map((category) => {
             const Icon = category.icon;
             return (
               <button

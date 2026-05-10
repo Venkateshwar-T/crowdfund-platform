@@ -1,3 +1,4 @@
+
 'use client';
 
 import Link from 'next/link';
@@ -11,19 +12,9 @@ import {
   Menu, 
   X, 
   ChevronRight, 
-  Heart, 
-  Sprout, 
-  GraduationCap, 
-  Cat, 
-  Palette, 
-  Cpu, 
-  Trophy, 
-  ShieldAlert,
   LayoutGrid,
-  Users,
   Search
 } from 'lucide-react';
-import { IoWoman } from "react-icons/io5";
 import { NavSearch } from './nav-search';
 import { CustomButton } from './custom-button';
 import { BrandLogo } from './brand-logo';
@@ -31,19 +22,7 @@ import { cn } from '@/lib/utils';
 import { useAccount } from 'wagmi';
 import { useConnectModal } from '@rainbow-me/rainbowkit';
 import { useUserName } from '@/hooks/use-user-name';
-
-const BROWSE_CATEGORIES = [
-  { id: 'medical', label: 'Medical', icon: Heart },
-  { id: 'environment', label: 'Environment', icon: Sprout },
-  { id: 'education', label: 'Education', icon: GraduationCap },
-  { id: 'animals', label: 'Animals', icon: Cat },
-  { id: 'arts', label: 'Arts and Media', icon: Palette },
-  { id: 'women', label: 'Women', icon: IoWoman },
-  { id: 'community', label: 'Community', icon: Users },
-  { id: 'technology', label: 'Technology', icon: Cpu },
-  { id: 'sports', label: 'Sports', icon: Trophy },
-  { id: 'disaster', label: 'Disaster Relief', icon: ShieldAlert },
-];
+import { CAMPAIGN_CATEGORIES } from '@/lib/constants';
 
 export function Navbar() {
   const { isConnected, address: userAddress } = useAccount();
@@ -124,7 +103,7 @@ export function Navbar() {
                   isBrowseOpen ? "opacity-100 scale-100 translate-y-0" : "opacity-0 scale-95 -translate-y-2 pointer-events-none"
                 )}>
                   <div className="bg-white rounded-2xl shadow-xl border border-border p-4 grid grid-cols-2 gap-1 overflow-hidden z-[100]">
-                    {BROWSE_CATEGORIES.map((cat) => (
+                    {CAMPAIGN_CATEGORIES.slice(0, 10).map((cat) => (
                       <Link
                         key={cat.id}
                         href={`/browse?q=${cat.id}`}
@@ -159,7 +138,6 @@ export function Navbar() {
               </div>
             </div>
 
-            {/* Desktop Search Triggers (Visual only) */}
             <div className="hidden md:block lg:hidden w-full max-w-[120px] ml-4">
               <NavSearch 
                 isSearching={isSearching} 
@@ -235,7 +213,6 @@ export function Navbar() {
           </div>
         </div>
 
-        {/* Global Search Overlay (Logic only) */}
         <NavSearch isSearching={isSearching} setIsSearching={setIsSearching} mode="overlay" />
       </div>
 

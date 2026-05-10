@@ -1,14 +1,15 @@
+
 'use client';
 
 import { useState, useEffect } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { Users, Calendar, Wallet, User, Loader2 } from 'lucide-react';
+import { Users, Calendar, Wallet, User } from 'lucide-react';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { MdVerifiedUser  } from "react-icons/md";
 import { useUserName } from '@/hooks/use-user-name';
-
-import { cn } from '@/lib/utils';
+import { cn, formatCurrency } from '@/lib/utils';
+import { STATUS_CONFIG, type CampaignStatus } from '@/lib/constants';
 
 export interface CampaignCardProps {
   id: string;
@@ -19,7 +20,7 @@ export interface CampaignCardProps {
   targetAmount: number;
   contributors: number;
   deadline: string;
-  status: 'Active' | 'Successful' | 'Failed';
+  status: CampaignStatus;
   className?: string;
 }
 
@@ -48,11 +49,6 @@ export function CampaignCard({
 
     return () => clearInterval(interval);
   }, [images.length]);
-
-  const formatCurrency = (val: number) => {
-    if (val >= 1000) return `$${(val / 1000).toFixed(1)}k`;
-    return `$${val}`;
-  };
 
   return (
     <Link href={`/browse/${id}`} className="block h-full">
@@ -85,9 +81,7 @@ export function CampaignCard({
             <div className="flex justify-between items-start">
               <span className={cn(
                 "px-1.5 py-0.5 rounded-sm text-[8px] md:text-[10px] font-bold uppercase tracking-wider backdrop-blur-md border border-white/20",
-                status === 'Active' ? "bg-white/80 text-primary" : 
-                status === 'Successful' ? "bg-green-500/80 text-white" : 
-                "bg-red-500/80 text-white"
+                STATUS_CONFIG[status]?.className || "bg-white/80 text-primary"
               )}>
                 {status}
               </span>

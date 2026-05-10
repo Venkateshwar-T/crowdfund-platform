@@ -25,7 +25,7 @@ import { CustomButton } from '@/components/custom-button';
 import { StatusBadge } from '@/components/status-badge';
 import { ContributorBadge } from '@/components/contributor-badge';
 import { ShareButton } from '@/components/share-button';
-import { cn } from '@/lib/utils';
+import { cn, shortenAddress } from '@/lib/utils';
 import { useWriteContract, useAccount, useWaitForTransactionReceipt, useBalance } from 'wagmi';
 import { useConnectModal } from '@rainbow-me/rainbowkit';
 import { formatUnits, parseEther } from 'viem';
@@ -80,11 +80,6 @@ const GET_CAMPAIGN_DETAIL = gql`
     }
   }
 `;
-
-function shortenAddress(address: string) {
-  if (!address) return "";
-  return `${address.slice(0, 6)}...${address.slice(-4)}`;
-}
 
 function ProgressCircle({ progress }: { progress: number }) {
   const [size, setSize] = useState(140);

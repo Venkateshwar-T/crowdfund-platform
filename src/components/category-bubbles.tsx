@@ -1,24 +1,8 @@
+
 'use client';
 
-import { Heart, GraduationCap, Cat, Palette, Cpu, Trophy, ShieldAlert, Sprout, Users } from 'lucide-react';
-import { IoWoman } from "react-icons/io5";
-import { MdElderly } from "react-icons/md";
-import { GiProgression } from "react-icons/gi";
 import { cn } from '@/lib/utils';
-
-const CATEGORIES = [
-  { id: 'medical', label: 'Medical', icon: Heart, color: 'bg-red-500/10 text-red-600 border-red-200' },
-  { id: 'environment', label: 'Environment', icon: Sprout, color: 'bg-emerald-500/10 text-emerald-600 border-emerald-200' },
-  { id: 'education', label: 'Education', icon: GraduationCap, color: 'bg-blue-500/10 text-blue-600 border-blue-200' },
-  { id: 'animals', label: 'Animals', icon: Cat, color: 'bg-orange-500/10 text-orange-600 border-orange-200' },
-  { id: 'arts', label: 'Arts and Media', icon: Palette, color: 'bg-purple-500/10 text-purple-600 border-purple-200' },
-  { id: 'women', label: 'Women', icon: IoWoman, color: 'bg-pink-500/10 text-pink-600 border-pink-200' },
-  { id: 'community', label: 'Community', icon: Users, color: 'bg-indigo-500/10 text-indigo-600 border-indigo-200' },
-  { id: 'technology', label: 'Technology', icon: Cpu, color: 'bg-slate-500/10 text-slate-600 border-slate-200' },
-  { id: 'sports', label: 'Sports', icon: Trophy, color: 'bg-yellow-500/10 text-yellow-600 border-yellow-200' },
-  { id: 'disaster', label: 'Disaster Relief', icon: ShieldAlert, color: 'bg-rose-500/10 text-rose-600 border-rose-200' },
-  { id: 'development', label: 'Development', icon: GiProgression, color: 'bg-blue-500/10 text-blue-600 border-blue-200' },
-];
+import { CAMPAIGN_CATEGORIES } from '@/lib/constants';
 
 export function CategoryBubbles() {
   return (
@@ -34,7 +18,7 @@ export function CategoryBubbles() {
         </div>
 
         <div className="flex flex-wrap justify-center gap-4">
-          {CATEGORIES.map((category) => {
+          {CAMPAIGN_CATEGORIES.map((category) => {
             const Icon = category.icon;
             return (
               <button
