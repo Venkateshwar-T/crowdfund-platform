@@ -11,7 +11,7 @@ import { apolloClient } from '@/lib/apollo-client';
 
 const config = getDefaultConfig({
   appName: 'CrowdFund',
-  projectId: 'YOUR_WALLETCONNECT_PROJECT_ID', // Get one at cloud.walletconnect.com
+  projectId: process.env.NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID || '3fcc6b446f2366834d51dec8d9a7e309', // Fallback to a default or use env
   chains: [sepolia],
   ssr: true,
 });

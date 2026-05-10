@@ -147,6 +147,8 @@ function MediaGallery({ media, title }: { media: string[]; title: string }) {
     });
   }, [api]);
 
+  const images = media.length > 0 ? media : ['https://picsum.photos/seed/placeholder/800/600'];
+
   return (
     <div className="relative w-full overflow-hidden rounded-2xl md:rounded-3xl border border-border/50 bg-muted aspect-video shadow-lg">
       <Carousel 
@@ -155,42 +157,25 @@ function MediaGallery({ media, title }: { media: string[]; title: string }) {
         opts={{ align: "start", loop: true }}
       >
         <CarouselContent className="ml-0 h-full">
-          {media.length > 0 ? media.map((url, index) => {
-            const isVideo = url.toLowerCase().includes('.mp4') || url.toLowerCase().includes('.webm');
-            return (
-              <CarouselItem key={index} className="pl-0 h-full relative">
-                <div className="relative w-full h-full min-h-[200px] md:min-h-[400px]">
-                  {isVideo ? (
-                    <video 
-                      src={url} 
-                      controls 
-                      className="w-full h-full object-cover"
-                    />
-                  ) : (
-                    <Image
-                      src={url}
-                      alt={`${title} media ${index}`}
-                      fill
-                      className="object-cover"
-                      priority={index === 0}
-                    />
-                  )}
-                </div>
-              </CarouselItem>
-            );
-          }) : (
-            <CarouselItem className="pl-0 h-full relative">
-              <div className="relative w-full h-full min-h-[200px] md:min-h-[400px] flex items-center justify-center bg-muted/20">
-                <Loader2 className="h-8 w-8 animate-spin text-primary/20" />
+          {images.map((url, index) => (
+            <CarouselItem key={index} className="pl-0 h-full relative">
+              <div className="relative w-full h-full min-h-[200px] md:min-h-[400px]">
+                <Image
+                  src={url}
+                  alt={`${title} media ${index}`}
+                  fill
+                  className="object-cover"
+                  priority={index === 0}
+                />
               </div>
             </CarouselItem>
-          )}
+          ))}
         </CarouselContent>
       </Carousel>
       
-      {media.length > 1 && (
+      {images.length > 1 && (
         <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex items-center gap-1.5 z-10 px-3 py-1.5 rounded-full bg-black/30 backdrop-blur-md border border-white/10">
-          {media.map((_, index) => (
+          {images.map((_, index) => (
             <div
               key={index}
               className={`h-1 rounded-full transition-all duration-300 ${
@@ -233,6 +218,8 @@ function StaticContributionBox({
     inrEstimate = usdVal * (ethPrice.inr / ethPrice.usd);
   }
 
+  const isInsufficient = userBalance && parseFloat(userBalance.formatted) < ethEstimate;
+
   const handleAmountChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     let val = e.target.value;
     if (parseFloat(val) > remainingUSD) {
@@ -240,8 +227,6 @@ function StaticContributionBox({
     }
     setAmount(val);
   };
-
-  const isInsufficient = userBalance && parseFloat(userBalance.formatted) < ethEstimate;
 
   return (
     <div 
