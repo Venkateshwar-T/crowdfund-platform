@@ -1,7 +1,7 @@
 'use client';
 
 import { useRef } from 'react';
-import { ChevronLeft, ChevronRight, Heart, Sprout, GraduationCap, Cat, Palette, Cpu, Trophy, ShieldAlert } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Heart, Sprout, GraduationCap, Cat, Palette, Cpu, Trophy, ShieldAlert, Users } from 'lucide-react';
 import { IoWoman } from "react-icons/io5";
 import { MdElderly } from "react-icons/md";
 import { GiProgression } from "react-icons/gi";
@@ -14,7 +14,7 @@ export const CATEGORIES = [
   { id: 'animals', label: 'Animals', icon: Cat },
   { id: 'arts', label: 'Arts and Media', icon: Palette },
   { id: 'women', label: 'Women', icon: IoWoman },
-  { id: 'elderly', label: 'Elderly', icon: MdElderly },
+  { id: 'community', label: 'Community', icon: Users },
   { id: 'technology', label: 'Technology', icon: Cpu },
   { id: 'sports', label: 'Sports', icon: Trophy },
   { id: 'disaster', label: 'Disaster Relief', icon: ShieldAlert },

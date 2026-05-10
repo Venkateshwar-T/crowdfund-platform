@@ -19,7 +19,8 @@ import {
   Cpu, 
   Trophy, 
   ShieldAlert,
-  LayoutGrid
+  LayoutGrid,
+  Users
 } from 'lucide-react';
 import { IoWoman } from "react-icons/io5";
 import { MdElderly } from "react-icons/md";
@@ -39,7 +40,7 @@ const BROWSE_CATEGORIES = [
   { id: 'animals', label: 'Animals', icon: Cat },
   { id: 'arts', label: 'Arts and Media', icon: Palette },
   { id: 'women', label: 'Women', icon: IoWoman },
-  { id: 'elderly', label: 'Elderly', icon: MdElderly },
+  { id: 'community', label: 'Community', icon: Users },
   { id: 'technology', label: 'Technology', icon: Cpu },
   { id: 'sports', label: 'Sports', icon: Trophy },
   { id: 'disaster', label: 'Disaster Relief', icon: ShieldAlert },

@@ -80,7 +80,7 @@ const PREDEFINED_CATEGORIES = [
   { id: 'animals', label: 'Animals' },
   { id: 'arts', label: 'Arts and Media' },
   { id: 'women', label: 'Women' },
-  { id: 'elderly', label: 'Elderly' },
+  { id: 'community', label: 'Community' },
   { id: 'technology', label: 'Technology' },
   { id: 'sports', label: 'Sports' },
   { id: 'disaster', label: 'Disaster Relief' },
