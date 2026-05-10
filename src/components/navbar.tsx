@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import { useState, useRef, useEffect } from 'react';
 import { usePathname } from 'next/navigation';
-import { User } from 'lucide-react';
+import { User, Info, HelpCircle } from 'lucide-react';
 import { 
   ArrowLeft, 
   Search, 
@@ -214,7 +214,7 @@ export function Navbar() {
             <div className="flex md:hidden items-center gap-1">
               <button 
                 onClick={() => setIsSearching(true)}
-                className="p-2 hover:bg-accent rounded-full transition-colors"
+                className="p-2 -mr-1 hover:bg-accent rounded-full transition-colors"
                 aria-label="Search"
               >
                 <Search className="h-5 w-5 text-muted-foreground" />
@@ -266,10 +266,12 @@ export function Navbar() {
 
       <div className={cn(
         "md:hidden absolute top-full left-0 w-full bg-background border-b shadow-xl transition-all duration-300 ease-in-out overflow-hidden",
-        isMenuOpen ? "max-h-[300px] opacity-100" : "max-h-0 opacity-0 pointer-events-none"
+        isMenuOpen ? "max-h-[500px] opacity-100" : "max-h-0 opacity-0 pointer-events-none"
       )}>
         <div className="flex flex-col bg-background">
           <MobileNavLink href="/how-it-works" icon={CircleHelp}>How it Works</MobileNavLink>
+          <MobileNavLink href="/about" icon={Info}>About</MobileNavLink>
+          <MobileNavLink href="/faqs" icon={HelpCircle}>FAQs</MobileNavLink>
         </div>
       </div>
     </nav>

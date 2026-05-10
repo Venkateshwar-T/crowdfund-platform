@@ -74,16 +74,16 @@ export default function HowItWorksPage() {
   return (
     <div className="flex flex-col min-h-screen">
       {/* Hero Header */}
-      <section className="w-full bg-primary/5 py-16 md:py-24 px-6 md:px-4 overflow-hidden relative">
-        <div className="max-w-4xl mx-auto text-center relative z-10 flex flex-col gap-6">
-          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-primary/10 border border-primary/20 text-primary text-xs md:text-sm font-black uppercase tracking-widest mx-auto animate-in fade-in slide-in-from-top-4 duration-1000">
-            <Lock className="h-3.5 w-3.5" />
+      <section className="w-full bg-primary/5 py-8 md:py-16 px-6 md:px-4 overflow-hidden relative">
+        <div className="max-w-4xl mx-auto text-center relative z-10 flex flex-col gap-3 md:gap-4">
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 border border-primary/20 text-primary text-[10px] md:text-xs font-black uppercase tracking-widest mx-auto animate-in fade-in slide-in-from-top-4 duration-1000">
+            <Lock className="h-3 w-3 md:h-3.5 md:w-3.5" />
             Blockchain Infrastructure
           </div>
-          <h1 className="text-4xl md:text-7xl font-black tracking-tight leading-[0.9] text-foreground animate-in fade-in slide-in-from-bottom-4 duration-1000">
+          <h1 className="text-3xl md:text-7xl font-black tracking-tight leading-[0.9] text-foreground animate-in fade-in slide-in-from-bottom-4 duration-1000">
             How it <span className="text-primary italic">Actually</span> Works.
           </h1>
-          <p className="text-lg md:text-2xl text-muted-foreground font-medium max-w-2xl mx-auto leading-relaxed animate-in fade-in duration-1000 delay-300">
+          <p className="text-sm md:text-2xl text-muted-foreground font-medium max-w-2xl mx-auto leading-relaxed animate-in fade-in duration-1000 delay-300">
             Transparent. Decentalized. Brutally honest. We don't hold your money—the smart contract does.
           </p>
         </div>
@@ -94,28 +94,28 @@ export default function HowItWorksPage() {
       </section>
 
       {/* Technical Highlights */}
-      <section className="w-full py-12 md:py-20 px-6 md:px-4 border-b">
-        <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-12">
-          <div className="p-8 md:p-12 rounded-[2.5rem] bg-foreground text-white flex flex-col gap-6 relative overflow-hidden group">
+      <section className="w-full py-6 md:py-12 px-6 md:px-4 border-b">
+        <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-8">
+          <div className="p-6 md:p-10 rounded-2xl md:rounded-[2.5rem] bg-foreground text-white flex flex-col gap-4 relative overflow-hidden group">
             <Server className="h-12 w-12 text-primary opacity-50 absolute -right-4 -top-4 scale-150 group-hover:scale-[2] transition-transform duration-700" />
-            <div className="h-14 w-14 rounded-2xl bg-primary/20 flex items-center justify-center text-primary">
-              <Globe className="h-8 w-8" />
+            <div className="h-10 w-10 md:h-14 md:w-14 rounded-xl md:rounded-2xl bg-primary/20 flex items-center justify-center text-primary">
+              <Globe className="h-6 w-6 md:h-8 md:w-8" />
             </div>
-            <div className="space-y-4">
-              <h2 className="text-2xl md:text-3xl font-black">IPFS Storage Layer</h2>
-              <p className="text-white/60 leading-relaxed text-sm md:text-base">
+            <div className="space-y-2 md:space-y-4">
+              <h2 className="text-xl md:text-3xl font-black">IPFS Storage Layer</h2>
+              <p className="text-white/60 leading-relaxed text-[11px] md:text-base">
                 Your media is decentralized and permanent. Not stored on our servers, but on the planet's hard drive. IPFS (InterPlanetary File System) ensures that even if our website goes down, your data remains accessible globally via its unique content hash.
               </p>
             </div>
           </div>
 
-          <div className="p-8 md:p-12 rounded-[2.5rem] bg-white border border-border shadow-xl flex flex-col gap-6 relative overflow-hidden group">
-            <div className="h-14 w-14 rounded-2xl bg-primary/10 flex items-center justify-center text-primary">
-              <Zap className="h-8 w-8" />
+          <div className="p-6 md:p-10 rounded-2xl md:rounded-[2.5rem] bg-white border border-border shadow-xl flex flex-col gap-4 relative overflow-hidden group">
+            <div className="h-10 w-10 md:h-14 md:w-14 rounded-xl md:rounded-2xl bg-primary/10 flex items-center justify-center text-primary">
+              <Zap className="h-6 w-6 md:h-8 md:w-8" />
             </div>
-            <div className="space-y-4">
-              <h2 className="text-2xl md:text-3xl font-black">Chainlink Oracles</h2>
-              <p className="text-muted-foreground leading-relaxed text-sm md:text-base">
+            <div className="space-y-2 md:space-y-4">
+              <h2 className="text-xl md:text-3xl font-black">Chainlink Oracles</h2>
+              <p className="text-muted-foreground leading-relaxed text-[11px] md:text-base">
                 Crypto is volatile; your goal shouldn't be. We use Chainlink price feeds to bridge the real-world USD value with ETH. This "USD Hub" ensures your $100 donation is recorded as $100 exactly at the moment of the transaction, protecting the project from market swings.
               </p>
             </div>
@@ -124,57 +124,57 @@ export default function HowItWorksPage() {
       </section>
 
       {/* Detailed Workflow */}
-      <section className="w-full py-16 md:py-32 px-6 md:px-4">
-        <div className="max-w-4xl mx-auto flex flex-col gap-12 md:gap-24">
+      <section className="w-full py-10 md:py-20 px-6 md:px-4">
+        <div className="max-w-4xl mx-auto flex flex-col gap-8 md:gap-16">
           <div className="text-center md:text-left">
-            <h2 className="text-3xl md:text-5xl font-black tracking-tight">The Blockchain Workflow</h2>
-            <p className="text-muted-foreground mt-4 text-base md:text-lg">Follow the journey from wallet connection to fund withdrawal.</p>
+            <h2 className="text-2xl md:text-5xl font-black tracking-tight">The Blockchain Workflow</h2>
+            <p className="text-muted-foreground mt-2 text-sm md:text-lg">Follow the journey from wallet connection to fund withdrawal.</p>
           </div>
 
-          <div className="flex flex-col gap-12 md:gap-32">
+          <div className="flex flex-col gap-10 md:gap-24">
             {STEPS.map((step, index) => (
               <div 
                 key={step.number} 
                 className={cn(
-                  "flex flex-col md:flex-row gap-8 md:gap-16 items-start group",
+                  "flex flex-col md:flex-row gap-6 md:gap-16 items-start group",
                   index % 2 !== 0 && "md:flex-row-reverse"
                 )}
               >
-                <div className="flex-1 space-y-6">
+                <div className="flex-1 space-y-4 md:space-y-6">
                   <div className="flex items-center gap-4">
-                    <span className="text-5xl md:text-7xl font-black text-primary/10 group-hover:text-primary/20 transition-colors">
+                    <span className="text-4xl md:text-7xl font-black text-primary/10 group-hover:text-primary/20 transition-colors">
                       {step.number}
                     </span>
-                    <div className={cn("p-4 rounded-2xl border flex items-center justify-center", step.color)}>
-                      <step.icon className="h-6 w-6 md:h-8 md:w-8" />
+                    <div className={cn("p-3 md:p-4 rounded-xl md:rounded-2xl border flex items-center justify-center", step.color)}>
+                      <step.icon className="h-5 w-5 md:h-8 md:w-8" />
                     </div>
                   </div>
                   
-                  <div className="space-y-4">
-                    <h3 className="text-2xl md:text-4xl font-black tracking-tight">{step.title}</h3>
+                  <div className="space-y-3 md:space-y-4">
+                    <h3 className="text-xl md:text-4xl font-black tracking-tight">{step.title}</h3>
                     <div className="prose prose-sm md:prose-base max-w-none text-muted-foreground leading-relaxed">
-                      <p>{step.description}</p>
+                      <p className="text-[11px] md:text-base">{step.description}</p>
                       
                       {step.list && (
-                        <div className="grid grid-cols-1 gap-3 mt-6">
+                        <div className="grid grid-cols-1 gap-2 mt-4">
                           {step.list.map((item, i) => (
-                            <div key={i} className="flex items-center gap-3 p-3 rounded-xl bg-primary/5 border border-primary/10">
+                            <div key={i} className="flex items-center gap-2 p-2 rounded-lg bg-primary/5 border border-primary/10">
                               <span className={cn(
-                                "px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider backdrop-blur-md border border-white/20 shadow-sm",
+                                "px-1.5 py-0.5 rounded-full text-[8px] md:text-[10px] font-bold uppercase tracking-wider backdrop-blur-md border border-white/20 shadow-sm",
                                 item.label === "NEW" && "bg-blue-500/80 text-white",
                                 item.label === "ACTIVE" && "bg-white/80 text-primary border-primary/20",
                                 item.label === "COMPLETED" && "bg-green-500/80 text-white"
                               )}>
                                 {item.label}
                               </span>
-                              <span className="text-xs md:text-sm font-medium text-foreground">{item.desc}</span>
+                              <span className="text-[10px] md:text-sm font-medium text-foreground">{item.desc}</span>
                             </div>
                           ))}
                         </div>
                       )}
 
                       {(step.security || step.tech) && (
-                        <div className="mt-6 p-4 md:p-6 bg-muted/50 rounded-2xl border-l-4 border-primary italic text-xs md:text-sm">
+                        <div className="mt-4 p-3 md:p-6 bg-muted/50 rounded-xl md:rounded-2xl border-l-4 border-primary italic text-[10px] md:text-sm">
                           {step.security || step.tech}
                         </div>
                       )}
@@ -195,19 +195,19 @@ export default function HowItWorksPage() {
       </section>
 
       {/* CTA Section */}
-      <section className="w-full py-20 md:py-32 px-6 md:px-4 bg-foreground text-white">
-        <div className="max-w-4xl mx-auto text-center flex flex-col gap-8 md:gap-10">
-          <h2 className="text-4xl md:text-6xl font-black tracking-tighter">Ready to interact with the ledger?</h2>
-          <p className="text-lg md:text-xl text-white/60 max-w-2xl mx-auto">
+      <section className="w-full py-12 md:py-24 px-6 md:px-4 bg-foreground text-white">
+        <div className="max-w-4xl mx-auto text-center flex flex-col gap-6 md:gap-10">
+          <h2 className="text-3xl md:text-6xl font-black tracking-tighter">Ready to interact with the ledger?</h2>
+          <p className="text-sm md:text-xl text-white/60 max-w-2xl mx-auto">
             Your journey is protected by code. Launch your first campaign or support a cause you believe in.
           </p>
-          <div className="flex flex-wrap gap-4 justify-center">
-            <CustomButton asChild className="rounded-full px-8 md:px-10 h-11 md:h-12 text-sm md:text-lg font-black bg-primary hover:bg-primary/90">
+          <div className="flex flex-wrap gap-3 justify-center">
+            <CustomButton asChild className="rounded-full px-6 md:px-10 h-10 md:h-12 text-xs md:text-lg font-black bg-primary hover:bg-primary/90">
               <Link href="/fundraisers/new" className="flex items-center gap-2">
-                Launch Campaign <ArrowRight className="h-5 w-5" />
+                Launch Campaign <ArrowRight className="h-4 w-4 md:h-5 md:w-5" />
               </Link>
             </CustomButton>
-            <CustomButton asChild className="rounded-full px-8 md:px-10 h-11 md:h-12 text-sm md:text-lg font-black bg-white text-black hover:bg-white/90">
+            <CustomButton asChild className="rounded-full px-6 md:px-10 h-10 md:h-12 text-xs md:text-lg font-black bg-white text-black hover:bg-white/90">
               <Link href="/browse">Browse Campaigns</Link>
             </CustomButton>
           </div>
