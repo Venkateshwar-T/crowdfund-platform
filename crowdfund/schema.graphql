@@ -1,4 +1,3 @@
-
 enum CampaignStatus {
   Active
   Successful
@@ -17,8 +16,8 @@ type Campaign @entity {
   ethRaised: BigInt!
   withdrawn: Boolean!
   status: CampaignStatus!
+  mediaUrls: [String!]!
   donations: [Donation!]! @derivedFrom(field: "campaign")
-  mediaUrls: [String!]
 }
 
 type Donation @entity {

@@ -1,5 +1,5 @@
 
-import { BigInt, crypto, Bytes } from "@graphprotocol/graph-ts"
+import { BigInt, Address } from "@graphprotocol/graph-ts"
 import {
   Crowdfunding,
   CampaignCreated as CampaignCreatedEvent,
@@ -26,10 +26,10 @@ export function handleCampaignCreated(event: CampaignCreatedEvent): void {
   campaign.withdrawn = false
   campaign.status = "Active"
   
-  // Note: mediaUrls can be fetched via contract call if needed, 
-  // but better to have it in the event for production. 
-  // For this Subgraph we'll try to fetch it from the struct if the ABI supports it.
-  // In the provided ABI, it is part of getCampaigns return, but not the campaigns(id) mapping return.
+  // In this contract version, mediaUrls is not in the mapping but 
+  // let's initialize it as an empty array to prevent query failures.
+  // In a production environment, you'd emit these in the event.
+  campaign.mediaUrls = []
   
   campaign.save()
 }
@@ -40,15 +40,13 @@ export function handleDonated(event: DonatedEvent): void {
     campaign.amountCollectedUsd = campaign.amountCollectedUsd.plus(event.params.amountUsd)
     campaign.ethRaised = campaign.ethRaised.plus(event.params.amountEth)
     
-    // Check if target reached
     if (campaign.amountCollectedUsd.ge(campaign.target)) {
         campaign.status = "Successful"
     }
     
     campaign.save()
 
-    // Record individual donation
-    let donationId = event.transaction.hash.concatI32(event.logIndex.toI32()).toHexString()
+    let donationId = event.transaction.hash.toHexString() + "-" + event.logIndex.toString()
     let donation = new Donation(donationId)
     donation.campaign = campaign.id
     donation.donator = event.params.donator

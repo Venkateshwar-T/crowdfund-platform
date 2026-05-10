@@ -1,10 +1,26 @@
 
-import { ApolloClient, InMemoryCache } from '@apollo/client';
+import { ApolloClient, InMemoryCache, HttpLink } from '@apollo/client';
 
-// Note: Replace this with your actual Subgraph query URL
-const SUBGRAPH_URL = process.env.NEXT_PUBLIC_SUBGRAPH_URL || 'https://api.studio.thegraph.com/query/YOUR_SUBGRAPH_ID/crowdfund/v0.0.1';
+// Ensure the URL is valid. For local development, check your graph-node status.
+const SUBGRAPH_URL = process.env.NEXT_PUBLIC_SUBGRAPH_URL || 'http://localhost:8000/subgraphs/name/crowdfund';
 
 export const apolloClient = new ApolloClient({
-  uri: SUBGRAPH_URL,
+  link: new HttpLink({
+    uri: SUBGRAPH_URL,
+    // Add simple error handling for missing responses
+    fetchOptions: {
+      mode: 'no-cors',
+    },
+  }),
   cache: new InMemoryCache(),
+  defaultOptions: {
+    watchQuery: {
+      fetchPolicy: 'no-cache',
+      errorPolicy: 'all',
+    },
+    query: {
+      fetchPolicy: 'no-cache',
+      errorPolicy: 'all',
+    },
+  },
 });
