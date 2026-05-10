@@ -299,6 +299,35 @@ function FloatingCTA({ onContribute, visible }: { onContribute: () => void, visi
   );
 }
 
+function SupporterRow({ address, amountUSD }: { address: string, amountUSD: number }) {
+  const { displayName, loading } = useUserName(address);
+  
+  return (
+    <div className="flex items-center justify-between pb-4 border-b border-border/50 last:border-0 last:pb-0">
+      <div className="flex items-center gap-3">
+        <Avatar className="h-8 w-8 md:h-10 md:w-10 border border-background ring-1 ring-border/10">
+          <AvatarFallback className="bg-muted text-muted-foreground">
+            <User size={16} className="md:w-5 md:h-5" />
+          </AvatarFallback>
+        </Avatar>
+        <div className="flex flex-col min-w-0">
+          <span className="text-xs md:text-sm font-bold text-foreground truncate">
+            {loading ? "..." : displayName}
+          </span>
+          <span className="text-[10px] text-muted-foreground font-mono truncate">
+            {address}
+          </span>
+        </div>
+      </div>
+      <div className="text-right shrink-0">
+        <span className="text-xs md:text-base font-black text-primary">
+          ${amountUSD.toLocaleString(undefined, { maximumFractionDigits: 2 })}
+        </span>
+      </div>
+    </div>
+  );
+}
+
 export default function CampaignDetailsPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params);
   const fundRef = useRef<HTMLDivElement>(null);
@@ -501,14 +530,16 @@ export default function CampaignDetailsPage({ params }: { params: Promise<{ id: 
                 <User size={24} className="md:w-8 md:h-8" />
               </AvatarFallback>
             </Avatar>
-            <div className="flex flex-col">
+            <div className="flex flex-col min-w-0">
               <div className="flex items-center gap-1">
-                <span className="text-xs md:text-base font-bold text-foreground">
+                <span className="text-xs md:text-base font-bold text-foreground truncate">
                   {ownerLoading ? "..." : ownerName}
                 </span>
-                <MdVerifiedUser color='#1C9A9C' className="h-3 w-3 md:h-4 md:w-4" />
+                <MdVerifiedUser color='#1C9A9C' className="h-3 w-3 md:h-4 md:w-4 flex-shrink-0" />
               </div>
-              <span className="text-[10px] md:text-xs text-muted-foreground uppercase tracking-wider font-semibold">Campaign Organizer</span>
+              <span className="text-[10px] md:text-xs text-muted-foreground font-mono truncate max-w-[200px] md:max-w-sm">
+                {campaign.ownerAddress}
+              </span>
             </div>
           </div>
 
@@ -572,24 +603,7 @@ export default function CampaignDetailsPage({ params }: { params: Promise<{ id: 
             </div>
             <CollapsibleContent className="mt-6 space-y-4">
               {processedDonors.length > 0 ? processedDonors.map((donor, index) => (
-                <div key={index} className="flex items-center justify-between pb-4 border-b border-border/50 last:border-0 last:pb-0">
-                  <div className="flex items-center gap-3">
-                    <Avatar className="h-8 w-8 md:h-10 md:w-10 border border-background ring-1 ring-border/10">
-                      <AvatarFallback className="bg-muted text-muted-foreground">
-                        <User size={16} className="md:w-5 md:h-5" />
-                      </AvatarFallback>
-                    </Avatar>
-                    <div className="flex flex-col">
-                      <span className="text-xs md:text-sm font-bold text-foreground">{donor.address.slice(0, 6)}...{donor.address.slice(-4)}</span>
-                      <span className="text-[10px] text-muted-foreground">On-chain donation</span>
-                    </div>
-                  </div>
-                  <div className="text-right">
-                    <span className="text-xs md:text-base font-black text-primary">
-                      ${donor.totalUSD.toLocaleString(undefined, { maximumFractionDigits: 2 })}
-                    </span>
-                  </div>
-                </div>
+                <SupporterRow key={index} address={donor.address} amountUSD={donor.totalUSD} />
               )) : <div className="py-8 text-center text-muted-foreground">No supporters yet. Be the first!</div>}
             </CollapsibleContent>
           </Collapsible>
