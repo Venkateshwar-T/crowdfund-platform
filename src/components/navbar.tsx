@@ -269,8 +269,8 @@ export function Navbar() {
         isMenuOpen ? "max-h-[500px] opacity-100" : "max-h-0 opacity-0 pointer-events-none"
       )}>
         <div className="flex flex-col bg-background">
-          <MobileNavLink href="/how-it-works" icon={CircleHelp}>How it Works</MobileNavLink>
           <MobileNavLink href="/about" icon={Info}>About</MobileNavLink>
+          <MobileNavLink href="/how-it-works" icon={CircleHelp}>How it Works</MobileNavLink>
           <MobileNavLink href="/faqs" icon={HelpCircle}>FAQs</MobileNavLink>
         </div>
       </div>
