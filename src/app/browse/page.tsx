@@ -1,22 +1,22 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useQuery, gql } from '@apollo/client';
 import { useSearchParams } from 'next/navigation';
 import { formatUnits } from 'viem';
-import { BrowseFilterBar } from '@/components/browse-filter-bar';
+import { BrowseFilterBar, type FilterState } from '@/components/browse-filter-bar';
 import { CampaignCard } from '@/components/campaign-card';
 import { Loader2 } from 'lucide-react';
 import { CustomButton } from '@/components/custom-button';
 
 const GET_CAMPAIGNS = gql`
-  query GetCampaigns($first: Int!, $skip: Int!, $where: Campaign_filter) {
+  query GetCampaigns($first: Int!, $skip: Int!, $where: Campaign_filter, $orderBy: Campaign_orderBy, $orderDirection: OrderDirection) {
     campaigns(
       first: $first, 
       skip: $skip, 
       where: $where,
-      orderBy: deadline,
-      orderDirection: desc
+      orderBy: $orderBy,
+      orderDirection: $orderDirection
     ) {
       id
       title
@@ -38,19 +38,53 @@ export default function BrowsePage() {
   
   const [skip, setSkip] = useState(0);
   const [allCampaigns, setAllCampaigns] = useState<any[]>([]);
+  const [filters, setFilters] = useState<FilterState>({
+    time: 'any',
+    status: 'all',
+    categories: [],
+  });
 
-  const filter = q ? {
-    or: [
-      { title_contains_nocase: q },
-      { category_contains_nocase: q }
-    ]
-  } : {};
+  // Construct the "where" clause for Subgraph
+  const filterVariables = useMemo(() => {
+    const where: any = {};
+
+    // 1. Search Query
+    if (q) {
+      where.or = [
+        { title_contains_nocase: q },
+        { category_contains_nocase: q }
+      ];
+    }
+
+    // 2. Status Filter
+    if (filters.status !== 'all') {
+      where.status = filters.status;
+    }
+
+    // 3. Category Filter
+    if (filters.categories.length > 0) {
+      // Use category_in for multiple selection
+      where.category_in = filters.categories.map(c => c.toLowerCase());
+    }
+
+    // 4. Order By logic
+    let orderBy = 'deadline';
+    let orderDirection = 'desc';
+
+    if (filters.time === 'oldest') {
+      orderDirection = 'asc';
+    }
+
+    return { where, orderBy, orderDirection };
+  }, [q, filters]);
 
   const { data, loading, error, fetchMore } = useQuery(GET_CAMPAIGNS, {
     variables: { 
       first: PAGE_SIZE, 
       skip: 0, 
-      where: filter 
+      where: filterVariables.where,
+      orderBy: filterVariables.orderBy,
+      orderDirection: filterVariables.orderDirection
     },
     notifyOnNetworkStatusChange: true,
     onCompleted: (newData) => {
@@ -60,10 +94,11 @@ export default function BrowsePage() {
     }
   });
 
-  // Re-fetch/reset when query param changes
+  // Reset pagination when query or filters change
   useEffect(() => {
     setSkip(0);
-  }, [q]);
+    setAllCampaigns([]); // Clear current list to force a fresh fetch
+  }, [q, filters]);
 
   const handleLoadMore = async () => {
     const nextSkip = allCampaigns.length;
@@ -99,23 +134,23 @@ export default function BrowsePage() {
 
   return (
     <div className="flex flex-col min-h-screen">
-      <BrowseFilterBar />
+      <BrowseFilterBar onFilterChange={setFilters} />
       <main className="flex-grow p-4 md:p-8">
         <div className="max-w-7xl mx-auto">
           {loading && allCampaigns.length === 0 ? (
             <div className="flex flex-col items-center justify-center min-h-[40vh] gap-4">
-              <Loader2 className="h-8 w-8 animate-spin text-primary" />
-              <p className="text-muted-foreground font-medium">Querying the decentralized graph...</p>
+              <Loader2 className="h-10 w-10 animate-spin text-primary" />
+              <p className="text-muted-foreground font-black uppercase tracking-widest text-[10px]">Querying the decentralized graph...</p>
             </div>
           ) : error ? (
             <div className="flex flex-col items-center justify-center min-h-[40vh] text-center gap-4">
-              <p className="text-destructive font-bold">Failed to sync with Subgraph.</p>
-              <p className="text-sm text-muted-foreground">{error.message}</p>
+              <p className="text-destructive font-black uppercase tracking-tighter">Failed to sync with Subgraph.</p>
+              <p className="text-xs text-muted-foreground max-w-md">{error.message}</p>
             </div>
           ) : campaigns.length === 0 ? (
             <div className="flex flex-col items-center justify-center min-h-[40vh] text-center gap-4">
-              <p className="text-muted-foreground font-medium">
-                {q ? `No results for "${q}"` : "No campaigns found."}
+              <p className="text-muted-foreground font-black uppercase tracking-widest text-xs">
+                {q ? `No results for "${q}"` : "No campaigns match your filters."}
               </p>
             </div>
           ) : (
@@ -131,7 +166,7 @@ export default function BrowsePage() {
                   <CustomButton 
                     onClick={handleLoadMore} 
                     variant="outline" 
-                    className="rounded-full px-8 gap-2"
+                    className="rounded-full px-8 gap-2 border-primary/20 text-primary font-black uppercase tracking-widest text-xs"
                     isLoading={loading}
                   >
                     Load More Campaigns
