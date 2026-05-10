@@ -9,6 +9,7 @@ import { MdVerifiedUser  } from "react-icons/md";
 import { useUserName } from '@/hooks/use-user-name';
 import { cn, formatCurrency } from '@/lib/utils';
 import { STATUS_CONFIG, FALLBACK_IMAGE, type CampaignStatus } from '@/lib/constants';
+import { Skeleton } from '@/components/ui/skeleton';
 
 export interface CampaignCardProps {
   id: string;
@@ -36,6 +37,7 @@ export function CampaignCard({
   className
 }: CampaignCardProps) {
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
+  const [isImageLoading, setIsImageLoading] = useState(true);
   const progress = Math.min((contributedAmount / targetAmount) * 100, 100);
   const { displayName, loading: nameLoading } = useUserName(ownerAddress);
 
@@ -53,13 +55,20 @@ export function CampaignCard({
         "group bg-white rounded-xl border border-border/50 shadow-sm hover:shadow-lg transition-all duration-500 overflow-hidden flex flex-col h-full",
         className
       )}>
-        <div className="relative aspect-[16/10] m-2 md:m-3 rounded-xl overflow-hidden">
+        <div className="relative aspect-[16/10] m-2 md:m-3 rounded-xl overflow-hidden bg-muted">
+          {isImageLoading && (
+            <Skeleton className="absolute inset-0 z-10 w-full h-full" />
+          )}
+          
           {images.length > 0 ? images.map((img, idx) => (
             <Image
               key={idx}
               src={img}
               alt={`${title} image ${idx}`}
               fill
+              onLoad={() => {
+                if (idx === currentImageIndex) setIsImageLoading(false);
+              }}
               className={cn(
                 "object-cover transition-opacity duration-1000",
                 idx === currentImageIndex ? "opacity-100" : "opacity-0"
@@ -71,12 +80,13 @@ export function CampaignCard({
               src={FALLBACK_IMAGE}
               alt="No image available"
               fill
+              onLoad={() => setIsImageLoading(false)}
               className="object-cover opacity-50"
               data-ai-hint="fallback network error"
             />
           )}
           
-          <div className="absolute inset-0 p-1.5 md:p-2 flex flex-col justify-between">
+          <div className="absolute inset-0 p-1.5 md:p-2 flex flex-col justify-between z-20">
             <div className="flex justify-between items-start">
               <span className={cn(
                 "px-1.5 py-0.5 rounded-sm text-[8px] md:text-[10px] font-bold uppercase tracking-wider backdrop-blur-md border border-white/20",
