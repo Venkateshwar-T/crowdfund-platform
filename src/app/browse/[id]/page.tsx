@@ -282,8 +282,8 @@ function FloatingCTA({ onContribute, visible }: { onContribute: () => void, visi
   return (
     <div 
       className={cn(
-        "fixed left-0 right-0 z-40 px-4 md:left-1/2 md:-translate-x-1/2 md:max-w-4xl md:px-0",
-        visible ? "opacity-100" : "opacity-0 pointer-events-none",
+        "fixed left-0 right-0 z-40 px-4 transition-all duration-500 ease-in-out md:left-1/2 md:-translate-x-1/2 md:max-w-4xl md:px-0",
+        visible ? "translate-y-0 opacity-100" : "translate-y-10 opacity-0 pointer-events-none",
         "md:bottom-8",
         isNavVisible ? "bottom-[calc(4rem+1rem)]" : "bottom-4"
       )}
