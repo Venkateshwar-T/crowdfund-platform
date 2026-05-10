@@ -4,7 +4,7 @@ enum CampaignStatus {
   Failed
 }
 
-type Campaign @entity {
+type Campaign @entity(immutable: false) {
   id: ID!
   owner: Bytes!
   title: String!
@@ -20,7 +20,7 @@ type Campaign @entity {
   donations: [Donation!]! @derivedFrom(field: "campaign")
 }
 
-type Donation @entity {
+type Donation @entity(immutable: false) {
   id: ID!
   campaign: Campaign!
   donator: Bytes!
