@@ -9,7 +9,9 @@ import {
   Info,
   Mail,
   ExternalLink,
-  Coins
+  Coins,
+  User,
+  ChevronDown
 } from 'lucide-react';
 import { MdVerifiedUser, MdOutlineReportProblem as ReportIcon } from 'react-icons/md';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
