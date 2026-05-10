@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, Suspense } from 'react';
 import { useQuery, gql } from '@apollo/client';
 import { useSearchParams } from 'next/navigation';
 import { formatUnits } from 'viem';
@@ -33,7 +33,7 @@ const GET_CAMPAIGNS = gql`
 
 const PAGE_SIZE = 6;
 
-export default function BrowsePage() {
+function BrowseCampaigns() {
   const searchParams = useSearchParams();
   const q = searchParams.get('q') || '';
   
@@ -165,5 +165,18 @@ export default function BrowsePage() {
         </div>
       </main>
     </div>
+  );
+}
+
+export default function BrowsePage() {
+  return (
+    <Suspense fallback={
+      <div className="flex flex-col items-center justify-center min-h-screen gap-4">
+        <Loader2 className="h-10 w-10 animate-spin text-primary" />
+        <p className="text-muted-foreground font-black uppercase tracking-widest text-[10px]">Loading discovery interface...</p>
+      </div>
+    }>
+      <BrowseCampaigns />
+    </Suspense>
   );
 }
