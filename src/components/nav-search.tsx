@@ -31,9 +31,10 @@ interface NavSearchProps {
   isSearching: boolean;
   setIsSearching: (val: boolean) => void;
   placeholder?: string;
+  mode?: 'trigger' | 'overlay';
 }
 
-export function NavSearch({ isSearching, setIsSearching, placeholder }: NavSearchProps) {
+export function NavSearch({ isSearching, setIsSearching, placeholder, mode = 'overlay' }: NavSearchProps) {
   const router = useRouter();
   const [searchQuery, setSearchQuery] = useState('');
   const searchInputRef = useRef<HTMLInputElement>(null);
@@ -49,23 +50,13 @@ export function NavSearch({ isSearching, setIsSearching, placeholder }: NavSearc
 
   useEffect(() => {
     const delayDebounceFn = setTimeout(() => {
-      if (searchQuery.length >= 2) {
+      if (isSearching && searchQuery.length >= 2) {
         fetchSuggestions({ variables: { q: searchQuery } });
       }
     }, 300);
 
     return () => clearTimeout(delayDebounceFn);
-  }, [searchQuery, fetchSuggestions]);
-
-  useEffect(() => {
-    const handleClickOutside = (e: MouseEvent) => {
-      if (suggestionsRef.current && !suggestionsRef.current.contains(e.target as Node)) {
-        // Suggestions remain open while search is active, or close on blur
-      }
-    };
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
-  }, []);
+  }, [searchQuery, fetchSuggestions, isSearching]);
 
   const handleSearchSubmit = (e: React.FormEvent | React.KeyboardEvent) => {
     if ('key' in e && e.key !== 'Enter') return;
@@ -77,7 +68,8 @@ export function NavSearch({ isSearching, setIsSearching, placeholder }: NavSearc
     }
   };
 
-  if (!isSearching) {
+  // Trigger Mode: Just the visual bar that opens the search
+  if (mode === 'trigger') {
     return (
       <CustomSearchBar 
         placeholder={placeholder || "Search fundraisers"} 
@@ -86,9 +78,12 @@ export function NavSearch({ isSearching, setIsSearching, placeholder }: NavSearc
     );
   }
 
+  // Overlay Mode: The actual absolute search interface with logic
+  if (!isSearching) return null;
+
   return (
     <div className={cn(
-      "absolute inset-0 flex items-center px-4 md:px-6 transition-all duration-500 ease-in-out bg-background z-[60]",
+      "absolute inset-0 flex items-center px-4 md:px-6 transition-all duration-300 ease-in-out bg-background z-[60]",
       isSearching ? "opacity-100 translate-y-0" : "opacity-0 pointer-events-none translate-y-2"
     )}>
       <button 
@@ -139,7 +134,10 @@ export function NavSearch({ isSearching, setIsSearching, placeholder }: NavSearc
                     <Link
                       key={c.id}
                       href={`/browse/${c.id}`}
-                      onClick={() => setIsSearching(false)}
+                      onClick={() => {
+                        setIsSearching(false);
+                        setSearchQuery('');
+                      }}
                       className="flex flex-col px-4 py-2.5 rounded-xl hover:bg-primary/5 transition-colors group"
                     >
                       <span className="text-sm font-bold text-foreground group-hover:text-primary transition-colors line-clamp-1">{c.title}</span>
@@ -148,7 +146,10 @@ export function NavSearch({ isSearching, setIsSearching, placeholder }: NavSearc
                   ))}
                   <Link 
                     href={`/browse?q=${searchQuery}`}
-                    onClick={() => setIsSearching(false)}
+                    onClick={() => {
+                      setIsSearching(false);
+                      setSearchQuery('');
+                    }}
                     className="mt-1 flex items-center justify-center gap-2 py-2 text-xs font-bold text-primary bg-primary/5 hover:bg-primary/10 rounded-xl transition-all"
                   >
                     See all results for "{searchQuery}"

@@ -3,8 +3,10 @@
 import Link from 'next/link';
 import { useState } from 'react';
 import { usePathname } from 'next/navigation';
-import { User, Info, HelpCircle } from 'lucide-react';
 import { 
+  User, 
+  Info, 
+  HelpCircle,
   CircleHelp, 
   Menu, 
   X, 
@@ -101,7 +103,7 @@ export function Navbar() {
       <div className="relative flex h-16 items-center px-4 md:px-6">
         
         <div className={cn(
-          "flex items-center justify-between w-full transition-all duration-500 ease-in-out",
+          "flex items-center justify-between w-full transition-all duration-300 ease-in-out",
           isSearching ? "opacity-0 pointer-events-none scale-95" : "opacity-100 scale-100"
         )}>
           <div className="flex items-center gap-4 md:gap-6 flex-1 min-w-0">
@@ -157,12 +159,22 @@ export function Navbar() {
               </div>
             </div>
 
+            {/* Desktop Search Triggers (Visual only) */}
             <div className="hidden md:block lg:hidden w-full max-w-[120px] ml-4">
-              <NavSearch isSearching={isSearching} setIsSearching={setIsSearching} placeholder="Search" />
+              <NavSearch 
+                isSearching={isSearching} 
+                setIsSearching={setIsSearching} 
+                placeholder="Search" 
+                mode="trigger" 
+              />
             </div>
 
             <div className="hidden lg:block w-full max-w-[240px] ml-4">
-              <NavSearch isSearching={isSearching} setIsSearching={setIsSearching} />
+              <NavSearch 
+                isSearching={isSearching} 
+                setIsSearching={setIsSearching} 
+                mode="trigger" 
+              />
             </div>
           </div>
 
@@ -223,8 +235,8 @@ export function Navbar() {
           </div>
         </div>
 
-        {/* Global Search Interface Container */}
-        <NavSearch isSearching={isSearching} setIsSearching={setIsSearching} />
+        {/* Global Search Overlay (Logic only) */}
+        <NavSearch isSearching={isSearching} setIsSearching={setIsSearching} mode="overlay" />
       </div>
 
       <div className={cn(
