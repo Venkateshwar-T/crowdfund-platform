@@ -8,20 +8,22 @@ dataSources:
     name: Crowdfunding
     network: sepolia
     source:
-      address: "0x0B9daB30727503Af275abA2BB05bDA8DC5dDE302"
+      address: "0x25970Fdf1132071C5a878972357B9F371B2d2679"
       abi: Crowdfunding
-      startBlock: 10825971
+      startBlock: 10825971 # Optional: Update this to the block your new contract was deployed in
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.9
       language: wasm/assemblyscript
       entities:
         - Campaign
+        - Donation
       abis:
         - name: Crowdfunding
           file: ./abis/Crowdfunding.json
       eventHandlers:
-        - event: CampaignCreated(indexed uint256,address,string,uint256)
+        # Updated signature to match the new contract's expanded event
+        - event: CampaignCreated(indexed uint256,address,string,string,string,string[],uint256,uint256)
           handler: handleCampaignCreated
         - event: Donated(indexed uint256,indexed address,uint256,uint256)
           handler: handleDonated

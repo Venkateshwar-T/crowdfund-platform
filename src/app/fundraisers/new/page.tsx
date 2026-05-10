@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState, useEffect } from 'react';
@@ -30,6 +31,7 @@ import {
 import { Card } from '@/components/ui/card';
 import { CustomDatePicker } from '@/components/custom-date-picker';
 import { useWriteContract, useAccount, useWaitForTransactionReceipt } from 'wagmi';
+import { useConnectModal } from '@rainbow-me/rainbowkit';
 import { parseUnits } from 'viem';
 import { CONTRACT_ADDRESS, CONTRACT_ABI } from '@/lib/contract';
 import { useToast } from '@/hooks/use-toast';
@@ -149,6 +151,7 @@ const TiptapEditor = ({ value, onChange, placeholder }: { value: string, onChang
 
 export default function NewFundraiserPage() {
   const { isConnected } = useAccount();
+  const { openConnectModal } = useConnectModal();
   const { data: hash, writeContract, isPending: isWalletLoading } = useWriteContract();
   const { isLoading: isMining, isSuccess: isTransactionConfirmed } = useWaitForTransactionReceipt({ hash });
   const { prices } = useEthPrice();
@@ -292,10 +295,11 @@ export default function NewFundraiserPage() {
   async function onSubmit(values: FormValues) {
     if (!isConnected) {
       toast({
-        title: "Wallet not connected",
-        description: "Please connect your wallet to create a campaign.",
+        title: "Connect Wallet",
+        description: "Please connect your wallet first to continue.",
         variant: "destructive"
       });
+      openConnectModal?.();
       return;
     }
 

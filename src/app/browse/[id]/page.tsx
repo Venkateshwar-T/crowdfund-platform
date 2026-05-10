@@ -27,6 +27,7 @@ import { ContributorBadge } from '@/components/contributor-badge';
 import { ShareButton } from '@/components/share-button';
 import { cn } from '@/lib/utils';
 import { useWriteContract, useAccount, useWaitForTransactionReceipt, useBalance } from 'wagmi';
+import { useConnectModal } from '@rainbow-me/rainbowkit';
 import { formatUnits, parseEther } from 'viem';
 import { CONTRACT_ADDRESS, CONTRACT_ABI } from '@/lib/contract';
 import { useToast } from '@/hooks/use-toast';
@@ -368,6 +369,7 @@ export default function CampaignDetailsPage({ params }: { params: Promise<{ id: 
   const [isSupportersOpen, setIsSupportersOpen] = useState(false);
   const [reportReason, setReportReason] = useState("");
   const { isConnected, address: userAddress } = useAccount();
+  const { openConnectModal } = useConnectModal();
   const { data: userBalance } = useBalance({ address: userAddress });
   const { toast } = useToast();
   const { prices: ethPrices } = useEthPrice();
@@ -401,7 +403,8 @@ export default function CampaignDetailsPage({ params }: { params: Promise<{ id: 
 
   const handleAction = (functionName: 'donateToCampaign' | 'withdraw' | 'claimRefund', amount?: string) => {
     if (!isConnected) {
-      toast({ title: "Connect Wallet", description: "Login required for this action.", variant: "destructive" });
+      toast({ title: "Connect Wallet", description: "Please connect your wallet first to continue.", variant: "destructive" });
+      openConnectModal?.();
       return;
     }
 
