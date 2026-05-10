@@ -49,7 +49,7 @@ export default function AboutPage() {
   return (
     <div className="flex flex-col min-h-screen bg-transparent text-foreground selection:bg-primary/30">
       {/* Hero Section */}
-      <section className="relative w-full pt-6 pb-6 md:pt-12 md:pb-10 px-6 overflow-hidden">
+      <section className="relative w-full pt-6 pb-6 md:pt-10 md:pb-8 px-6 overflow-hidden">
         <div className="max-w-6xl mx-auto relative z-10">
           <div className="inline-flex items-center gap-2 px-2.5 py-1 rounded-full bg-primary/10 border border-primary/20 text-primary text-[9px] md:text-[10px] font-black uppercase tracking-[0.2em] mb-4 animate-in fade-in slide-in-from-bottom-4 duration-700">
             <Circle className="h-2 w-2 fill-current" />
@@ -66,7 +66,6 @@ export default function AboutPage() {
           </p>
         </div>
         
-        {/* Abstract Background Blurs */}
         <div className="absolute top-0 right-0 -translate-y-1/2 translate-x-1/2 w-[300px] h-[300px] md:w-[600px] md:h-[600px] bg-primary/10 rounded-full blur-[80px] md:blur-[120px]" />
       </section>
 
@@ -185,27 +184,24 @@ export default function AboutPage() {
         </div>
       </section>
 
-      {/* CTA Section */}
-      <section className="w-full py-8 md:py-16 px-6 relative overflow-hidden">
-        <div className="max-w-4xl mx-auto text-center flex flex-col items-center gap-4 md:gap-8 relative z-10">
-          <h2 className="text-2xl md:text-6xl font-black tracking-tighter leading-none text-foreground">
+      {/* CTA Section - Matches FAQ style */}
+      <section className="w-full py-12 md:py-20 px-6 bg-foreground text-white">
+        <div className="max-w-4xl mx-auto text-center flex flex-col items-center gap-6 md:gap-10">
+          <h2 className="text-3xl md:text-6xl font-black tracking-tighter leading-none">
             Ready to build <br />
             <span className="text-primary italic">the future?</span>
           </h2>
           <div className="flex flex-wrap gap-3 justify-center">
-            <CustomButton asChild className="rounded-full px-6 md:px-10 h-10 md:h-14 text-xs md:text-base font-black bg-primary hover:bg-primary/90 text-white border-0 shadow-xl shadow-primary/20 transition-all hover:scale-105 active:scale-95">
+            <CustomButton asChild className="rounded-full px-6 md:px-10 h-11 md:h-14 text-xs md:text-base font-black bg-primary hover:bg-primary/90 text-white border-0 shadow-xl shadow-primary/20 transition-all hover:scale-105 active:scale-95">
               <Link href="/fundraisers/new" className="flex items-center gap-2">
                 Launch Campaign <ArrowRight className="h-4 w-4 md:h-5 md:w-5" />
               </Link>
             </CustomButton>
-            <CustomButton asChild variant="outline" className="rounded-full px-6 md:px-10 h-10 md:h-14 text-xs md:text-base font-black border-border bg-white/50 backdrop-blur-sm hover:bg-white text-foreground transition-all hover:scale-105 active:scale-95 shadow-sm">
+            <CustomButton asChild variant="outline" className="rounded-full px-6 md:px-10 h-11 md:h-14 text-xs md:text-base font-black border-white/20 bg-white/5 text-white hover:bg-white/10 transition-all hover:scale-105 active:scale-95">
               <Link href="/browse">Browse Campaigns</Link>
             </CustomButton>
           </div>
         </div>
-        
-        {/* Footer Glow */}
-        <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-full h-[150px] md:h-[300px] bg-primary/5 rounded-[100%] blur-[80px] md:blur-[120px] pointer-events-none" />
       </section>
     </div>
   );

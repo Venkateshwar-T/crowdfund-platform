@@ -88,7 +88,6 @@ export default function HowItWorksPage() {
           </p>
         </div>
         
-        {/* Background Elements */}
         <div className="absolute top-1/2 left-0 -translate-x-1/2 -translate-y-1/2 w-64 h-64 bg-primary/20 rounded-full blur-[120px]" />
       </section>
 
@@ -193,27 +192,24 @@ export default function HowItWorksPage() {
         </div>
       </section>
 
-      {/* CTA Section */}
-      <section className="w-full py-10 md:py-16 px-6 md:px-4 relative overflow-hidden">
-        <div className="max-w-4xl mx-auto text-center flex flex-col items-center gap-4 md:gap-8 relative z-10">
-          <h2 className="text-2xl md:text-6xl font-black tracking-tighter leading-none text-foreground">
+      {/* CTA Section - Matches FAQ style */}
+      <section className="w-full py-12 md:py-20 px-6 bg-foreground text-white">
+        <div className="max-w-4xl mx-auto text-center flex flex-col items-center gap-6 md:gap-10 relative z-10">
+          <h2 className="text-3xl md:text-6xl font-black tracking-tighter leading-none">
             Ready to interact <br />
             <span className="text-primary italic">with the ledger?</span>
           </h2>
           <div className="flex flex-wrap gap-3 justify-center">
-            <CustomButton asChild className="rounded-full px-6 md:px-10 h-10 md:h-14 text-xs md:text-base font-black bg-primary hover:bg-primary/90 text-white border-0 shadow-xl shadow-primary/20 transition-all hover:scale-105 active:scale-95">
+            <CustomButton asChild className="rounded-full px-6 md:px-10 h-11 md:h-14 text-xs md:text-base font-black bg-primary hover:bg-primary/90 text-white border-0 shadow-xl shadow-primary/20 transition-all hover:scale-105 active:scale-95">
               <Link href="/fundraisers/new" className="flex items-center gap-2">
                 Launch Campaign <ArrowRight className="h-4 w-4 md:h-5 md:w-5" />
               </Link>
             </CustomButton>
-            <CustomButton asChild variant="outline" className="rounded-full px-6 md:px-10 h-10 md:h-14 text-xs md:text-base font-black border-border bg-white/50 backdrop-blur-sm hover:bg-white text-foreground transition-all hover:scale-105 active:scale-95 shadow-sm">
+            <CustomButton asChild variant="outline" className="rounded-full px-6 md:px-10 h-11 md:h-14 text-xs md:text-base font-black border-white/20 bg-white/5 text-white hover:bg-white/10 transition-all hover:scale-105 active:scale-95">
               <Link href="/browse">Browse Campaigns</Link>
             </CustomButton>
           </div>
         </div>
-        
-        {/* Footer Glow */}
-        <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-full h-[150px] md:h-[300px] bg-primary/5 rounded-[100%] blur-[80px] md:blur-[120px] pointer-events-none" />
       </section>
     </div>
   );
