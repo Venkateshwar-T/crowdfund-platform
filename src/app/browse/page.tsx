@@ -1,20 +1,20 @@
-
 'use client';
 
 import { useState, useEffect } from 'react';
 import { useQuery, gql } from '@apollo/client';
+import { useSearchParams } from 'next/navigation';
 import { formatUnits } from 'viem';
 import { BrowseFilterBar } from '@/components/browse-filter-bar';
 import { CampaignCard } from '@/components/campaign-card';
-import { Loader2, PlusCircle } from 'lucide-react';
+import { Loader2 } from 'lucide-react';
 import { CustomButton } from '@/components/custom-button';
 
 const GET_CAMPAIGNS = gql`
-  query GetCampaigns($first: Int!, $skip: Int!, $title: String) {
+  query GetCampaigns($first: Int!, $skip: Int!, $where: Campaign_filter) {
     campaigns(
       first: $first, 
       skip: $skip, 
-      where: { title_contains_nocase: $title },
+      where: $where,
       orderBy: deadline,
       orderDirection: desc
     ) {
@@ -33,15 +33,24 @@ const GET_CAMPAIGNS = gql`
 const PAGE_SIZE = 6;
 
 export default function BrowsePage() {
-  const [searchTerm, setSearchTerm] = useState('');
+  const searchParams = useSearchParams();
+  const q = searchParams.get('q') || '';
+  
   const [skip, setSkip] = useState(0);
   const [allCampaigns, setAllCampaigns] = useState<any[]>([]);
+
+  const filter = q ? {
+    or: [
+      { title_contains_nocase: q },
+      { category_contains_nocase: q }
+    ]
+  } : {};
 
   const { data, loading, error, fetchMore } = useQuery(GET_CAMPAIGNS, {
     variables: { 
       first: PAGE_SIZE, 
       skip: 0, 
-      title: searchTerm 
+      where: filter 
     },
     notifyOnNetworkStatusChange: true,
     onCompleted: (newData) => {
@@ -50,6 +59,11 @@ export default function BrowsePage() {
         }
     }
   });
+
+  // Re-fetch/reset when query param changes
+  useEffect(() => {
+    setSkip(0);
+  }, [q]);
 
   const handleLoadMore = async () => {
     const nextSkip = allCampaigns.length;
@@ -60,11 +74,6 @@ export default function BrowsePage() {
       setAllCampaigns([...allCampaigns, ...moreData.campaigns]);
     }
   };
-
-  // Re-fetch when search term changes
-  useEffect(() => {
-    setSkip(0);
-  }, [searchTerm]);
 
   const campaigns = allCampaigns.map((c) => {
     const amountCollected = parseFloat(formatUnits(c.amountCollectedUsd, 18));
@@ -78,7 +87,7 @@ export default function BrowsePage() {
       ownerAddress: c.owner,
       contributedAmount: amountCollected,
       targetAmount: target,
-      contributors: 0, // In real app, we'd count unique donators in subgraph or query separately
+      contributors: 0, 
       deadline: new Date(deadlineMs).toLocaleDateString('en-GB', {
         day: '2-digit',
         month: 'short',
@@ -90,7 +99,7 @@ export default function BrowsePage() {
 
   return (
     <div className="flex flex-col min-h-screen">
-      <BrowseFilterBar onSearch={setSearchTerm} />
+      <BrowseFilterBar />
       <main className="flex-grow p-4 md:p-8">
         <div className="max-w-7xl mx-auto">
           {loading && allCampaigns.length === 0 ? (
@@ -105,7 +114,9 @@ export default function BrowsePage() {
             </div>
           ) : campaigns.length === 0 ? (
             <div className="flex flex-col items-center justify-center min-h-[40vh] text-center gap-4">
-              <p className="text-muted-foreground font-medium">No results match your search.</p>
+              <p className="text-muted-foreground font-medium">
+                {q ? `No results for "${q}"` : "No campaigns found."}
+              </p>
             </div>
           ) : (
             <>
