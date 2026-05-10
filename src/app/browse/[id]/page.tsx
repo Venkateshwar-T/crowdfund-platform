@@ -105,14 +105,23 @@ export default function CampaignDetailsPage({ params }: { params: Promise<{ id: 
     }
   }, [isTransactionConfirmed, refetch, toast]);
 
+  // Updated Observer logic: Added dependencies to ensure it attaches after loading
   useEffect(() => {
-    const observer = new IntersectionObserver(([entry]) => setIsFundInView(entry.isIntersecting), { 
-      threshold: 0,
-      rootMargin: '-100px 0px 0px 0px'
+    if (isInitialLoading || !campaignData) return;
+
+    const observer = new IntersectionObserver(([entry]) => {
+      setIsFundInView(entry.isIntersecting);
+    }, { 
+      threshold: 0.1, // Trigger when at least 10% of the box is visible
+      rootMargin: '0px'
     });
-    if (fundRef.current) observer.observe(fundRef.current);
+
+    if (fundRef.current) {
+      observer.observe(fundRef.current);
+    }
+
     return () => observer.disconnect();
-  }, []);
+  }, [isInitialLoading, campaignData]);
 
   const handleAction = (functionName: 'donateToCampaign' | 'withdraw' | 'claimRefund', amount?: string) => {
     if (!isConnected) {

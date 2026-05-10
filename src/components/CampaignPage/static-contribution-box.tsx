@@ -84,7 +84,7 @@ export function StaticContributionBox({
             <div className="flex flex-col gap-1.5 px-2">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2 text-xs md:text-sm font-medium text-white/60">
-                  <span className="text-primary font-bold">{ethEstimate.toFixed(6)} ETH</span> | <span className="text-primary font-bold">₹{inrEstimate.toLocaleString(undefined, { maximumFractionDigits: 2 })}</span>
+                  Estimated <span className="text-primary font-bold">{ethEstimate.toFixed(6)} ETH</span> | <span className="text-primary font-bold">₹{inrEstimate.toLocaleString(undefined, { maximumFractionDigits: 2 })}</span>
                 </div>
                 {isInsufficient && (
                   <div className="flex items-center gap-1.5 text-xs text-destructive font-bold animate-pulse">
