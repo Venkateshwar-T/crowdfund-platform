@@ -6,6 +6,7 @@ enum CampaignStatus {
 
 type Campaign @entity(immutable: false) {
   id: ID!
+  slug: String! @index
   owner: Bytes!
   title: String!
   description: String!

@@ -1,4 +1,3 @@
-
 import { 
   Heart, 
   Sprout, 
@@ -12,6 +11,8 @@ import {
 } from 'lucide-react';
 import { IoWoman } from "react-icons/io5";
 import { GiProgression } from "react-icons/gi";
+
+export const FALLBACK_IMAGE = "https://images.unsplash.com/photo-1633078654544-61b94557a11f?q=80&w=2070&auto=format&fit=crop";
 
 export const CAMPAIGN_CATEGORIES = [
   { id: 'medical', label: 'Medical', icon: Heart, color: 'bg-red-500/10 text-red-600 border-red-200' },

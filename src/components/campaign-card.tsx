@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useState, useEffect } from 'react';
@@ -9,7 +8,7 @@ import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { MdVerifiedUser  } from "react-icons/md";
 import { useUserName } from '@/hooks/use-user-name';
 import { cn, formatCurrency } from '@/lib/utils';
-import { STATUS_CONFIG, type CampaignStatus } from '@/lib/constants';
+import { STATUS_CONFIG, FALLBACK_IMAGE, type CampaignStatus } from '@/lib/constants';
 
 export interface CampaignCardProps {
   id: string;
@@ -71,9 +70,13 @@ export function CampaignCard({
               data-ai-hint="campaign image"
             />
           )) : (
-            <div className="absolute inset-0 bg-muted flex items-center justify-center">
-              <Users className="h-10 w-10 text-muted-foreground/20" />
-            </div>
+            <Image
+              src={FALLBACK_IMAGE}
+              alt="No image available"
+              fill
+              className="object-cover opacity-50"
+              data-ai-hint="fallback network error"
+            />
           )}
           
           {/* Overlay Content */}

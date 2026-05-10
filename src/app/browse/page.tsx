@@ -19,6 +19,7 @@ const GET_CAMPAIGNS = gql`
       orderDirection: $orderDirection
     ) {
       id
+      slug
       title
       owner
       target
@@ -116,7 +117,7 @@ export default function BrowsePage() {
     const deadlineMs = Number(c.deadline) * 1000;
 
     return {
-      id: c.id,
+      id: c.slug,
       title: c.title,
       images: c.mediaUrls && c.mediaUrls.length > 0 ? c.mediaUrls : [],
       ownerAddress: c.owner,

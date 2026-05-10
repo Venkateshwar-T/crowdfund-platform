@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useState, useEffect, use, useRef, useMemo } from 'react';
@@ -34,6 +33,7 @@ import { useToast } from '@/hooks/use-toast';
 import { useEthPrice } from '@/hooks/use-eth-price';
 import { useUserName } from '@/hooks/use-user-name';
 import { useQuery, gql } from '@apollo/client';
+import { FALLBACK_IMAGE } from '@/lib/constants';
 import DOMPurify from 'dompurify';
 import {
   Carousel,
@@ -57,8 +57,8 @@ import {
 } from "@/components/ui/dialog";
 
 const GET_CAMPAIGN_DETAIL = gql`
-  query GetCampaignDetail($id: ID!) {
-    campaign(id: $id) {
+  query GetCampaignDetail($slug: String!) {
+    campaigns(where: { slug: $slug }, first: 1) {
       id
       owner
       title
@@ -143,7 +143,7 @@ function MediaGallery({ media, title }: { media: string[]; title: string }) {
     });
   }, [api]);
 
-  const images = media.length > 0 ? media : ['https://picsum.photos/seed/placeholder/800/600'];
+  const images = media.length > 0 ? media : [FALLBACK_IMAGE];
 
   return (
     <div className="relative w-full overflow-hidden rounded-2xl md:rounded-3xl border border-border/50 bg-muted aspect-video shadow-lg">
@@ -162,6 +162,7 @@ function MediaGallery({ media, title }: { media: string[]; title: string }) {
                   fill
                   className="object-cover"
                   priority={index === 0}
+                  data-ai-hint="campaign detail media"
                 />
               </div>
             </CarouselItem>
@@ -358,7 +359,7 @@ function SupporterRow({ address, amountUSD, timestamp }: { address: string, amou
 }
 
 export default function CampaignDetailsPage({ params }: { params: Promise<{ id: string }> }) {
-  const { id } = use(params);
+  const { id: slug } = use(params);
   const fundRef = useRef<HTMLDivElement>(null);
   const [isFundInView, setIsFundInView] = useState(false);
   const [isSupportersOpen, setIsSupportersOpen] = useState(false);
@@ -373,11 +374,11 @@ export default function CampaignDetailsPage({ params }: { params: Promise<{ id: 
   const { isLoading: isMining, isSuccess: isTransactionConfirmed } = useWaitForTransactionReceipt({ hash });
 
   const { data: apolloData, loading: isInitialLoading, error, refetch } = useQuery(GET_CAMPAIGN_DETAIL, {
-    variables: { id },
+    variables: { slug },
     pollInterval: 10000,
   });
 
-  const campaignData = apolloData?.campaign;
+  const campaignData = apolloData?.campaigns?.[0];
   const { displayName: ownerName, loading: ownerLoading } = useUserName(campaignData?.owner);
 
   useEffect(() => {
@@ -403,8 +404,10 @@ export default function CampaignDetailsPage({ params }: { params: Promise<{ id: 
       return;
     }
 
-    const args = [BigInt(id)];
-    let value = undefined;
+    const blockchainId = BigInt(campaignData.id); 
+    const args = [blockchainId] as const;
+    
+    let value: bigint | undefined = undefined;
 
     if (functionName === 'donateToCampaign') {
       if (!amount || isNaN(Number(amount)) || Number(amount) <= 0) return;
@@ -415,10 +418,10 @@ export default function CampaignDetailsPage({ params }: { params: Promise<{ id: 
     writeContract({
       address: CONTRACT_ADDRESS,
       abi: CONTRACT_ABI,
-      functionName,
-      args,
-      value
-    }, {
+      functionName: functionName as any, 
+      args: args as any,
+      value: value as any,
+    } as any, {
       onError: (err) => toast({ title: "Action Failed", description: err.message, variant: "destructive" })
     });
   };
@@ -587,7 +590,7 @@ export default function CampaignDetailsPage({ params }: { params: Promise<{ id: 
               <ProgressCircle progress={Math.min((campaign.contributedAmount / campaign.targetAmount) * 100, 100)} />
               <div className="text-center flex flex-col gap-3">
                 <p className="text-sm md:text-xl font-black text-foreground">
-                  ${campaign.contributedAmount.toLocaleString(undefined, { maximumFractionDigits: 2 })} <span className="text-muted-foreground font-medium text-xs md:text-lg">/ ${campaign.targetAmount.toLocaleString()}</span>
+                  ${campaign.contributedAmount.toLocaleString(undefined, { maximumFractionDigits: 2 })} <span className="text-muted-foreground font-medium text-xs md:text-lg">raised of ${campaign.targetAmount.toLocaleString()}</span>
                 </p>
                 <ContributorBadge count={campaign.contributors} showSupportersLabel className="mx-auto" />
               </div>
