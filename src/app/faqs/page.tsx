@@ -83,16 +83,16 @@ export default function FAQsPage() {
   return (
     <div className="flex flex-col min-h-screen">
       {/* Hero Header */}
-      <section className="w-full bg-primary/5 py-16 md:py-24 px-6 md:px-4 overflow-hidden relative">
-        <div className="max-w-4xl mx-auto text-center relative z-10 flex flex-col gap-6">
-          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-primary/10 border border-primary/20 text-primary text-xs md:text-sm font-black uppercase tracking-widest mx-auto">
+      <section className="w-full bg-primary/5 py-10 md:py-16 px-6 md:px-4 overflow-hidden relative">
+        <div className="max-w-4xl mx-auto text-center relative z-10 flex flex-col gap-4">
+          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-primary/10 border border-primary/20 text-primary text-xs font-black uppercase tracking-widest mx-auto">
             <HelpCircle className="h-3.5 w-3.5" />
             Support Center
           </div>
-          <h1 className="text-4xl md:text-7xl font-black tracking-tight leading-[0.9] text-foreground">
+          <h1 className="text-3xl md:text-6xl font-black tracking-tight leading-[0.9] text-foreground">
             Your Questions, <span className="text-primary italic">Answered</span>.
           </h1>
-          <p className="text-lg md:text-2xl text-muted-foreground font-medium max-w-2xl mx-auto leading-relaxed">
+          <p className="text-base md:text-xl text-muted-foreground font-medium max-w-2xl mx-auto leading-relaxed">
             Everything you need to know about decentralized fundraising and blockchain security.
           </p>
         </div>
@@ -102,30 +102,30 @@ export default function FAQsPage() {
       </section>
 
       {/* FAQ Content */}
-      <section className="w-full py-16 md:py-24 px-4">
-        <div className="max-w-3xl mx-auto flex flex-col gap-12 md:gap-20">
+      <section className="w-full py-10 md:py-16 px-4">
+        <div className="max-w-3xl mx-auto flex flex-col gap-8 md:gap-12">
           {FAQ_SECTIONS.map((section, idx) => (
-            <div key={idx} className="flex flex-col gap-6">
-              <div className="flex items-center gap-4 border-b pb-4 border-border/50">
-                <div className="p-3 bg-primary/10 rounded-2xl text-primary">
-                  <section.icon className="h-6 w-6" />
+            <div key={idx} className="flex flex-col gap-4">
+              <div className="flex items-center gap-3 border-b pb-3 border-border/50">
+                <div className="p-2 md:p-3 bg-primary/10 rounded-xl md:rounded-2xl text-primary">
+                  <section.icon className="h-5 w-5 md:h-6 md:w-6" />
                 </div>
-                <h2 className="text-2xl md:text-3xl font-black tracking-tight text-foreground">
+                <h2 className="text-xl md:text-2xl font-black tracking-tight text-foreground">
                   {section.title}
                 </h2>
               </div>
 
-              <Accordion type="single" collapsible className="w-full space-y-4">
+              <Accordion type="single" collapsible className="w-full space-y-3">
                 {section.items.map((item, itemIdx) => (
                   <AccordionItem 
                     key={itemIdx} 
                     value={`item-${idx}-${itemIdx}`}
-                    className="border border-border/50 rounded-2xl bg-white/50 px-4 md:px-6 hover:bg-white transition-colors overflow-hidden shadow-sm"
+                    className="border border-border/50 rounded-xl md:rounded-2xl bg-white/50 px-4 md:px-6 hover:bg-white transition-colors overflow-hidden shadow-sm"
                   >
-                    <AccordionTrigger className="text-sm md:text-base font-bold text-left hover:no-underline py-4">
+                    <AccordionTrigger className="text-xs md:text-base font-bold text-left hover:no-underline py-3 md:py-4">
                       {item.q}
                     </AccordionTrigger>
-                    <AccordionContent className="text-muted-foreground text-sm md:text-base leading-relaxed pb-6">
+                    <AccordionContent className="text-muted-foreground text-[11px] md:text-sm leading-relaxed pb-4 md:pb-6">
                       {item.a}
                     </AccordionContent>
                   </AccordionItem>
@@ -137,16 +137,16 @@ export default function FAQsPage() {
       </section>
 
       {/* Simple CTA */}
-      <section className="w-full py-20 px-6 bg-foreground text-white">
-        <div className="max-w-2xl mx-auto text-center flex flex-col gap-8">
-          <h2 className="text-3xl md:text-4xl font-black">Still have questions?</h2>
-          <p className="text-white/60">
-            We're here to help you navigate the future of crowdfunding. Reach out to our community for real-time support.
+      <section className="w-full py-12 md:py-16 px-6 bg-foreground text-white">
+        <div className="max-w-2xl mx-auto text-center flex flex-col gap-6 md:gap-8">
+          <h2 className="text-2xl md:text-4xl font-black">Still have questions?</h2>
+          <p className="text-sm md:text-base text-white/60">
+            We're here to help you navigate the future of crowdfunding. Reach out to our community for support.
           </p>
           <div className="flex justify-center">
             <a 
               href="mailto:support@crowdfund.io" 
-              className="px-8 py-3 bg-primary text-white font-black rounded-full hover:bg-primary/90 transition-all active:scale-95"
+              className="px-8 py-2.5 md:py-3 bg-primary text-white font-black text-xs md:text-sm rounded-full hover:bg-primary/90 transition-all active:scale-95"
             >
               Contact Support
             </a>
