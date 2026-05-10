@@ -35,7 +35,7 @@ export function useUserName(walletAddress: string | undefined) {
           nameCache[addr] = fetchedName;
           setName(fetchedName);
         } else {
-          // If no record exists, we don't store in cache to allow for future updates
+          // No record found
           setName(null);
         }
       } catch (error) {
@@ -48,11 +48,7 @@ export function useUserName(walletAddress: string | undefined) {
     fetchName();
   }, [walletAddress]);
 
-  const shortenedAddress = walletAddress 
-    ? `${walletAddress.slice(0, 6)}...${walletAddress.slice(-4)}` 
-    : '...';
-
-  const displayName = name || shortenedAddress;
+  const displayName = loading ? "..." : (name || "Anonymous");
   
   return { displayName, loading };
 }

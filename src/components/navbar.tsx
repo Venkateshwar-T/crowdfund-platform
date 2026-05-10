@@ -30,6 +30,7 @@ import { Input } from '@/components/ui/input';
 import { cn } from '@/lib/utils';
 import { useAccount } from 'wagmi';
 import { useConnectModal } from '@rainbow-me/rainbowkit';
+import { useUserName } from '@/hooks/use-user-name';
 
 const BROWSE_CATEGORIES = [
   { id: 'medical', label: 'Medical', icon: Heart },
@@ -45,8 +46,9 @@ const BROWSE_CATEGORIES = [
 ];
 
 export function Navbar() {
-  const { isConnected } = useAccount();
+  const { isConnected, address: userAddress } = useAccount();
   const { openConnectModal } = useConnectModal();
+  const { displayName } = useUserName(userAddress);
   const pathname = usePathname();
   const [isSearching, setIsSearching] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -195,7 +197,7 @@ export function Navbar() {
                     )}
                   >
                     <User className="h-4 w-4" />
-                    Profile
+                    {displayName}
                   </CustomButton>
                 </Link>
               ) : (

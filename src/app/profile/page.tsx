@@ -124,7 +124,7 @@ function ProfileIdentityCard({
             ) : (
               <>
                 <h1 className="text-xl md:text-3xl font-black text-foreground">
-                  {username || shortenedAddress}
+                  {username || "Anonymous"}
                 </h1>
                 <button 
                   onClick={() => setIsEditingUsername(true)}
@@ -179,7 +179,7 @@ export default function ProfilePage() {
   const [username, setUsername] = useState('');
   const [isSavingName, setIsSavingName] = useState(false);
 
-  // Fetch username from Firestore by searching for the document keyed by current UID
+  // Fetch username from Firestore
   useEffect(() => {
     async function fetchUsername() {
       if (auth.currentUser) {
@@ -189,7 +189,6 @@ export default function ProfilePage() {
             setUsername(userDoc.data().name);
           } else if (address) {
             // Fallback: If no UID-based doc exists, try querying by wallet address
-            // in case the user migrated or reset their auth state
             const q = query(
               collection(db, 'users'),
               where('walletAddress', '==', address.toLowerCase()),
@@ -220,7 +219,6 @@ export default function ProfilePage() {
 
     setIsSavingName(true);
     try {
-      // Key the document by the Firebase UID for security rules consistency
       await setDoc(doc(db, 'users', auth.currentUser.uid), {
         name: username,
         walletAddress: address.toLowerCase(),
@@ -232,6 +230,9 @@ export default function ProfilePage() {
         title: "Profile Updated",
         description: "Your display name has been saved securely.",
       });
+      
+      // Force a re-render of components using useUserName if necessary by reloading 
+      // or using a state management solution (omitted for simplicity as hooks will re-fetch)
     } catch (error: any) {
       console.error("Error saving username:", error);
       toast({
