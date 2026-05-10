@@ -485,31 +485,31 @@ export default function CampaignDetailsPage({ params }: { params: Promise<{ id: 
                     <ReportIcon size={24} className="text-muted-foreground group-hover:text-primary transition-colors w-4 h-4 md:w-5 md:h-5"/>
                   </button>
                 </DialogTrigger>
-                <DialogContent className="w-[calc(100%-2rem)] sm:max-w-xl rounded-2xl md:rounded-[2rem] border-white/20 bg-white/90 backdrop-blur-2xl shadow-2xl overflow-hidden p-6 md:p-10">
-                  <DialogHeader className="flex flex-col items-center gap-2 mb-6 text-center">
-                    <div className="w-12 h-12 rounded-2xl bg-destructive/10 flex items-center justify-center text-destructive mb-2">
-                      <ReportIcon size={24} />
+                <DialogContent className="w-[calc(100%-2rem)] sm:max-w-xl rounded-2xl md:rounded-[2rem] border-white/20 bg-white/90 backdrop-blur-2xl shadow-2xl overflow-hidden p-5 md:p-8">
+                  <DialogHeader className="flex flex-col items-center gap-2 mb-4 text-center">
+                    <div className="w-10 h-10 md:w-12 md:h-12 rounded-2xl bg-destructive/10 flex items-center justify-center text-destructive mb-1 md:mb-2">
+                      <ReportIcon size={22} className="md:w-6 md:h-6" />
                     </div>
-                    <DialogTitle className="text-xl md:text-2xl font-black text-foreground">Report this Campaign</DialogTitle>
-                    <DialogDescription className="text-sm md:text-base text-muted-foreground max-w-sm mx-auto">
+                    <DialogTitle className="text-lg md:text-2xl font-black text-foreground">Report this Campaign</DialogTitle>
+                    <DialogDescription className="text-xs md:text-base text-muted-foreground max-w-sm mx-auto">
                       Help us maintain a safe community. Please describe why you are reporting this fundraiser.
                     </DialogDescription>
                   </DialogHeader>
                   
-                  <div className="flex flex-col gap-6 py-2">
-                    <div className="space-y-2">
+                  <div className="flex flex-col gap-4 py-1 md:py-2">
+                    <div className="space-y-1.5 md:space-y-2">
                       <label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground px-1">Reason for Report</label>
                       <Textarea 
                         placeholder="Provide details about your concerns..."
                         value={reportReason}
                         onChange={(e) => setReportReason(e.target.value)}
-                        className="min-h-[160px] rounded-2xl border-muted-foreground/20 focus-visible:ring-primary/20 bg-muted/30 p-4 md:p-6 text-sm md:text-base"
+                        className="min-h-[120px] rounded-2xl border-muted-foreground/20 focus-visible:ring-primary/20 bg-muted/30 p-3 md:p-4 text-sm md:text-base"
                       />
                     </div>
                   </div>
                   
-                  <DialogFooter className="mt-8">
-                    <CustomButton asChild className="w-full rounded-2xl gap-3 font-black h-12 md:h-14 text-sm md:text-base shadow-lg shadow-primary/10">
+                  <DialogFooter className="mt-6">
+                    <CustomButton asChild className="w-full rounded-2xl gap-3 font-black h-11 md:h-14 text-sm md:text-base shadow-lg shadow-primary/10">
                       <a href={reportMailto}>
                         <Mail className="h-5 w-5" />
                         Send Report via Email
