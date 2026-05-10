@@ -219,8 +219,50 @@ export default function ProfilePage() {
           <Tabs defaultValue="my-campaigns" className="w-full">
             <div className="bg-muted/30 p-4 border-b"><TabsList className="bg-background/80 p-1 rounded-2xl h-12 grid grid-cols-2 max-w-sm border"><TabsTrigger value="my-campaigns" className="rounded-xl font-bold text-xs data-[state=active]:bg-primary data-[state=active]:text-white">My Campaigns</TabsTrigger><TabsTrigger value="contributions" className="rounded-xl font-bold text-xs data-[state=active]:bg-primary data-[state=active]:text-white">Contributions</TabsTrigger></TabsList></div>
             <div className="p-6">
-              <TabsContent value="my-campaigns" className="mt-0"><div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">{processedData.myCampaigns.map((c: any) => <ProfileCampaignCard key={c.id} id={c.id} title={c.title} contributors={0} status={c.status} />)}</div></TabsContent>
-              <TabsContent value="contributions" className="mt-0"><div className="grid grid-cols-1 gap-4">{processedData.myContributions.map((c: any) => <ProfileContributionCard key={c.id} {...c} />)}</div></TabsContent>
+              <TabsContent value="my-campaigns" className="mt-0">
+                {processedData.myCampaigns.length > 0 ? (
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    {processedData.myCampaigns.map((c: any) => (
+                      <ProfileCampaignCard key={c.id} id={c.id} title={c.title} contributors={0} status={c.status} />
+                    ))}
+                  </div>
+                ) : (
+                  <div className="flex flex-col items-center justify-center py-12 text-center gap-4">
+                    <div className="p-4 bg-muted rounded-full text-muted-foreground">
+                      <TrendingUp className="h-8 w-8" />
+                    </div>
+                    <div className="space-y-1">
+                      <p className="font-bold text-foreground">No campaigns yet</p>
+                      <p className="text-xs text-muted-foreground">You haven't launched any fundraisers yet.</p>
+                    </div>
+                    <CustomButton asChild variant="outline" size="sm" className="rounded-full">
+                      <Link href="/fundraisers/new">Launch Campaign</Link>
+                    </CustomButton>
+                  </div>
+                )}
+              </TabsContent>
+              <TabsContent value="contributions" className="mt-0">
+                {processedData.myContributions.length > 0 ? (
+                  <div className="grid grid-cols-1 gap-4">
+                    {processedData.myContributions.map((c: any) => (
+                      <ProfileContributionCard key={c.id} {...c} />
+                    ))}
+                  </div>
+                ) : (
+                  <div className="flex flex-col items-center justify-center py-12 text-center gap-4">
+                    <div className="p-4 bg-muted rounded-full text-muted-foreground">
+                      <HeartHandshake className="h-8 w-8" />
+                    </div>
+                    <div className="space-y-1">
+                      <p className="font-bold text-foreground">No contributions yet</p>
+                      <p className="text-xs text-muted-foreground">You haven't supported any causes yet.</p>
+                    </div>
+                    <CustomButton asChild variant="outline" size="sm" className="rounded-full">
+                      <Link href="/browse">Explore Causes</Link>
+                    </CustomButton>
+                  </div>
+                )}
+              </TabsContent>
             </div>
           </Tabs>
         </div>
