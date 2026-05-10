@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { Upload, X, Film, Image as ImageIcon, CheckCircle2, ArrowLeft, PlusCircle, Bold, Italic, Underline as UnderlineIcon, List, ListOrdered, Heading1 } from 'lucide-react';
+import { Upload, X, Image as ImageIcon, CheckCircle2, ArrowLeft, PlusCircle, Bold, Italic, Underline as UnderlineIcon, List, ListOrdered, Heading1 } from 'lucide-react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
@@ -40,7 +40,7 @@ import StarterKit from '@tiptap/starter-kit';
 import UnderlineExtension from '@tiptap/extension-underline';
 import Placeholder from '@tiptap/extension-placeholder';
 
-const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
+const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
 const MAX_FILES = 5;
 
 const formSchema = z.object({
@@ -203,23 +203,19 @@ export default function NewFundraiserPage() {
   };
 
   const addFiles = (newFiles: File[]) => {
-    const videoCount = files.filter(f => f.type.startsWith('video/')).length;
-    const newVideoCount = newFiles.filter(f => f.type.startsWith('video/')).length;
-
-    if (videoCount + newVideoCount > 1) {
-      toast({
-        title: "Too many videos",
-        description: "Only 1 video allowed per campaign.",
-        variant: "destructive"
-      });
-      return;
-    }
-
     const validFiles = newFiles.filter(file => {
+      if (!file.type.startsWith('image/')) {
+        toast({
+          title: "Invalid file type",
+          description: `Only images are allowed. ${file.name} was rejected.`,
+          variant: "destructive"
+        });
+        return false;
+      }
       if (file.size > MAX_FILE_SIZE) {
         toast({
           title: "File too large",
-          description: `File ${file.name} exceeds 10MB limit.`,
+          description: `File ${file.name} exceeds 5MB limit.`,
           variant: "destructive"
         });
         return false;
@@ -232,7 +228,7 @@ export default function NewFundraiserPage() {
       if (combined.length > MAX_FILES) {
         toast({
           title: "Too many files",
-          description: `Max ${MAX_FILES} files allowed.`,
+          description: `Max ${MAX_FILES} images allowed.`,
           variant: "destructive"
         });
         return combined.slice(0, MAX_FILES);
@@ -297,7 +293,7 @@ export default function NewFundraiserPage() {
     if (files.length === 0) {
       toast({
         title: "Media required",
-        description: "Please upload at least one image or video.",
+        description: "Please upload at least one image.",
         variant: "destructive"
       });
       return;
@@ -541,7 +537,7 @@ export default function NewFundraiserPage() {
 
               <div className="space-y-3 md:space-y-4">
                 <FormLabel className="text-sm md:text-base font-bold">
-                  Media Upload (Max 5 files, 1 video) <span className="text-destructive">*</span>
+                  Image Upload (Max 5 images) <span className="text-destructive">*</span>
                 </FormLabel>
                 <div 
                   className={cn(
@@ -560,30 +556,29 @@ export default function NewFundraiserPage() {
                     type="file" 
                     className="hidden" 
                     multiple 
-                    accept="image/*,video/*"
+                    accept="image/*"
                     onChange={handleFileChange}
                     disabled={files.length >= MAX_FILES}
                   />
                   <div className="h-12 w-12 md:h-16 md:w-16 rounded-2xl bg-primary/10 flex items-center justify-center text-primary">
-                    <Upload className="h-6 w-6 md:h-8 md:w-8" />
+                    <ImageIcon className="h-6 w-6 md:h-8 md:w-8" />
                   </div>
                   <div className="text-center">
                     <p className="text-xs md:text-sm font-bold">Click or drag & drop</p>
-                    <p className="text-[10px] md:text-xs text-muted-foreground mt-1">Up to 5 files, Max 1 video (10MB each)</p>
+                    <p className="text-[10px] md:text-xs text-muted-foreground mt-1">Up to 5 images, Max 5MB each</p>
                   </div>
                 </div>
 
                 {files.length > 0 && (
                   <div className="grid grid-cols-3 md:grid-cols-5 gap-3 md:gap-4">
                     {files.map((file, i) => {
-                      const isImage = file.type.startsWith('image/');
                       return (
                         <div key={i} className="group relative aspect-square rounded-2xl bg-muted border overflow-hidden">
-                          {isImage && previews[i] ? (
+                          {previews[i] ? (
                             <img src={previews[i]} alt="Preview" className="h-full w-full object-cover" />
                           ) : (
                             <div className="absolute inset-0 flex items-center justify-center text-muted-foreground">
-                              {file.type.startsWith('video/') ? <Film className="h-5 w-5 md:h-6 md:w-6" /> : <ImageIcon className="h-5 w-5 md:h-6 md:w-6" />}
+                              <ImageIcon className="h-5 w-5 md:h-6 md:w-6" />
                             </div>
                           )}
                           <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col items-center justify-center p-2">
