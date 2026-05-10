@@ -70,7 +70,7 @@ const GET_CAMPAIGN_DETAIL = gql`
       withdrawn
       status
       mediaUrls
-      donations(first: 20, orderBy: timestamp, orderDirection: desc) {
+      donations(first: 50, orderBy: timestamp, orderDirection: desc) {
         donator
         amountUsd
         amountEth
@@ -155,7 +155,7 @@ function MediaGallery({ media, title }: { media: string[]; title: string }) {
         opts={{ align: "start", loop: true }}
       >
         <CarouselContent className="ml-0 h-full">
-          {media.map((url, index) => {
+          {media.length > 0 ? media.map((url, index) => {
             const isVideo = url.toLowerCase().includes('.mp4') || url.toLowerCase().includes('.webm');
             return (
               <CarouselItem key={index} className="pl-0 h-full relative">
@@ -173,13 +173,18 @@ function MediaGallery({ media, title }: { media: string[]; title: string }) {
                       fill
                       className="object-cover"
                       priority={index === 0}
-                      data-ai-hint="campaign gallery media"
                     />
                   )}
                 </div>
               </CarouselItem>
             );
-          })}
+          }) : (
+            <CarouselItem className="pl-0 h-full relative">
+              <div className="relative w-full h-full min-h-[200px] md:min-h-[400px] flex items-center justify-center bg-muted/20">
+                <Loader2 className="h-8 w-8 animate-spin text-primary/20" />
+              </div>
+            </CarouselItem>
+          )}
         </CarouselContent>
       </Carousel>
       
@@ -485,7 +490,7 @@ export default function CampaignDetailsPage({ params }: { params: Promise<{ id: 
     return { __html: typeof window !== 'undefined' ? DOMPurify.sanitize(html) : html };
   };
 
-  const reportMailto = `mailto:support@crowdfund.io?subject=Reporting Campaign: ${encodeURIComponent(campaign.title)}&body=${encodeURIComponent(reportReason)}`;
+  const reportMailto = `mailto:venkattiwari42@gmail.com?subject=Reporting Campaign: ${encodeURIComponent(campaign.title)}&body=${encodeURIComponent(reportReason)}`;
 
   return (
     <div className="flex flex-col min-h-screen pb-12 md:pb-20">

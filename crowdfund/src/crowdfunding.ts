@@ -26,10 +26,16 @@ export function handleCampaignCreated(event: CampaignCreatedEvent): void {
   campaign.withdrawn = false
   campaign.status = "Active"
   
-  // In this contract version, mediaUrls is not in the mapping but 
-  // let's initialize it as an empty array to prevent query failures.
-  // In a production environment, you'd emit these in the event.
-  campaign.mediaUrls = []
+  // Since the 'campaigns' mapping getter doesn't return the mediaUrls array,
+  // we call getCampaigns() and find the matching record by ID.
+  let allCampaigns = contract.getCampaigns()
+  let id = event.params.id.toI32()
+  
+  if (id >= 0 && id < allCampaigns.length) {
+    campaign.mediaUrls = allCampaigns[id].mediaUrls
+  } else {
+    campaign.mediaUrls = []
+  }
   
   campaign.save()
 }
