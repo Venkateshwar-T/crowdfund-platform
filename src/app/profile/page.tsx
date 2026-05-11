@@ -15,7 +15,6 @@ import {
 } from 'lucide-react';
 import { useAccount, useDisconnect, useBalance } from 'wagmi';
 import { useQuery, gql } from '@apollo/client';
-import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { CustomButton } from '@/components/shared/custom-button';
@@ -56,6 +55,7 @@ const GET_USER_DATA = gql`
         id
         slug
         title
+        owner
         target
         deadline
         amountCollectedUsd
@@ -150,7 +150,12 @@ export default function ProfilePage() {
         ? 'Failed' 
         : c.status;
 
-      return { ...c, effectiveStatus };
+      return { 
+        ...c, 
+        effectiveStatus,
+        amountCollected,
+        target
+      };
     });
 
     const totalUSD = subgraphData.myCampaigns.reduce((acc: number, c: any) => acc + parseFloat(formatUnits(c.amountCollectedUsd, 18)), 0);
@@ -168,6 +173,7 @@ export default function ProfilePage() {
       return {
         id: d.campaign.slug,
         title: d.campaign.title,
+        ownerAddress: d.campaign.owner,
         personalContribution: parseFloat(formatUnits(d.amountEth, 18)),
         status: effectiveStatus
       };
@@ -234,6 +240,7 @@ export default function ProfilePage() {
             </div>
           </div>
         </Card>
+        
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6 mt-4">
           <Card className="p-6 md:p-8 rounded-3xl bg-primary/5 flex flex-col gap-3 shadow-sm border">
             <div className="p-3 w-fit bg-primary rounded-2xl text-white"><WalletIcon className="h-6 w-6" /></div>
@@ -246,81 +253,96 @@ export default function ProfilePage() {
           <ProfileStatCard title="Raised (USD)" value={`$${processedData.totalUSD.toLocaleString()}`} icon={TrendingUp} />
           <ProfileStatCard title="Contributed (USD)" value={`$${processedData.totalContributedUSD.toLocaleString()}`} icon={HeartHandshake} />
         </div>
-        <div className="bg-white/70 backdrop-blur-xl border rounded-[1.5rem] md:rounded-[2.5rem] overflow-hidden shadow-xl">
-          <Tabs defaultValue="my-campaigns" className="w-full">
-            <div className="bg-muted/30 p-4 border-b">
-              <TabsList className="bg-background/80 px-2 rounded-2xl h-12 grid gap-1 grid-cols-2 max-w-md border">
-                <TabsTrigger value="my-campaigns" className="rounded-xl font-bold text-xs data-[state=active]:bg-primary data-[state=active]:text-white flex items-center gap-2">
-                  My Campaigns
-                  <span className="flex items-center justify-center bg-muted/20 text-[10px] h-5 w-5 rounded-full border border-current opacity-70">
-                    {processedData.myCampaigns.length}
-                  </span>
-                </TabsTrigger>
-                <TabsTrigger value="contributions" className="rounded-xl font-bold text-xs data-[state=active]:bg-primary data-[state=active]:text-white flex items-center gap-2">
-                  Contributions
-                  <span className="flex items-center justify-center bg-muted/20 text-[10px] h-5 w-5 rounded-full border border-current opacity-70">
-                    {processedData.myContributions.length}
-                  </span>
-                </TabsTrigger>
-              </TabsList>
-            </div>
-            <div className="p-6">
-              <TabsContent value="my-campaigns" className="mt-0">
-                {processedData.myCampaigns.length > 0 ? (
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                    {processedData.myCampaigns.map((c: any) => (
-                      <ProfileCampaignCard key={c.id} id={c.slug} title={c.title} status={c.effectiveStatus} />
-                    ))}
+
+        <Tabs defaultValue="my-campaigns" className="w-full mt-8">
+          <div className="flex justify-center mb-8">
+            <TabsList className="bg-white/50 backdrop-blur-md px-2 rounded-2xl h-14 grid gap-1 grid-cols-2 max-w-md w-full border shadow-sm">
+              <TabsTrigger value="my-campaigns" className="rounded-xl font-black text-xs md:text-sm data-[state=active]:bg-primary data-[state=active]:text-white flex items-center justify-center gap-3 transition-all">
+                My Campaigns
+                <span className="flex items-center justify-center bg-muted/20 text-[10px] h-5 w-5 rounded-full border border-current opacity-70">
+                  {processedData.myCampaigns.length}
+                </span>
+              </TabsTrigger>
+              <TabsTrigger value="contributions" className="rounded-xl font-black text-xs md:text-sm data-[state=active]:bg-primary data-[state=active]:text-white flex items-center justify-center gap-3 transition-all">
+                Contributions
+                <span className="flex items-center justify-center bg-muted/20 text-[10px] h-5 w-5 rounded-full border border-current opacity-70">
+                  {processedData.myContributions.length}
+                </span>
+              </TabsTrigger>
+            </TabsList>
+          </div>
+
+          <div className="w-full max-w-4xl mx-auto">
+            <TabsContent value="my-campaigns" className="mt-0">
+              {processedData.myCampaigns.length > 0 ? (
+                <div className="flex flex-col gap-3">
+                  {processedData.myCampaigns.map((c: any) => (
+                    <ProfileCampaignCard 
+                      key={c.id} 
+                      id={c.slug} 
+                      title={c.title} 
+                      amountCollected={c.amountCollected}
+                      target={c.target}
+                      status={c.effectiveStatus} 
+                    />
+                  ))}
+                </div>
+              ) : (
+                <div className="flex flex-col items-center justify-center py-16 text-center gap-4 bg-white/30 rounded-3xl border border-dashed">
+                  <TrendingUp className="h-10 w-10 text-muted-foreground opacity-30" />
+                  <div className="space-y-1">
+                    <p className="font-bold text-foreground">No campaigns yet</p>
+                    <p className="text-xs text-muted-foreground">You haven't launched any fundraisers yet.</p>
                   </div>
-                ) : (
-                  <div className="flex flex-col items-center justify-center py-12 text-center gap-4">
-                    <div className="p-4 bg-muted rounded-full text-muted-foreground">
-                      <TrendingUp className="h-8 w-8" />
-                    </div>
-                    <div className="space-y-1">
-                      <p className="font-bold text-foreground">No campaigns yet</p>
-                      <p className="text-xs text-muted-foreground">You haven't launched any fundraisers yet.</p>
-                    </div>
-                    <CustomButton asChild variant="outline" size="sm" className="rounded-full">
-                      <Link href="/fundraisers/new">Launch Campaign</Link>
-                    </CustomButton>
+                  <CustomButton asChild variant="outline" size="sm" className="rounded-full">
+                    <Link href="/fundraisers/new">Launch Campaign</Link>
+                  </CustomButton>
+                </div>
+              )}
+            </TabsContent>
+
+            <TabsContent value="contributions" className="mt-0">
+              {processedData.myContributions.length > 0 ? (
+                <div className="flex flex-col gap-3">
+                  {processedData.myContributions.map((c: any) => (
+                    <ProfileContributionCard 
+                      key={c.id} 
+                      id={c.id}
+                      title={c.title} 
+                      ownerAddress={c.ownerAddress}
+                      personalContribution={c.personalContribution}
+                    />
+                  ))}
+                </div>
+              ) : (
+                <div className="flex flex-col items-center justify-center py-16 text-center gap-4 bg-white/30 rounded-3xl border border-dashed">
+                  <HeartHandshake className="h-10 w-10 text-muted-foreground opacity-30" />
+                  <div className="space-y-1">
+                    <p className="font-bold text-foreground">No contributions yet</p>
+                    <p className="text-xs text-muted-foreground">You haven't supported any fundraisers yet.</p>
                   </div>
-                )}
-              </TabsContent>
-              <TabsContent value="contributions" className="mt-0">
-                {processedData.myContributions.length > 0 ? (
-                  <div className="grid grid-cols-1 gap-4">
-                    {processedData.myContributions.map((c: any) => (
-                      <ProfileContributionCard key={c.id} {...c} />
-                    ))}
-                  </div>
-                ) : (
-                  <div className="flex flex-col items-center justify-center py-12 text-center gap-4">
-                    <div className="p-4 bg-muted rounded-full text-muted-foreground">
-                      <HeartHandshake className="h-8 w-8" />
-                    </div>
-                    <div className="space-y-1">
-                      <p className="font-bold text-foreground">No contributions yet</p>
-                      <p className="text-xs text-muted-foreground">You haven't supported any fundraisers yet.</p>
-                    </div>
-                    <CustomButton asChild variant="outline" size="sm" className="rounded-full">
-                      <Link href="/browse">Explore Fundraisers</Link>
-                    </CustomButton>
-                  </div>
-                )}
-              </TabsContent>
-            </div>
-          </Tabs>
-        </div>
-        <div className="flex flex-col md:flex-row gap-4">
+                  <CustomButton asChild variant="outline" size="sm" className="rounded-full">
+                    <Link href="/browse">Explore Fundraisers</Link>
+                  </CustomButton>
+                </div>
+              )}
+            </TabsContent>
+          </div>
+        </Tabs>
+
+        <div className="flex flex-col md:flex-row gap-4 mt-8">
           <CustomButton 
-          onClick={() => disconnect()} variant="outline" 
-          className="flex-1 rounded-2xl h-14 border-destructive/20 text-destructive font-bold gap-2">
+            onClick={() => disconnect()} 
+            variant="outline" 
+            className="flex-1 rounded-2xl h-14 border-destructive/20 text-destructive font-bold gap-2"
+          >
             <LogOut className="h-5 w-5" />Disconnect
           </CustomButton>
           <CustomButton 
-          onClick={() => openAccountModal?.()} variant="secondary" 
-          className="flex-1 rounded-2xl h-14 font-bold border">
+            onClick={() => openAccountModal?.()} 
+            variant="secondary" 
+            className="flex-1 rounded-2xl h-14 font-bold border"
+          >
             <Settings2 className="h-5 w-5 mr-2" />Wallet Settings
           </CustomButton>
         </div>

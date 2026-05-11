@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { LucideIcon } from 'lucide-react';
 import { Card } from '@/components/ui/card';
 import { StatusBadge } from './status-badge';
+import { useUserName } from '@/hooks/use-user-name';
 import { cn } from '@/lib/utils';
 
 interface ProfileStatCardProps {
@@ -14,6 +15,9 @@ interface ProfileStatCardProps {
   className?: string;
 }
 
+/**
+ * Statistics Card for Profile Dashboard
+ */
 export function ProfileStatCard({ title, value, icon: Icon, className }: ProfileStatCardProps) {
   return (
     <Card className={cn("p-6 md:p-8 rounded-[1.5rem] md:rounded-[2rem] border-white/20 bg-white/50 flex flex-col gap-3 md:gap-4 shadow-sm border", className)}>
@@ -28,34 +32,74 @@ export function ProfileStatCard({ title, value, icon: Icon, className }: Profile
   );
 }
 
-export function ProfileCampaignCard({ id, title, status }: { id: string, title: string, status: any }) {
+/**
+ * Compact Campaign Card for "My Campaigns"
+ */
+export function ProfileCampaignCard({ 
+  id, 
+  title, 
+  amountCollected, 
+  target, 
+  status 
+}: { 
+  id: string, 
+  title: string, 
+  amountCollected: number, 
+  target: number, 
+  status: any 
+}) {
   return (
-    <Link href={`/browse/${id}`} className="block h-full group">
-      <Card className="p-4 md:p-6 rounded-2xl md:rounded-3xl bg-white/50 hover:bg-white/80 transition-all border-white/20 h-full flex flex-col justify-center shadow-sm border">
-        <div className="space-y-3">
-          <div className="flex items-start justify-between gap-3 md:gap-4">
-            <h4 className="text-sm md:text-lg font-bold group-hover:text-primary transition-colors line-clamp-2 leading-tight">{title}</h4>
-            <StatusBadge status={status} className="shrink-0 scale-90 md:scale-100 origin-top-right" />
+    <Link href={`/browse/${id}`} className="block group w-full">
+      <Card className="p-4 rounded-xl border border-border/50 bg-white/50 hover:bg-white transition-all shadow-sm">
+        <div className="flex items-center justify-between gap-4">
+          <div className="flex flex-col min-w-0">
+            <h4 className="text-sm md:text-base font-bold text-foreground group-hover:text-primary transition-colors truncate">
+              {title}
+            </h4>
+            <p className="text-[10px] md:text-[11px] text-muted-foreground font-medium tracking-tight">
+              ${amountCollected.toLocaleString(undefined, { maximumFractionDigits: 2 })} / ${target.toLocaleString()} raised
+            </p>
           </div>
+          <StatusBadge status={status} className="shrink-0" />
         </div>
       </Card>
     </Link>
   );
 }
 
-export function ProfileContributionCard({ id, title, personalContribution, status }: { id: string, title: string, personalContribution: number, status: any }) {
+/**
+ * Compact Contribution Card for "My Contributions"
+ */
+export function ProfileContributionCard({ 
+  id, 
+  title, 
+  ownerAddress, 
+  personalContribution 
+}: { 
+  id: string, 
+  title: string, 
+  ownerAddress: string, 
+  personalContribution: number 
+}) {
+  const { displayName, loading } = useUserName(ownerAddress);
+  
   return (
-    <Link href={`/browse/${id}`} className="block group">
-      <Card className="p-4 md:p-6 rounded-2xl md:rounded-3xl bg-white/50 hover:bg-white/80 transition-all border-white/20 shadow-sm border">
+    <Link href={`/browse/${id}`} className="block group w-full">
+      <Card className="p-4 rounded-xl border border-border/50 bg-white/50 hover:bg-white transition-all shadow-sm">
         <div className="flex items-center justify-between gap-4">
-          <div className="flex-1 min-w-0">
-            <h4 className="text-sm md:text-lg font-bold group-hover:text-primary transition-colors leading-tight truncate">{title}</h4>
-            <div className="flex flex-col mt-2">
-              <span className="text-[8px] md:text-[10px] text-muted-foreground uppercase font-black tracking-widest">Your Gift</span>
-              <span className="text-sm md:text-lg font-black text-primary">{personalContribution.toFixed(4)} ETH</span>
-            </div>
+          <div className="flex flex-col min-w-0">
+            <h4 className="text-sm md:text-base font-bold text-foreground group-hover:text-primary transition-colors truncate">
+              {title}
+            </h4>
+            <p className="text-[10px] md:text-[11px] text-muted-foreground font-medium tracking-tight">
+              by {loading ? "..." : displayName}
+            </p>
           </div>
-          <StatusBadge status={status} className="shrink-0" />
+          <div className="text-right shrink-0">
+            <span className="text-sm md:text-base font-black text-primary whitespace-nowrap">
+              {personalContribution.toFixed(4)} ETH
+            </span>
+          </div>
         </div>
       </Card>
     </Link>
