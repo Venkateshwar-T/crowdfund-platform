@@ -46,6 +46,11 @@ export function CampaignCard({
   const isExpired = deadlineDate < new Date();
   const timeRemaining = isExpired ? 'Ended' : `${formatDistanceToNow(deadlineDate)} left`;
 
+  // Visual status calculation
+  const visualStatus = (status === 'Active' && isExpired && contributedAmount < targetAmount) 
+    ? 'Failed' 
+    : status;
+
   useEffect(() => {
     if (images.length <= 1) return;
     const interval = setInterval(() => {
@@ -95,9 +100,9 @@ export function CampaignCard({
             <div className="flex justify-between items-start">
               <span className={cn(
                 "px-1.5 py-0.5 rounded-sm text-[8px] md:text-[10px] font-bold uppercase tracking-wider backdrop-blur-md border border-white/20",
-                STATUS_CONFIG[status]?.className || "bg-white/80 text-primary"
+                STATUS_CONFIG[visualStatus]?.className || "bg-white/80 text-primary"
               )}>
-                {status}
+                {visualStatus}
               </span>
               <div className="flex items-center gap-1 px-1.5 py-0.5 rounded-sm text-[8px] md:text-[10px] font-bold text-white bg-black/40 backdrop-blur-md border border-white/10">
                 <Users className="h-2.5 w-2.5 md:h-3 md:w-3" />

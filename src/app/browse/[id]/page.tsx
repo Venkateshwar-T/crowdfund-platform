@@ -20,7 +20,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { CustomButton } from '@/components/shared/custom-button';
 import { StatusBadge } from '@/components/shared/status-badge';
 import { ContributorBadge } from '@/components/shared/contributor-badge';
-import { ShareButton } from '@/components/CampaignPage/share-button';
+import { ShareButton } from '@/components/shared/share-button';
 import { ProgressCircle } from '@/components/CampaignPage/progress-circle';
 import { MediaGallery } from '@/components/CampaignPage/media-gallery';
 import { StaticContributionBox } from '@/components/CampaignPage/static-contribution-box';
@@ -177,6 +177,11 @@ export default function CampaignDetailsPage({ params }: { params: Promise<{ id: 
   const isOwner = userAddress?.toLowerCase() === campaignData.owner.toLowerCase();
   const remainingUSD = Math.max(targetUSD - amountCollectedUSD, 0);
 
+  // Common sense status calculation
+  const effectiveStatus = (campaignData.status === 'Active' && isExpired && amountCollectedUSD < targetUSD) 
+    ? 'Failed' 
+    : campaignData.status;
+
   const campaign = {
     title: campaignData.title,
     description: campaignData.description,
@@ -188,7 +193,7 @@ export default function CampaignDetailsPage({ params }: { params: Promise<{ id: 
     targetAmount: targetUSD,
     contributors: campaignData.donations?.length || 0,
     deadline: deadlineDate,
-    status: campaignData.status
+    status: effectiveStatus
   };
 
   const scrollToFund = () => {
@@ -206,7 +211,7 @@ export default function CampaignDetailsPage({ params }: { params: Promise<{ id: 
       <main className="max-w-4xl mx-auto px-4 py-6 md:py-10 w-full flex flex-col gap-4 md:gap-8">
         <div className="flex flex-col gap-2">
           <div className="flex items-center justify-between">
-            <StatusBadge status={campaign.status} />
+            <StatusBadge status={campaign.status as any} />
             <div className='flex flex-row gap-2'>
               <Dialog>
                 <DialogTrigger asChild>
@@ -361,7 +366,7 @@ export default function CampaignDetailsPage({ params }: { params: Promise<{ id: 
           </Collapsible>
         </div>
 
-        {campaign.status === 'Active' && !isOwner && (
+        {campaign.status === 'Active' && !isExpired && !isOwner && (
           <StaticContributionBox 
             containerRef={fundRef} 
             onContribute={(amt) => handleAction('donateToCampaign', amt)}
@@ -374,8 +379,13 @@ export default function CampaignDetailsPage({ params }: { params: Promise<{ id: 
           />
         )}
       </main>
-      {campaign.status === 'Active' && !isOwner && (
-        <FloatingCTA onContribute={scrollToFund} visible={!isFundInView} />
+      
+      {!isOwner && (
+        <FloatingCTA 
+          onContribute={scrollToFund} 
+          visible={!isFundInView || campaign.status !== 'Active'} 
+          status={campaign.status as any}
+        />
       )}
     </div>
   );
