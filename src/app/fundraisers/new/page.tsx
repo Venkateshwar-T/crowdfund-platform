@@ -18,13 +18,6 @@ import {
   FormMessage,
   FormDescription,
 } from '@/components/ui/form';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
 import { Card } from '@/components/ui/card';
 import { CustomDatePicker } from '@/components/shared/custom-date-picker';
 import { useWriteContract, useAccount, useWaitForTransactionReceipt } from 'wagmi';
@@ -119,7 +112,6 @@ export default function NewFundraiserPage() {
   const [files, setFiles] = useState<File[]>([]);
   const [previews, setPreviews] = useState<string[]>([]);
   const [dragActive, setDragActive] = useState(false);
-  const [fileError, setFileError] = useState<string | null>(null);
 
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
@@ -139,7 +131,6 @@ export default function NewFundraiserPage() {
   }, [files]);
 
   const addFiles = (newFiles: File[]) => {
-    setFileError(null);
     const validFiles = newFiles.filter(file => {
       if (!file.type.startsWith('image/')) return false;
       if (file.size > MAX_FILE_SIZE) return false;
@@ -220,11 +211,13 @@ export default function NewFundraiserPage() {
                 <FormControl><Input placeholder="e.g. Help Sarah's Medical Recovery" className="h-10 md:h-12 rounded-xl" {...field} /></FormControl>
                 <FormMessage /></FormItem>
               )} />
+              
               <FormField control={form.control} name="description" render={({ field }) => (
                 <FormItem><FormLabel className="text-sm md:text-base font-bold">Description *</FormLabel>
                 <FormControl><TiptapEditor value={field.value} onChange={field.onChange} placeholder="Tell your story here..." /></FormControl>
                 <FormMessage /></FormItem>
               )} />
+
               <FormField control={form.control} name="additionalNotes" render={({ field }) => (
                 <FormItem>
                   <FormLabel className="text-sm md:text-base font-bold">Additional Notes (Optional)</FormLabel>
@@ -234,19 +227,61 @@ export default function NewFundraiserPage() {
                   <FormMessage />
                 </FormItem>
               )} />
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
+
+              <div className="space-y-4">
                 <FormField control={form.control} name="category" render={({ field }) => (
-                  <FormItem><FormLabel className="text-sm md:text-base font-bold">Category *</FormLabel>
-                  <Select onValueChange={field.onChange} defaultValue={field.value}>
-                    <FormControl><SelectTrigger className="h-10 md:h-12 rounded-xl"><SelectValue placeholder="Select a domain" /></SelectTrigger></FormControl>
-                    <SelectContent>{CAMPAIGN_CATEGORIES.map(cat => <SelectItem key={cat.id} value={cat.id}>{cat.label}</SelectItem>)}<SelectItem value="other">Other</SelectItem></SelectContent>
-                  </Select><FormMessage /></FormItem>
+                  <FormItem>
+                    <FormLabel className="text-sm md:text-base font-bold">Select Category *</FormLabel>
+                    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3 mt-2">
+                      {CAMPAIGN_CATEGORIES.map((cat) => {
+                        const Icon = cat.icon;
+                        const isSelected = field.value === cat.id;
+                        return (
+                          <button
+                            key={cat.id}
+                            type="button"
+                            onClick={() => field.onChange(cat.id)}
+                            className={cn(
+                              "flex flex-col items-center justify-center p-4 rounded-2xl border-2 transition-all gap-2 text-center group",
+                              isSelected 
+                                ? "border-primary bg-primary/5 text-primary shadow-inner" 
+                                : "border-muted-foreground/10 hover:border-primary/30 bg-background text-muted-foreground"
+                            )}
+                          >
+                            <Icon className={cn("h-6 w-6 transition-transform group-active:scale-90", isSelected ? "text-primary" : "text-muted-foreground")} />
+                            <span className="text-[10px] font-bold uppercase tracking-tight leading-tight">{cat.label}</span>
+                          </button>
+                        );
+                      })}
+                      <button
+                        type="button"
+                        onClick={() => field.onChange('other')}
+                        className={cn(
+                          "flex flex-col items-center justify-center p-4 rounded-2xl border-2 transition-all gap-2 text-center group",
+                          field.value === 'other'
+                            ? "border-primary bg-primary/5 text-primary shadow-inner" 
+                            : "border-muted-foreground/10 hover:border-primary/30 bg-background text-muted-foreground"
+                        )}
+                      >
+                        <PlusCircle className={cn("h-6 w-6 transition-transform group-active:scale-90", field.value === 'other' ? "text-primary" : "text-muted-foreground")} />
+                        <span className="text-[10px] font-bold uppercase tracking-tight">Other</span>
+                      </button>
+                    </div>
+                    <FormMessage />
+                  </FormItem>
                 )} />
-                {categoryValue === 'other' && <FormField control={form.control} name="otherCategory" render={({ field }) => (
-                  <FormItem><FormLabel className="text-sm md:text-base font-bold">Category Name *</FormLabel>
-                  <FormControl><Input placeholder="Specify domain" className="h-10 md:h-12 rounded-xl" {...field} /></FormControl><FormMessage /></FormItem>
-                )} />}
+
+                {categoryValue === 'other' && (
+                  <FormField control={form.control} name="otherCategory" render={({ field }) => (
+                    <FormItem className="animate-in fade-in slide-in-from-top-2 duration-300">
+                      <FormLabel className="text-sm md:text-base font-bold">Specify Category Name *</FormLabel>
+                      <FormControl><Input placeholder="e.g. Wildlife Preservation" className="h-10 md:h-12 rounded-xl" {...field} /></FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )} />
+                )}
               </div>
+
               <Card className="p-4 md:p-6 border-muted-foreground/10 bg-primary/5 rounded-3xl">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
                   <FormField control={form.control} name="targetAmount" render={({ field }) => (
@@ -259,15 +294,27 @@ export default function NewFundraiserPage() {
                   )} />
                 </div>
               </Card>
+
               <div className="space-y-4">
                 <FormLabel className="text-sm md:text-base font-bold">Image Upload (Max 5) *</FormLabel>
-                <div className={cn("relative border-2 border-dashed rounded-3xl p-6 md:p-8 flex flex-col items-center justify-center gap-3 cursor-pointer", dragActive ? "border-primary bg-primary/5" : "border-muted-foreground/20 hover:border-primary/50")} onDragOver={handleDrag} onDrop={handleDrop} onClick={() => document.getElementById('file-upload')?.click()}>
+                <div className={cn("relative border-2 border-dashed rounded-3xl p-6 md:p-8 flex flex-col items-center justify-center gap-3 cursor-pointer transition-colors", dragActive ? "border-primary bg-primary/5" : "border-muted-foreground/20 hover:border-primary/50")} onDragOver={handleDrag} onDrop={handleDrop} onClick={() => document.getElementById('file-upload')?.click()}>
                   <input id="file-upload" type="file" className="hidden" multiple accept="image/*" onChange={handleFileChange} />
                   <ImageIcon className="h-8 w-8 text-primary" /><p className="text-xs font-bold">Click or drag & drop</p>
                 </div>
-                {files.length > 0 && <div className="grid grid-cols-5 gap-3">{files.map((_, i) => <div key={i} className="relative aspect-square rounded-xl overflow-hidden border"><img src={previews[i]} className="object-cover w-full h-full" /><button onClick={(e) => { e.stopPropagation(); removeFile(i); }} className="absolute top-1 right-1 bg-destructive text-white p-1 rounded-full"><X size={12} /></button></div>)}</div>}
+                {files.length > 0 && (
+                  <div className="grid grid-cols-2 sm:grid-cols-5 gap-3">
+                    {files.map((_, i) => (
+                      <div key={i} className="relative aspect-square rounded-xl overflow-hidden border">
+                        <img src={previews[i]} className="object-cover w-full h-full" alt="preview" />
+                        <button type="button" onClick={(e) => { e.stopPropagation(); removeFile(i); }} className="absolute top-1 right-1 bg-destructive text-white p-1 rounded-full shadow-lg">
+                          <X size={12} />
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                )}
               </div>
-              <CustomButton type="submit" className="w-full h-12 md:h-14 rounded-full font-bold" isLoading={isUploading || isWalletLoading || isMining}>Create Campaign</CustomButton>
+              <CustomButton type="submit" className="w-full h-12 md:h-14 rounded-full font-bold text-base md:text-lg" isLoading={isUploading || isWalletLoading || isMining}>Create Campaign</CustomButton>
             </form>
           </Form>
         </div>
