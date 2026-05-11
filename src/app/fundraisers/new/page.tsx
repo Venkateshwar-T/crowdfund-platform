@@ -207,13 +207,13 @@ export default function NewFundraiserPage() {
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6 md:space-y-8">
               <FormField control={form.control} name="title" render={({ field }) => (
-                <FormItem><FormLabel className="text-sm md:text-base font-bold">Campaign Title *</FormLabel>
+                <FormItem><FormLabel className="text-sm md:text-base font-bold">Campaign Title <span className="text-destructive">*</span></FormLabel>
                 <FormControl><Input placeholder="e.g. Help Sarah's Medical Recovery" className="h-10 md:h-12 rounded-xl" {...field} /></FormControl>
                 <FormMessage /></FormItem>
               )} />
               
               <FormField control={form.control} name="description" render={({ field }) => (
-                <FormItem><FormLabel className="text-sm md:text-base font-bold">Description *</FormLabel>
+                <FormItem><FormLabel className="text-sm md:text-base font-bold">Description <span className="text-destructive">*</span></FormLabel>
                 <FormControl><TiptapEditor value={field.value} onChange={field.onChange} placeholder="Tell your story here..." /></FormControl>
                 <FormMessage /></FormItem>
               )} />
@@ -231,7 +231,7 @@ export default function NewFundraiserPage() {
               <div className="space-y-4">
                 <FormField control={form.control} name="category" render={({ field }) => (
                   <FormItem>
-                    <FormLabel className="text-sm md:text-base font-bold">Select Category *</FormLabel>
+                    <FormLabel className="text-sm md:text-base font-bold">Select Category <span className="text-destructive">*</span></FormLabel>
                     <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3 mt-2">
                       {CAMPAIGN_CATEGORIES.map((cat) => {
                         const Icon = cat.icon;
@@ -274,7 +274,7 @@ export default function NewFundraiserPage() {
                 {categoryValue === 'other' && (
                   <FormField control={form.control} name="otherCategory" render={({ field }) => (
                     <FormItem className="animate-in fade-in slide-in-from-top-2 duration-300">
-                      <FormLabel className="text-sm md:text-base font-bold">Specify Category Name *</FormLabel>
+                      <FormLabel className="text-sm md:text-base font-bold">Specify Category Name <span className="text-destructive">*</span></FormLabel>
                       <FormControl><Input placeholder="e.g. Wildlife Preservation" className="h-10 md:h-12 rounded-xl" {...field} /></FormControl>
                       <FormMessage />
                     </FormItem>
@@ -285,18 +285,18 @@ export default function NewFundraiserPage() {
               <Card className="p-4 md:p-6 border-muted-foreground/10 bg-primary/5 rounded-3xl">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
                   <FormField control={form.control} name="targetAmount" render={({ field }) => (
-                    <FormItem><FormLabel className="text-sm md:text-base font-bold">Target Amount (USD) *</FormLabel>
+                    <FormItem><FormLabel className="text-sm md:text-base font-bold">Target Amount (USD) <span className="text-destructive">*</span></FormLabel>
                     <FormControl><div className="relative"><span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground font-bold text-sm">$</span><Input type="number" step="0.01" className="h-10 md:h-12 pl-7 rounded-xl" {...field} /></div></FormControl><FormMessage /></FormItem>
                   )} />
                   <FormField control={form.control} name="deadline" render={({ field }) => (
-                    <FormItem className="flex flex-col gap-1.5"><FormLabel className="text-sm md:text-base font-bold">Deadline Date *</FormLabel>
+                    <FormItem className="flex flex-col gap-1.5"><FormLabel className="text-sm md:text-base font-bold">Deadline Date <span className="text-destructive">*</span></FormLabel>
                     <FormControl><CustomDatePicker value={field.value} onChange={field.onChange} /></FormControl><FormMessage /></FormItem>
                   )} />
                 </div>
               </Card>
 
               <div className="space-y-4">
-                <FormLabel className="text-sm md:text-base font-bold">Image Upload (Max 5) *</FormLabel>
+                <FormLabel className="text-sm md:text-base font-bold">Image Upload (Max 5) <span className="text-destructive">*</span></FormLabel>
                 <div className={cn("relative border-2 border-dashed rounded-3xl p-6 md:p-8 flex flex-col items-center justify-center gap-3 cursor-pointer transition-colors", dragActive ? "border-primary bg-primary/5" : "border-muted-foreground/20 hover:border-primary/50")} onDragOver={handleDrag} onDrop={handleDrop} onClick={() => document.getElementById('file-upload')?.click()}>
                   <input id="file-upload" type="file" className="hidden" multiple accept="image/*" onChange={handleFileChange} />
                   <ImageIcon className="h-8 w-8 text-primary" /><p className="text-xs font-bold">Click or drag & drop</p>
