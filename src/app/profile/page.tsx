@@ -247,15 +247,15 @@ export default function ProfilePage() {
             <div>
               <p className="text-xs text-muted-foreground font-black uppercase tracking-[0.2em] mb-1">Balance</p>
               <h3 className="text-xl md:text-4xl font-black">{ethValueInWallet.toFixed(4)} <span className="text-sm font-bold text-muted-foreground">ETH</span></h3>
-              <div className="mt-2 text-xs font-bold text-primary bg-primary/10 px-2 py-0.5 rounded-full w-fit">≈${usdValueInWallet.toLocaleString()}</div>
+              <div className="mt-2 text-xs font-bold text-primary bg-primary/10 px-2 py-0.5 rounded-full w-fit">≈${usdValueInWallet.toLocaleString(undefined, { maximumFractionDigits: 2, minimumFractionDigits: 2 })}</div>
             </div>
           </Card>
-          <ProfileStatCard title="Raised (USD)" value={`$${processedData.totalUSD.toLocaleString()}`} icon={TrendingUp} />
-          <ProfileStatCard title="Contributed (USD)" value={`$${processedData.totalContributedUSD.toLocaleString()}`} icon={HeartHandshake} />
+          <ProfileStatCard title="Raised (USD)" value={`$${processedData.totalUSD.toLocaleString(undefined, { maximumFractionDigits: 2, minimumFractionDigits: 2 })}`} icon={TrendingUp} />
+          <ProfileStatCard title="Contributed (USD)" value={`$${processedData.totalContributedUSD.toLocaleString(undefined, { maximumFractionDigits: 2, minimumFractionDigits: 2 })}`} icon={HeartHandshake} />
         </div>
 
         <Tabs defaultValue="my-campaigns" className="w-full mt-8">
-          <div className="flex justify-center mb-8">
+          <div className="flex justify-center mb-4 md:mb-8">
             <TabsList className="bg-white/50 backdrop-blur-md px-2 rounded-2xl h-14 grid gap-1 grid-cols-2 max-w-md w-full border shadow-sm">
               <TabsTrigger value="my-campaigns" className="rounded-xl font-black text-xs md:text-sm data-[state=active]:bg-primary data-[state=active]:text-white flex items-center justify-center gap-3 transition-all">
                 My Campaigns
@@ -288,7 +288,7 @@ export default function ProfilePage() {
                   ))}
                 </div>
               ) : (
-                <div className="flex flex-col items-center justify-center py-16 text-center gap-4 bg-white/30 rounded-3xl border border-dashed">
+                <div className="flex flex-col items-center justify-center py-12 text-center gap-4 bg-white/30 rounded-3xl border border-dashed">
                   <TrendingUp className="h-10 w-10 text-muted-foreground opacity-30" />
                   <div className="space-y-1">
                     <p className="font-bold text-foreground">No campaigns yet</p>
@@ -315,7 +315,7 @@ export default function ProfilePage() {
                   ))}
                 </div>
               ) : (
-                <div className="flex flex-col items-center justify-center py-16 text-center gap-4 bg-white/30 rounded-3xl border border-dashed">
+                <div className="flex flex-col items-center justify-center py-12 text-center gap-4 bg-white/30 rounded-3xl border border-dashed">
                   <HeartHandshake className="h-10 w-10 text-muted-foreground opacity-30" />
                   <div className="space-y-1">
                     <p className="font-bold text-foreground">No contributions yet</p>

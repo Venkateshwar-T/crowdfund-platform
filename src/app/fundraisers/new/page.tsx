@@ -45,8 +45,8 @@ const formSchema = z.object({
     required_error: 'A deadline is required',
   }).refine((date) => {
     const today = new Date();
-    today.setHours(0, 0, 0, 0);
-    return date >= today;
+    // No setHours(0,0,0,0) here because we care about minutes
+    return date > new Date();
   }, {
     message: "Deadline must be in the future",
   }),
@@ -275,7 +275,28 @@ export default function NewFundraiserPage() {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
                   <FormField control={form.control} name="targetAmount" render={({ field }) => (
                     <FormItem><FormLabel className="text-sm md:text-base font-bold">Target Amount (USD) <span className="text-destructive">*</span></FormLabel>
-                    <FormControl><div className="relative"><span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground font-bold text-sm">$</span><Input type="number" step="0.01" className="h-10 md:h-12 pl-7 rounded-xl" {...field} /></div></FormControl><FormMessage /></FormItem>
+                    <FormControl>
+                      <div className="relative">
+                        <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground font-bold text-sm">$</span>
+                        <Input 
+                          type="number" 
+                          step="0.01" 
+                          className="h-10 md:h-12 pl-7 rounded-xl" 
+                          {...field} 
+                          onChange={(e) => {
+                            let val = e.target.value;
+                            if (val.includes('.')) {
+                              const [int, dec] = val.split('.');
+                              if (dec && dec.length > 2) {
+                                val = `${int}.${dec.slice(0, 2)}`;
+                              }
+                            }
+                            field.onChange(val);
+                          }}
+                        />
+                      </div>
+                    </FormControl>
+                    <FormMessage /></FormItem>
                   )} />
                   <FormField control={form.control} name="deadline" render={({ field }) => (
                     <FormItem className="flex flex-col gap-1.5"><FormLabel className="text-sm md:text-base font-bold">Deadline Date <span className="text-destructive">*</span></FormLabel>

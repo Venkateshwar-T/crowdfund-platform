@@ -38,6 +38,15 @@ export function StaticContributionBox({
 
   const handleAmountChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     let val = e.target.value;
+    
+    // Prevent more than 2 decimal places
+    if (val.includes('.')) {
+      const [int, dec] = val.split('.');
+      if (dec && dec.length > 2) {
+        val = `${int}.${dec.slice(0, 2)}`;
+      }
+    }
+
     if (parseFloat(val) > remainingUSD) {
       val = remainingUSD.toFixed(2);
     }
@@ -48,7 +57,7 @@ export function StaticContributionBox({
     <div ref={containerRef} className="p-5 md:p-8 bg-foreground rounded-2xl md:rounded-3xl text-white flex flex-col items-center gap-6 shadow-2xl ring-1 ring-white/10 scroll-mt-24">
       <div className="text-center w-full">
         <h3 className="text-base md:text-lg font-bold">Fund this Campaign</h3>
-        <p className="text-xs md:text-sm text-white/60">Target remaining: ${remainingUSD.toLocaleString(undefined, { maximumFractionDigits: 2 })}</p>
+        <p className="text-xs md:text-sm text-white/60">Target remaining: ${remainingUSD.toLocaleString(undefined, { maximumFractionDigits: 2, minimumFractionDigits: 2 })}</p>
       </div>
       
       {isSuccess ? (
@@ -84,7 +93,7 @@ export function StaticContributionBox({
             <div className="flex flex-col gap-1.5 px-2">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2 text-xs md:text-sm font-medium text-white/60">
-                  Estimated <span className="text-primary font-bold">{ethEstimate.toFixed(6)} ETH</span> | <span className="text-primary font-bold">₹{inrEstimate.toLocaleString(undefined, { maximumFractionDigits: 2 })}</span>
+                  Estimated <span className="text-primary font-bold">{ethEstimate.toFixed(6)} ETH</span> | <span className="text-primary font-bold">₹{inrEstimate.toLocaleString(undefined, { maximumFractionDigits: 2, minimumFractionDigits: 2 })}</span>
                 </div>
                 {isInsufficient && (
                   <div className="flex items-center gap-1.5 text-xs text-destructive font-bold animate-pulse">

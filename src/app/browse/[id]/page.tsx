@@ -207,7 +207,7 @@ export default function CampaignDetailsPage({ params }: { params: Promise<{ id: 
     return { __html: typeof window !== 'undefined' ? DOMPurify.sanitize(html) : html };
   };
 
-  const reportMailto = `mailto:venkattiwari42@gmail.com?subject=Reporting Campaign: ${encodeURIComponent(campaign.title)}&body=${encodeURIComponent(reportReason)}`;
+  const reportMailto = `mailto:support@crowdfund.io?subject=Reporting Campaign: ${encodeURIComponent(campaign.title)}&body=${encodeURIComponent(reportReason)}`;
 
   return (
     <div className="flex flex-col min-h-screen pb-12 md:pb-20">
@@ -261,7 +261,7 @@ export default function CampaignDetailsPage({ params }: { params: Promise<{ id: 
 
         <MediaGallery media={campaign.media} title={campaign.title} />
 
-        <div className="bg-white/70 backdrop-blur-xl rounded-2xl md:rounded-3xl border border-white/20 p-5 md:p-8 shadow-xl flex flex-col gap-6">
+        <div ref={fundRef} className="bg-white/70 backdrop-blur-xl rounded-2xl md:rounded-3xl border border-white/20 p-5 md:p-8 shadow-xl flex flex-col gap-6 scroll-mt-24">
           <div className="flex items-center gap-3">
             <Avatar className="h-8 w-8 md:h-12 md:w-12 border-2 border-background ring-1 ring-border/10">
               <AvatarFallback className="bg-muted text-muted-foreground">
@@ -330,7 +330,7 @@ export default function CampaignDetailsPage({ params }: { params: Promise<{ id: 
               <ProgressCircle progress={Math.min((campaign.contributedAmount / campaign.targetAmount) * 100, 100)} />
               <div className="text-center flex flex-col gap-3">
                 <p className="text-sm md:text-xl font-black text-foreground">
-                  ${campaign.contributedAmount.toLocaleString(undefined, { maximumFractionDigits: 2 })} <span className="text-muted-foreground font-medium text-xs md:text-lg">raised of ${campaign.targetAmount.toLocaleString()}</span>
+                  ${campaign.contributedAmount.toLocaleString(undefined, { maximumFractionDigits: 2, minimumFractionDigits: 2 })} <span className="text-muted-foreground font-medium text-xs md:text-lg">raised of ${campaign.targetAmount.toLocaleString(undefined, { maximumFractionDigits: 2, minimumFractionDigits: 2 })}</span>
                 </p>
                 <ContributorBadge count={campaign.contributors} showSupportersLabel className="mx-auto" />
               </div>
@@ -366,7 +366,7 @@ export default function CampaignDetailsPage({ params }: { params: Promise<{ id: 
 
         {campaign.status === 'Active' && !isExpired && !isOwner && (
           <StaticContributionBox 
-            containerRef={fundRef}
+            containerRef={null}
             onContribute={(amt) => handleAction('donateToCampaign', amt)}
             isConfirming={isConfirmingInWallet}
             isMining={isMining}
@@ -378,7 +378,7 @@ export default function CampaignDetailsPage({ params }: { params: Promise<{ id: 
         )}
 
         {campaign.status === 'Failed' && (
-          <div ref={fundRef} className="bg-white/70 backdrop-blur-xl rounded-2xl md:rounded-3xl border border-destructive/20 p-5 md:p-8 shadow-xl flex flex-col gap-5">
+          <div className="bg-white/70 backdrop-blur-xl rounded-2xl md:rounded-3xl border border-destructive/20 p-5 md:p-8 shadow-xl flex flex-col gap-5">
             <div className="flex items-start gap-3">
               <div className="p-2 md:p-3 bg-destructive/10 rounded-xl md:rounded-2xl shrink-0">
                 <Info className="h-5 w-5 md:h-6 md:w-6 text-destructive" />

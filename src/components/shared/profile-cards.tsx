@@ -53,11 +53,11 @@ export function ProfileCampaignCard({
       <Card className="p-4 rounded-xl border border-border/50 bg-white/50 hover:bg-white transition-all shadow-sm">
         <div className="flex items-center justify-between gap-4">
           <div className="flex flex-col min-w-0">
-            <h4 className="text-sm md:text-base font-bold text-foreground group-hover:text-primary transition-colors truncate">
+            <h4 className="text-xs md:text-base font-bold text-foreground group-hover:text-primary transition-colors truncate">
               {title}
             </h4>
-            <p className="text-[10px] md:text-[11px] text-muted-foreground font-medium tracking-tight">
-              ${amountCollected.toLocaleString(undefined, { maximumFractionDigits: 2 })} / ${target.toLocaleString()} raised
+            <p className="text-[10px] md:text-sm text-muted-foreground font-medium tracking-tight">
+              ${amountCollected.toLocaleString(undefined, { maximumFractionDigits: 2, minimumFractionDigits: 2 })} / ${target.toLocaleString(undefined, { maximumFractionDigits: 2, minimumFractionDigits: 2 })} raised
             </p>
           </div>
           <StatusBadge status={status} className="shrink-0" />
