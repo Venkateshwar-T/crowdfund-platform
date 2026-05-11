@@ -366,7 +366,7 @@ export default function CampaignDetailsPage({ params }: { params: Promise<{ id: 
 
         {campaign.status === 'Active' && !isExpired && !isOwner && (
           <StaticContributionBox 
-            containerRef={null}
+            containerRef={fundRef}
             onContribute={(amt) => handleAction('donateToCampaign', amt)}
             isConfirming={isConfirmingInWallet}
             isMining={isMining}
@@ -377,33 +377,71 @@ export default function CampaignDetailsPage({ params }: { params: Promise<{ id: 
           />
         )}
 
-        {campaign.status === 'Failed' && (
-          <div className="bg-white/70 backdrop-blur-xl rounded-2xl md:rounded-3xl border border-destructive/20 p-5 md:p-8 shadow-xl flex flex-col gap-5">
-            <div className="flex items-start gap-3">
-              <div className="p-2 md:p-3 bg-destructive/10 rounded-xl md:rounded-2xl shrink-0">
-                <Info className="h-5 w-5 md:h-6 md:w-6 text-destructive" />
+        <div ref={fundRef}>
+          {isOwner && campaign.status === 'Successful' && !campaignData.withdrawn && (
+            <div className="bg-white/70 backdrop-blur-xl rounded-2xl md:rounded-3xl border border-primary/20 p-5 md:p-8 shadow-xl flex flex-col gap-5">
+              <div className="flex items-start gap-3">
+                <div className="p-2 md:p-3 bg-primary/10 rounded-xl md:rounded-2xl shrink-0">
+                  <ExternalLink className="h-5 w-5 md:h-6 md:w-6 text-primary" />
+                </div>
+                <div className="flex flex-col gap-1">
+                  <h3 className="text-sm md:text-base font-black text-foreground">Target Met</h3>
+                  <p className="text-xs md:text-sm text-muted-foreground font-medium leading-relaxed">
+                    Congratulations! Your campaign was successful. You can now withdraw the raised funds securely to your wallet.
+                  </p>
+                </div>
               </div>
-              <div className="flex flex-col gap-1">
-                <h3 className="text-sm md:text-base font-black text-destructive">Campaign Failed</h3>
-                <p className="text-xs md:text-sm text-destructive/80 font-medium leading-relaxed">
-                  The funding goal was not met by the deadline. If you contributed, you are eligible to claim a full refund.
-                </p>
+              <CustomButton onClick={() => handleAction('withdraw')} className="w-full h-12 md:h-14 rounded-xl md:rounded-2xl gap-2 font-black text-sm md:text-base shadow-xl shadow-primary/20" isLoading={isMining}>
+                <ExternalLink size={20} /> Withdraw Funds
+              </CustomButton>
+            </div>
+          )}
+
+          {isOwner && campaignData.withdrawn && (
+            <div className="bg-emerald-50/50 backdrop-blur-xl rounded-2xl md:rounded-3xl border border-emerald-200 p-5 md:p-8 shadow-xl flex flex-col gap-5">
+              <div className="flex items-start gap-3">
+                <div className="p-2 md:p-3 bg-emerald-100 rounded-xl md:rounded-2xl shrink-0">
+                  <MdVerifiedUser className="h-5 w-5 md:h-6 md:w-6 text-emerald-600" />
+                </div>
+                <div className="flex flex-col gap-1">
+                  <h3 className="text-sm md:text-base font-black text-emerald-800">Funds Withdrawn</h3>
+                  <p className="text-xs md:text-sm text-emerald-600/80 font-medium leading-relaxed">
+                    The raised amount has been successfully transferred to your wallet. Thank you for using the platform!
+                  </p>
+                </div>
               </div>
             </div>
-            {hasContributed && (
-              <CustomButton onClick={() => handleAction('claimRefund')} variant="outline" className="w-full h-12 md:h-14 rounded-xl md:rounded-2xl gap-2 text-destructive border-destructive/20 font-black text-sm md:text-base hover:bg-destructive/10 bg-white" isLoading={isMining}>
-                <Coins size={20} /> Claim My Refund
-              </CustomButton>
-            )}
-          </div>
-        )}
+          )}
+
+          {campaign.status === 'Failed' && (
+            <div className="bg-white/70 backdrop-blur-xl rounded-2xl md:rounded-3xl border border-destructive/20 p-5 md:p-8 shadow-xl flex flex-col gap-5">
+              <div className="flex items-start gap-3">
+                <div className="p-2 md:p-3 bg-destructive/10 rounded-xl md:rounded-2xl shrink-0">
+                  <Info className="h-5 w-5 md:h-6 md:w-6 text-destructive" />
+                </div>
+                <div className="flex flex-col gap-1">
+                  <h3 className="text-sm md:text-base font-black text-destructive">Campaign Failed</h3>
+                  <p className="text-xs md:text-sm text-destructive/80 font-medium leading-relaxed">
+                    The funding goal was not met by the deadline. If you contributed, you are eligible to claim a full refund.
+                  </p>
+                </div>
+              </div>
+              {hasContributed && (
+                <CustomButton onClick={() => handleAction('claimRefund')} variant="outline" className="w-full h-12 md:h-14 rounded-xl md:rounded-2xl gap-2 text-destructive border-destructive/20 font-black text-sm md:text-base hover:bg-destructive/10 bg-white" isLoading={isMining}>
+                  <Coins size={20} /> Claim My Refund
+                </CustomButton>
+              )}
+            </div>
+          )}
+        </div>
       </main>
       
-      {!isOwner && (
+      {(!isOwner || (isOwner && campaign.status === 'Successful' && !campaignData.withdrawn)) && (
         <FloatingCTA 
           onContribute={scrollToFund} 
           visible={!isFundInView} 
           status={campaign.status as any}
+          isOwner={isOwner}
         />
       )}
     </div>
