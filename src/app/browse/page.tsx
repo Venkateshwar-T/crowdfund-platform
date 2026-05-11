@@ -5,7 +5,7 @@ import { useQuery, gql } from '@apollo/client';
 import { useSearchParams } from 'next/navigation';
 import { formatUnits } from 'viem';
 import { BrowseFilterBar, type FilterState } from '@/components/BrowsePage/browse-filter-bar';
-import { CampaignCard } from '@/components/shared/campaign-card';
+import { CampaignCard } from '@/components/BrowsePage/campaign-card';
 import { Loader2 } from 'lucide-react';
 import { CustomButton } from '@/components/shared/custom-button';
 

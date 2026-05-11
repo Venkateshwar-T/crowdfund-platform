@@ -1,4 +1,3 @@
-
 'use client';
 
 import Link from 'next/link';
@@ -16,8 +15,8 @@ import {
   Search
 } from 'lucide-react';
 import { NavSearch } from './nav-search';
-import { CustomButton } from './custom-button';
-import { BrandLogo } from './brand-logo';
+import { CustomButton } from './shared/custom-button';
+import { BrandLogo } from './shared/brand-logo';
 import { cn } from '@/lib/utils';
 import { useAccount } from 'wagmi';
 import { useConnectModal } from '@rainbow-me/rainbowkit';

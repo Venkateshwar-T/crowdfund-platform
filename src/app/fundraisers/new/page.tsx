@@ -18,7 +18,7 @@ import {
   FormMessage,
 } from '@/components/ui/form';
 import { Card } from '@/components/ui/card';
-import { CustomDatePicker } from '@/components/shared/custom-date-picker';
+import { CustomDatePicker } from '@/components/custom-date-picker';
 import { useWriteContract, useAccount, useWaitForTransactionReceipt } from 'wagmi';
 import { useConnectModal } from '@rainbow-me/rainbowkit';
 import { parseUnits } from 'viem';

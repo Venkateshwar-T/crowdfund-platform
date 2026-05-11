@@ -51,6 +51,10 @@ import {
   DialogTrigger,
   DialogFooter
 } from "@/components/ui/dialog";
+import { WithdrawFundsBox } from '@/components/CampaignPage/withdraw-funds-box';
+import { WithdrawSuccessCard } from '@/components/CampaignPage/withdraw-success-card';
+import { CampaignFailedCard } from '@/components/CampaignPage/campaign-failed-card';
+import { CampaignWithdrawalCard } from '@/components/CampaignPage/campaign-withdrawal-card';
 
 const GET_CAMPAIGN_DETAIL = gql`
   query GetCampaignDetail($slug: String!) {
@@ -330,17 +334,12 @@ export default function CampaignDetailsPage({ params }: { params: Promise<{ id: 
               <ProgressCircle progress={Math.min((campaign.contributedAmount / campaign.targetAmount) * 100, 100)} />
               <div className="text-center flex flex-col gap-3">
                 <p className="text-sm md:text-xl font-black text-foreground">
-                  ${campaign.contributedAmount.toLocaleString(undefined, { maximumFractionDigits: 2, minimumFractionDigits: 2 })} <span className="text-muted-foreground font-medium text-xs md:text-lg">raised of ${campaign.targetAmount.toLocaleString(undefined, { maximumFractionDigits: 2, minimumFractionDigits: 2 })}</span>
+                  ${campaign.contributedAmount.toLocaleString(undefined, { maximumFractionDigits: 1 })} <span className="text-muted-foreground font-medium text-xs md:text-lg">raised of ${campaign.targetAmount.toLocaleString(undefined, { maximumFractionDigits: 2, minimumFractionDigits: 2 })}</span>
                 </p>
                 <ContributorBadge count={campaign.contributors} showSupportersLabel className="mx-auto" />
               </div>
             </div>
           </div>
-          {isOwner && campaign.status === 'Successful' && !campaignData.withdrawn && (
-            <CustomButton onClick={() => handleAction('withdraw')} className="w-full h-14 rounded-2xl bg-primary text-base font-black gap-2 shadow-xl shadow-primary/20" isLoading={isMining}>
-              <ExternalLink size={20} /> Withdraw Funds
-            </CustomButton>
-          )}
         </div>
 
         <div className="bg-white/70 backdrop-blur-xl rounded-2xl md:rounded-3xl border border-white/20 p-5 md:p-8 shadow-xl">
@@ -364,74 +363,37 @@ export default function CampaignDetailsPage({ params }: { params: Promise<{ id: 
           </Collapsible>
         </div>
 
-        {campaign.status === 'Active' && !isExpired && !isOwner && (
-          <StaticContributionBox 
-            containerRef={fundRef}
-            onContribute={(amt) => handleAction('donateToCampaign', amt)}
-            isConfirming={isConfirmingInWallet}
-            isMining={isMining}
-            isSuccess={isTransactionConfirmed}
-            ethPrice={ethPrices}
-            userBalance={userBalance}
-            remainingUSD={remainingUSD}
-          />
-        )}
-
         <div ref={fundRef}>
-          {isOwner && campaign.status === 'Successful' && !campaignData.withdrawn && (
-            <div className="bg-white/70 backdrop-blur-xl rounded-2xl md:rounded-3xl border border-primary/20 p-5 md:p-8 shadow-xl flex flex-col gap-5">
-              <div className="flex items-start gap-3">
-                <div className="p-2 md:p-3 bg-primary/10 rounded-xl md:rounded-2xl shrink-0">
-                  <ExternalLink className="h-5 w-5 md:h-6 md:w-6 text-primary" />
-                </div>
-                <div className="flex flex-col gap-1">
-                  <h3 className="text-sm md:text-base font-black text-foreground">Target Met</h3>
-                  <p className="text-xs md:text-sm text-muted-foreground font-medium leading-relaxed">
-                    Congratulations! Your campaign was successful. You can now withdraw the raised funds securely to your wallet.
-                  </p>
-                </div>
-              </div>
-              <CustomButton onClick={() => handleAction('withdraw')} className="w-full h-12 md:h-14 rounded-xl md:rounded-2xl gap-2 font-black text-sm md:text-base shadow-xl shadow-primary/20" isLoading={isMining}>
-                <ExternalLink size={20} /> Withdraw Funds
-              </CustomButton>
-            </div>
+          {campaign.status === 'Active' && !isExpired && !isOwner && (
+            <StaticContributionBox 
+              containerRef={fundRef}
+              onContribute={(amt) => handleAction('donateToCampaign', amt)}
+              isConfirming={isConfirmingInWallet}
+              isMining={isMining}
+              isSuccess={isTransactionConfirmed}
+              ethPrice={ethPrices}
+              userBalance={userBalance}
+              remainingUSD={remainingUSD}
+            />
           )}
 
-          {isOwner && campaignData.withdrawn && (
-            <div className="bg-emerald-50/50 backdrop-blur-xl rounded-2xl md:rounded-3xl border border-emerald-200 p-5 md:p-8 shadow-xl flex flex-col gap-5">
-              <div className="flex items-start gap-3">
-                <div className="p-2 md:p-3 bg-emerald-100 rounded-xl md:rounded-2xl shrink-0">
-                  <MdVerifiedUser className="h-5 w-5 md:h-6 md:w-6 text-emerald-600" />
-                </div>
-                <div className="flex flex-col gap-1">
-                  <h3 className="text-sm md:text-base font-black text-emerald-800">Funds Withdrawn</h3>
-                  <p className="text-xs md:text-sm text-emerald-600/80 font-medium leading-relaxed">
-                    The raised amount has been successfully transferred to your wallet. Thank you for using the platform!
-                  </p>
-                </div>
-              </div>
-            </div>
+          {isOwner && campaign.status === 'Successful' && (
+            <CampaignWithdrawalCard 
+              withdrawn={campaignData.withdrawn}
+              onWithdraw={() => handleAction('withdraw')} 
+              isLoading={isMining}
+            />
           )}
 
           {campaign.status === 'Failed' && (
-            <div className="bg-white/70 backdrop-blur-xl rounded-2xl md:rounded-3xl border border-destructive/20 p-5 md:p-8 shadow-xl flex flex-col gap-5">
-              <div className="flex items-start gap-3">
-                <div className="p-2 md:p-3 bg-destructive/10 rounded-xl md:rounded-2xl shrink-0">
-                  <Info className="h-5 w-5 md:h-6 md:w-6 text-destructive" />
-                </div>
-                <div className="flex flex-col gap-1">
-                  <h3 className="text-sm md:text-base font-black text-destructive">Campaign Failed</h3>
-                  <p className="text-xs md:text-sm text-destructive/80 font-medium leading-relaxed">
-                    The funding goal was not met by the deadline. If you contributed, you are eligible to claim a full refund.
-                  </p>
-                </div>
-              </div>
-              {hasContributed && (
-                <CustomButton onClick={() => handleAction('claimRefund')} variant="outline" className="w-full h-12 md:h-14 rounded-xl md:rounded-2xl gap-2 text-destructive border-destructive/20 font-black text-sm md:text-base hover:bg-destructive/10 bg-white" isLoading={isMining}>
-                  <Coins size={20} /> Claim My Refund
-                </CustomButton>
-              )}
-            </div>
+            <CampaignFailedCard 
+              isOwner={isOwner}
+              hasContributed={hasContributed}
+              onClaimRefund={() => handleAction('claimRefund')}
+              isLoading={isMining}
+              ownerMessage="Your campaign didn't quite reach its goal, but your effort made a difference! Refunds are being processed to all supporters. You can start a new campaign anytime."
+              contributorMessage="The funding goal was not met by the deadline. If you contributed, you are eligible to claim a full refund."
+            />
           )}
         </div>
       </main>

@@ -23,9 +23,7 @@ export function CustomSearchBar({ onClick, className, placeholder }: CustomSearc
         <div className="h-9 w-full flex items-center text-sm text-muted-foreground/60 select-none">
           {placeholder || "Search fundraisers"}
         </div>
-        {/* Base line */}
         <div className="absolute bottom-0 left-0 h-[1px] w-full bg-muted-foreground/20" />
-        {/* Animated thick line on hover */}
         <div className="absolute bottom-0 left-0 h-[2px] w-full bg-primary rounded-full origin-left scale-x-0 transition-transform duration-300 ease-out group-hover:scale-x-100" />
       </div>
     </div>

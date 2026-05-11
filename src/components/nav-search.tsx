@@ -21,6 +21,7 @@ const SEARCH_SUGGESTIONS = gql`
       }
     ) {
       id
+      slug
       title
       category
     }
@@ -68,7 +69,6 @@ export function NavSearch({ isSearching, setIsSearching, placeholder, mode = 'ov
     }
   };
 
-  // Trigger Mode: Just the visual bar that opens the search
   if (mode === 'trigger') {
     return (
       <CustomSearchBar 
@@ -78,7 +78,6 @@ export function NavSearch({ isSearching, setIsSearching, placeholder, mode = 'ov
     );
   }
 
-  // Overlay Mode: The actual absolute search interface with logic
   if (!isSearching) return null;
 
   return (
@@ -113,7 +112,6 @@ export function NavSearch({ isSearching, setIsSearching, placeholder, mode = 'ov
         </form>
         <div className="absolute bottom-0 left-0 h-[2px] w-full bg-primary rounded-full" />
         
-        {/* Search Suggestions */}
         {searchQuery.length >= 2 && (
           <div 
             ref={suggestionsRef}
@@ -133,7 +131,7 @@ export function NavSearch({ isSearching, setIsSearching, placeholder, mode = 'ov
                   {data.campaigns.map((c: any) => (
                     <Link
                       key={c.id}
-                      href={`/browse/${c.id}`}
+                      href={`/browse/${c.slug}`}
                       onClick={() => {
                         setIsSearching(false);
                         setSearchQuery('');

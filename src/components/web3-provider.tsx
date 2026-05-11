@@ -10,7 +10,7 @@ import { apolloClient } from '@/lib/apollo-client';
 
 const config = getDefaultConfig({
   appName: 'CrowdFund',
-  projectId: "YOUR_WALLETCONNECT_PROJECT_ID",
+  projectId: process.env.NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID || "3a8170812b534d0ff9d794f19a901d64",
   chains: [sepolia],
   ssr: true,
 });

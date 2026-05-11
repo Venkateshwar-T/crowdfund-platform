@@ -12,7 +12,7 @@ import {
   Lock,
   ArrowRight
 } from 'lucide-react';
-import { CustomButton } from '@/components/custom-button';
+import { CustomButton } from '@/components/shared/custom-button';
 import Link from 'next/link';
 import { cn } from '@/lib/utils';
 
