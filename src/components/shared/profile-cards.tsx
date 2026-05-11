@@ -2,9 +2,8 @@
 
 import React from 'react';
 import Link from 'next/link';
-import { LucideIcon, Users } from 'lucide-react';
+import { LucideIcon } from 'lucide-react';
 import { Card } from '@/components/ui/card';
-import { Progress } from '@/components/ui/progress';
 import { StatusBadge } from './status-badge';
 import { cn } from '@/lib/utils';
 
@@ -29,17 +28,14 @@ export function ProfileStatCard({ title, value, icon: Icon, className }: Profile
   );
 }
 
-export function ProfileCampaignCard({ id, title, contributors, status }: { id: string, title: string, contributors: number, status: any }) {
+export function ProfileCampaignCard({ id, title, status }: { id: string, title: string, status: any }) {
   return (
     <Link href={`/browse/${id}`} className="block h-full group">
-      <Card className="p-4 md:p-6 rounded-2xl md:rounded-3xl bg-white/50 hover:bg-white/80 transition-all border-white/20 h-full flex flex-col justify-between shadow-sm border">
-        <div className="space-y-3 md:space-y-4">
+      <Card className="p-4 md:p-6 rounded-2xl md:rounded-3xl bg-white/50 hover:bg-white/80 transition-all border-white/20 h-full flex flex-col justify-center shadow-sm border">
+        <div className="space-y-3">
           <div className="flex items-start justify-between gap-3 md:gap-4">
             <h4 className="text-sm md:text-lg font-bold group-hover:text-primary transition-colors line-clamp-2 leading-tight">{title}</h4>
             <StatusBadge status={status} className="shrink-0 scale-90 md:scale-100 origin-top-right" />
-          </div>
-          <div className="flex items-center gap-1.5 md:gap-2 text-muted-foreground">
-            <Users className="h-3.5 w-3.5 md:h-4 md:w-4" /><span className="text-[10px] md:text-xs font-bold uppercase tracking-widest">{contributors.toLocaleString()} Supporters</span>
           </div>
         </div>
       </Card>
@@ -47,22 +43,21 @@ export function ProfileCampaignCard({ id, title, contributors, status }: { id: s
   );
 }
 
-export function ProfileContributionCard({ title, personalContribution, amountCollected, progress }: { title: string, personalContribution: number, amountCollected: number, progress: number }) {
+export function ProfileContributionCard({ id, title, personalContribution, status }: { id: string, title: string, personalContribution: number, status: any }) {
   return (
-    <Card className="p-4 md:p-6 rounded-2xl md:rounded-3xl bg-white/50 transition-all border-white/20 shadow-sm border">
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-        <div className="flex-1">
-          <h4 className="text-sm md:text-lg font-bold leading-tight">{title}</h4>
-          <div className="flex items-center gap-4 mt-2.5">
-            <div className="flex flex-col"><span className="text-[8px] md:text-[10px] text-muted-foreground uppercase font-black tracking-widest">Your Gift</span><span className="text-sm md:text-lg font-black text-primary">{personalContribution.toFixed(4)} ETH</span></div>
-            <div className="w-px h-6 md:h-8 bg-border/50" /><div className="flex flex-col"><span className="text-[8px] md:text-[10px] text-muted-foreground uppercase font-black tracking-widest">Total Raised</span><span className="text-xs md:text-lg font-bold text-foreground">${amountCollected.toLocaleString()}</span></div>
+    <Link href={`/browse/${id}`} className="block group">
+      <Card className="p-4 md:p-6 rounded-2xl md:rounded-3xl bg-white/50 hover:bg-white/80 transition-all border-white/20 shadow-sm border">
+        <div className="flex items-center justify-between gap-4">
+          <div className="flex-1 min-w-0">
+            <h4 className="text-sm md:text-lg font-bold group-hover:text-primary transition-colors leading-tight truncate">{title}</h4>
+            <div className="flex flex-col mt-2">
+              <span className="text-[8px] md:text-[10px] text-muted-foreground uppercase font-black tracking-widest">Your Gift</span>
+              <span className="text-sm md:text-lg font-black text-primary">{personalContribution.toFixed(4)} ETH</span>
+            </div>
           </div>
+          <StatusBadge status={status} className="shrink-0" />
         </div>
-        <div className="w-full md:w-48 lg:w-64 flex flex-col gap-2">
-          <div className="flex justify-between items-center text-[9px] font-bold uppercase tracking-widest text-muted-foreground"><span>Goal Progress</span><span>{Math.round(progress)}%</span></div>
-          <Progress value={progress} className="h-1.5 md:h-2" />
-        </div>
-      </div>
-    </Card>
+      </Card>
+    </Link>
   );
 }

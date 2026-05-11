@@ -20,7 +20,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { CustomButton } from '@/components/shared/custom-button';
 import { StatusBadge } from '@/components/shared/status-badge';
 import { ContributorBadge } from '@/components/shared/contributor-badge';
-import { ShareButton } from '@/components/shared/share-button';
+import { ShareButton } from '@/components/share-button';
 import { ProgressCircle } from '@/components/CampaignPage/progress-circle';
 import { MediaGallery } from '@/components/CampaignPage/media-gallery';
 import { StaticContributionBox } from '@/components/CampaignPage/static-contribution-box';
@@ -177,7 +177,10 @@ export default function CampaignDetailsPage({ params }: { params: Promise<{ id: 
   const isOwner = userAddress?.toLowerCase() === campaignData.owner.toLowerCase();
   const remainingUSD = Math.max(targetUSD - amountCollectedUSD, 0);
 
-  // Common sense status calculation
+  const hasContributed = isConnected && userAddress && campaignData.donations?.some(
+    (d: any) => d.donator.toLowerCase() === userAddress.toLowerCase()
+  );
+
   const effectiveStatus = (campaignData.status === 'Active' && isExpired && amountCollectedUSD < targetUSD) 
     ? 'Failed' 
     : campaignData.status;
@@ -282,7 +285,7 @@ export default function CampaignDetailsPage({ params }: { params: Promise<{ id: 
             <div className="flex flex-col gap-6 order-2 md:order-1">
               <div className="flex flex-col gap-2">
                 <h2 className="text-[10px] md:text-sm font-bold uppercase tracking-widest text-primary">Category</h2>
-                <div className="flex items-center gap-2"><Tag className="h-4 w-4 text-primary" /><span className="text-xs md:text-base font-bold text-foreground">{campaign.category}</span></div>
+                <div className="flex items-center gap-2"><Tag className="h-4 w-4 text-primary" /><span className="text-sm md:text-base font-bold text-foreground">{campaign.category}</span></div>
               </div>
               <div className="flex flex-col gap-2">
                 <h2 className="text-[10px] md:text-sm font-bold uppercase tracking-widest text-primary">About</h2>
@@ -307,7 +310,7 @@ export default function CampaignDetailsPage({ params }: { params: Promise<{ id: 
                 <div className="flex flex-col gap-1">
                   <div className="flex items-center gap-2">
                     <Calendar className="h-4 w-4 text-primary" />
-                    <span className="text-xs md:text-base font-bold text-foreground">
+                    <span className="text-sm md:text-base font-bold text-foreground">
                       {format(campaign.deadline, 'MMM d, yyyy • hh:mm a')}
                     </span>
                   </div>
@@ -338,11 +341,6 @@ export default function CampaignDetailsPage({ params }: { params: Promise<{ id: 
               <ExternalLink size={20} /> Withdraw Funds
             </CustomButton>
           )}
-          {campaign.status === 'Failed' && (
-            <CustomButton onClick={() => handleAction('claimRefund')} variant="outline" className="w-full h-14 rounded-2xl gap-2 text-destructive border-destructive/20 font-black text-base" isLoading={isMining}>
-              <Coins size={20} /> Claim My Refund
-            </CustomButton>
-          )}
         </div>
 
         <div className="bg-white/70 backdrop-blur-xl rounded-2xl md:rounded-3xl border border-white/20 p-5 md:p-8 shadow-xl">
@@ -350,7 +348,7 @@ export default function CampaignDetailsPage({ params }: { params: Promise<{ id: 
             <div className="flex items-center justify-between">
               <div className="flex flex-col gap-1">
                 <h2 className="text-[10px] md:text-sm font-bold uppercase tracking-widest text-primary">Supporters</h2>
-                <p className="text-xs md:text-base font-bold text-foreground">{campaign.contributors.toLocaleString()} people supported this campaign</p>
+                <p className="text-sm md:text-base font-bold text-foreground">{campaign.contributors.toLocaleString()} people supported this campaign</p>
               </div>
               <CollapsibleTrigger asChild>
                 <CustomButton variant="ghost" size="sm" className="rounded-full h-8 w-8 p-0 hover:bg-primary/10">
@@ -361,14 +359,14 @@ export default function CampaignDetailsPage({ params }: { params: Promise<{ id: 
             <CollapsibleContent className="mt-6 space-y-4">
               {campaignData.donations && campaignData.donations.length > 0 ? campaignData.donations.map((d: any, index: number) => (
                 <SupporterRow key={index} address={d.donator} amountUSD={parseFloat(formatUnits(d.amountUsd, 18))} timestamp={d.timestamp} />
-              )) : <div className="py-8 text-center text-muted-foreground">{isOwner ? "No supporters yet." : "No supporters yet. Be the first!"}</div>}
+              )) : <div className="py-8 text-sm md:text-base text-center text-muted-foreground">{isOwner ? "No supporters yet." : "No supporters yet. Be the first!"}</div>}
             </CollapsibleContent>
           </Collapsible>
         </div>
 
         {campaign.status === 'Active' && !isExpired && !isOwner && (
           <StaticContributionBox 
-            containerRef={fundRef} 
+            containerRef={fundRef}
             onContribute={(amt) => handleAction('donateToCampaign', amt)}
             isConfirming={isConfirmingInWallet}
             isMining={isMining}
@@ -378,12 +376,33 @@ export default function CampaignDetailsPage({ params }: { params: Promise<{ id: 
             remainingUSD={remainingUSD}
           />
         )}
+
+        {campaign.status === 'Failed' && (
+          <div ref={fundRef} className="bg-white/70 backdrop-blur-xl rounded-2xl md:rounded-3xl border border-destructive/20 p-5 md:p-8 shadow-xl flex flex-col gap-5">
+            <div className="flex items-start gap-3">
+              <div className="p-2 md:p-3 bg-destructive/10 rounded-xl md:rounded-2xl shrink-0">
+                <Info className="h-5 w-5 md:h-6 md:w-6 text-destructive" />
+              </div>
+              <div className="flex flex-col gap-1">
+                <h3 className="text-sm md:text-base font-black text-destructive">Campaign Failed</h3>
+                <p className="text-xs md:text-sm text-destructive/80 font-medium leading-relaxed">
+                  The funding goal was not met by the deadline. If you contributed, you are eligible to claim a full refund.
+                </p>
+              </div>
+            </div>
+            {hasContributed && (
+              <CustomButton onClick={() => handleAction('claimRefund')} variant="outline" className="w-full h-12 md:h-14 rounded-xl md:rounded-2xl gap-2 text-destructive border-destructive/20 font-black text-sm md:text-base hover:bg-destructive/10 bg-white" isLoading={isMining}>
+                <Coins size={20} /> Claim My Refund
+              </CustomButton>
+            )}
+          </div>
+        )}
       </main>
       
       {!isOwner && (
         <FloatingCTA 
           onContribute={scrollToFund} 
-          visible={!isFundInView || campaign.status !== 'Active'} 
+          visible={!isFundInView} 
           status={campaign.status as any}
         />
       )}

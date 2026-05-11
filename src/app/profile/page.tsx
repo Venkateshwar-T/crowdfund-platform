@@ -44,6 +44,7 @@ const GET_USER_DATA = gql`
       slug
       title
       target
+      deadline
       amountCollectedUsd
       status
     }
@@ -56,7 +57,9 @@ const GET_USER_DATA = gql`
         slug
         title
         target
+        deadline
         amountCollectedUsd
+        status
       }
     }
   }
@@ -130,21 +133,47 @@ export default function ProfilePage() {
   const { data: subgraphData, loading: isSubgraphLoading } = useQuery(GET_USER_DATA, {
     variables: { owner: address?.toLowerCase() },
     skip: !address,
+    pollInterval: 10000,
   });
 
   const processedData = useMemo(() => {
     if (!subgraphData) return { myCampaigns: [], myContributions: [], totalUSD: 0, totalContributedUSD: 0 };
+    
+    const now = new Date();
+
+    const myCampaigns = subgraphData.myCampaigns.map((c: any) => {
+      const amountCollected = parseFloat(formatUnits(c.amountCollectedUsd, 18));
+      const target = parseFloat(formatUnits(c.target, 18));
+      const isExpired = new Date(Number(c.deadline) * 1000) < now;
+      
+      const effectiveStatus = (c.status === 'Active' && isExpired && amountCollected < target) 
+        ? 'Failed' 
+        : c.status;
+
+      return { ...c, effectiveStatus };
+    });
+
     const totalUSD = subgraphData.myCampaigns.reduce((acc: number, c: any) => acc + parseFloat(formatUnits(c.amountCollectedUsd, 18)), 0);
     const totalContributedUSD = subgraphData.myDonations.reduce((acc: number, d: any) => acc + parseFloat(formatUnits(d.amountUsd, 18)), 0);
-    const myContributions = subgraphData.myDonations.map((d: any) => ({
-      id: d.campaign.slug,
-      title: d.campaign.title,
-      personalContribution: parseFloat(formatUnits(d.amountEth, 18)),
-      amountCollected: parseFloat(formatUnits(d.campaign.amountCollectedUsd, 18)),
-      target: parseFloat(formatUnits(d.campaign.target, 18)),
-      progress: Math.min((parseFloat(formatUnits(d.campaign.amountCollectedUsd, 18)) / parseFloat(formatUnits(d.campaign.target, 18))) * 100, 100)
-    }));
-    return { myCampaigns: subgraphData.myCampaigns, myContributions, totalUSD, totalContributedUSD };
+    
+    const myContributions = subgraphData.myDonations.map((d: any) => {
+      const amountCollected = parseFloat(formatUnits(d.campaign.amountCollectedUsd, 18));
+      const target = parseFloat(formatUnits(d.campaign.target, 18));
+      const isExpired = new Date(Number(d.campaign.deadline) * 1000) < now;
+      
+      const effectiveStatus = (d.campaign.status === 'Active' && isExpired && amountCollected < target) 
+        ? 'Failed' 
+        : d.campaign.status;
+
+      return {
+        id: d.campaign.slug,
+        title: d.campaign.title,
+        personalContribution: parseFloat(formatUnits(d.amountEth, 18)),
+        status: effectiveStatus
+      };
+    });
+
+    return { myCampaigns, myContributions, totalUSD, totalContributedUSD };
   }, [subgraphData]);
 
   const ethValueInWallet = parseFloat(userBalance?.formatted || '0');
@@ -169,7 +198,7 @@ export default function ProfilePage() {
         <Card className="p-8 md:p-10 rounded-3xl md:rounded-[2.5rem] bg-white/70 backdrop-blur-xl border-white/20 shadow-xl overflow-hidden relative">
           <div className="absolute top-0 left-0 w-full h-24 md:h-32 bg-gradient-to-r from-primary/10 to-accent/20 -z-10" />
           <div className="flex flex-col md:flex-row items-center md:items-end gap-6 md:gap-8">
-            <Avatar className="h-24 w-24 md:h-32 md:w-32 border-4 border-background shadow-2xl ring-1 ring-border/20 transition-transform">
+            <Avatar className="h-24 w-24 md:h-32 md:w-32 border-4 border-background shadow-2xl ring-1 ring-border/10 transition-transform">
               <AvatarFallback className="bg-muted text-muted-foreground">
                 <User size={64} className="md:w-20 md:h-20" />
               </AvatarFallback>
@@ -190,7 +219,7 @@ export default function ProfilePage() {
                 )}
               </div>
               <div className="flex items-center gap-2 bg-muted/50 px-3 py-1 rounded-full group">
-                <span className="text-xs md:text-sm font-mono font-medium text-muted-foreground">{displayAddress}</span>
+                <span className="text-xs md:sm font-mono font-medium text-muted-foreground">{displayAddress}</span>
                 <button onClick={copyAddress} className="p-1 hover:text-primary transition-all active:scale-90">
                   {isCopied ? <Check className="h-3 w-3 text-emerald-500" /> : <Copy className="h-3 w-3" />}
                 </button>
@@ -240,7 +269,7 @@ export default function ProfilePage() {
                 {processedData.myCampaigns.length > 0 ? (
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                     {processedData.myCampaigns.map((c: any) => (
-                      <ProfileCampaignCard key={c.id} id={c.slug} title={c.title} contributors={0} status={c.status} />
+                      <ProfileCampaignCard key={c.id} id={c.slug} title={c.title} status={c.effectiveStatus} />
                     ))}
                   </div>
                 ) : (

@@ -15,8 +15,6 @@ export function FloatingCTA({ onContribute, visible, status }: FloatingCTAProps)
   const [lastScrollY, setLastScrollY] = useState(0);
 
   useEffect(() => {
-    if (status !== 'Active') return; // Don't hide for inactive states
-
     const handleScroll = () => {
       const currentScrollY = window.scrollY;
       if (currentScrollY > lastScrollY && currentScrollY > 50) {
@@ -28,27 +26,21 @@ export function FloatingCTA({ onContribute, visible, status }: FloatingCTAProps)
     };
     window.addEventListener('scroll', handleScroll, { passive: true });
     return () => window.removeEventListener('scroll', handleScroll);
-  }, [lastScrollY, status]);
-
-  const isEnded = status === 'Successful' || status === 'Failed';
-  
-  // If ended, it stays visible forever as an info bar
-  const finalVisible = isEnded ? true : visible;
-  const finalNavVisible = isEnded ? true : isNavVisible;
+  }, [lastScrollY]);
 
   const content = {
     Active: { label: 'Drive Impact', sub: 'Help this cause', btn: 'Contribute Now' },
     Successful: { label: 'Target Met', sub: 'Goal successfully reached', btn: 'Campaign Ended' },
-    Failed: { label: 'Campaign Ended', sub: 'Funding goal not reached', btn: 'Refunds Available' }
+    Failed: { label: 'Campaign Ended', sub: 'Funding goal not reached', btn: 'Claim Refund' }
   }[status];
 
   return (
     <div 
       className={cn(
         "fixed left-0 right-0 z-40 px-4 transition-all duration-500 ease-in-out md:left-1/2 md:-translate-x-1/2 md:max-w-4xl md:px-0",
-        finalVisible ? "translate-y-0 opacity-100" : "translate-y-10 opacity-0 pointer-events-none",
+        visible ? "translate-y-0 opacity-100" : "translate-y-12 opacity-0 pointer-events-none",
         "md:bottom-8",
-        finalNavVisible ? "bottom-[calc(4rem+1rem)]" : "bottom-4"
+        isNavVisible ? "bottom-[calc(4rem+1rem)]" : "bottom-4"
       )}
     >
       <div className={cn(
@@ -60,11 +52,13 @@ export function FloatingCTA({ onContribute, visible, status }: FloatingCTAProps)
           <p className="text-xs md:text-sm font-bold">{content.sub}</p>
         </div>
         <CustomButton 
-          onClick={status === 'Active' ? onContribute : undefined}
-          disabled={status !== 'Active'}
+          onClick={onContribute}
+          disabled={status === 'Successful'}
           className={cn(
-            "h-10 md:h-12 px-6 md:px-8 rounded-xl font-black text-xs md:text-sm shadow-lg",
-            status === 'Active' ? "bg-primary hover:bg-primary/90 shadow-primary/20" : "bg-white/10 text-white border border-white/20"
+            "h-10 md:h-12 px-6 md:px-8 rounded-xl font-black text-xs md:text-sm shadow-lg transition-transform active:scale-95",
+            status === 'Active' ? "bg-primary hover:bg-primary/90 shadow-primary/20" : 
+            status === 'Failed' ? "bg-white text-destructive hover:bg-white/90 shadow-black/10" :
+            "bg-white/10 text-white border border-white/20"
           )}
         >
           {content.btn}

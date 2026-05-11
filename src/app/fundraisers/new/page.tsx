@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Upload, X, Image as ImageIcon, CheckCircle2, ArrowLeft, PlusCircle, Bold, Italic, Underline as UnderlineIcon, List, ListOrdered, Heading1, AlertCircle } from 'lucide-react';
+import { X, Image as ImageIcon, CheckCircle2, ArrowLeft, PlusCircle, Bold, Italic, Underline as UnderlineIcon, List, ListOrdered, Heading1 } from 'lucide-react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
@@ -16,7 +16,6 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-  FormDescription,
 } from '@/components/ui/form';
 import { Card } from '@/components/ui/card';
 import { CustomDatePicker } from '@/components/shared/custom-date-picker';
@@ -25,7 +24,6 @@ import { useConnectModal } from '@rainbow-me/rainbowkit';
 import { parseUnits } from 'viem';
 import { CONTRACT_ADDRESS, CONTRACT_ABI } from '@/lib/contract';
 import { useToast } from '@/hooks/use-toast';
-import { useEthPrice } from '@/hooks/use-eth-price';
 import { useEditor, EditorContent } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
 import UnderlineExtension from '@tiptap/extension-underline';
@@ -203,7 +201,8 @@ export default function NewFundraiserPage() {
     <div className="flex flex-col min-h-screen bg-transparent">
       <main className="flex-grow py-6 md:py-8 px-4">
         <div className="max-w-3xl mx-auto">
-          <h1 className="text-2xl md:text-4xl font-black tracking-tight text-foreground mb-8">Launch a Fundraiser</h1>
+          <h1 className="text-2xl md:text-4xl font-black tracking-tight text-foreground">Launch a Fundraiser</h1>
+          <p className="text-sm md:text-base tracking-wide text-muted-foreground mb-8">Decentralized fundraising. Real transparency. Powered by blockchain.</p>
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6 md:space-y-8">
               <FormField control={form.control} name="title" render={({ field }) => (
@@ -216,16 +215,6 @@ export default function NewFundraiserPage() {
                 <FormItem><FormLabel className="text-sm md:text-base font-bold">Description <span className="text-destructive">*</span></FormLabel>
                 <FormControl><TiptapEditor value={field.value} onChange={field.onChange} placeholder="Tell your story here..." /></FormControl>
                 <FormMessage /></FormItem>
-              )} />
-
-              <FormField control={form.control} name="additionalNotes" render={({ field }) => (
-                <FormItem>
-                  <FormLabel className="text-sm md:text-base font-bold">Additional Notes (Optional)</FormLabel>
-                  <FormControl>
-                    <TiptapEditor value={field.value || ""} onChange={field.onChange} placeholder="Any extra information for your supporters..." />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
               )} />
 
               <div className="space-y-4">
@@ -314,6 +303,17 @@ export default function NewFundraiserPage() {
                   </div>
                 )}
               </div>
+
+              <FormField control={form.control} name="additionalNotes" render={({ field }) => (
+                <FormItem>
+                  <FormLabel className="text-sm md:text-base font-bold">Additional Notes (Optional)</FormLabel>
+                  <FormControl>
+                    <TiptapEditor value={field.value || ""} onChange={field.onChange} placeholder="Any extra information for your supporters..." />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )} />
+
               <CustomButton type="submit" className="w-full h-12 md:h-14 rounded-full font-bold text-base md:text-lg" isLoading={isUploading || isWalletLoading || isMining}>Create Campaign</CustomButton>
             </form>
           </Form>

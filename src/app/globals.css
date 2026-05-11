@@ -43,6 +43,26 @@
 .ProseMirror p {
   margin: 0 !important;
 }
+/* Override prose list spacing */
+.ProseMirror ul, 
+.ProseMirror ol {
+  @apply my-2; /* Reduce margin between list and content */
+}
+.ProseMirror li {
+  @apply my-0 py-0; /* Remove vertical padding/margin from list items */
+}
+.ProseMirror li p {
+  @apply m-0; /* Remove margins from paragraphs inside list items */
+}
+
+/* Tiptap placeholder styling */
+.ProseMirror p.is-editor-empty:first-child::before {
+  content: attr(data-placeholder);
+  float: left;
+  color: hsl(var(--muted-foreground)); /* Or any color you prefer */
+  pointer-events: none;
+  height: 0;
+}
 
 .ProseMirror {
   outline: none;
