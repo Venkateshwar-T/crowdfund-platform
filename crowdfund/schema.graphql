@@ -10,6 +10,7 @@ type Campaign @entity(immutable: false) {
   owner: Bytes!
   title: String!
   description: String!
+  additionalNotes: String
   category: String!
   target: BigInt!
   deadline: BigInt!

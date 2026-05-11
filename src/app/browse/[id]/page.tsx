@@ -57,6 +57,7 @@ const GET_CAMPAIGN_DETAIL = gql`
       owner
       title
       description
+      additionalNotes
       category
       target
       deadline
@@ -105,14 +106,13 @@ export default function CampaignDetailsPage({ params }: { params: Promise<{ id: 
     }
   }, [isTransactionConfirmed, refetch, toast]);
 
-  // Updated Observer logic: Added dependencies to ensure it attaches after loading
   useEffect(() => {
     if (isInitialLoading || !campaignData) return;
 
     const observer = new IntersectionObserver(([entry]) => {
       setIsFundInView(entry.isIntersecting);
     }, { 
-      threshold: 0.1, // Trigger when at least 10% of the box is visible
+      threshold: 0.1,
       rootMargin: '0px'
     });
 

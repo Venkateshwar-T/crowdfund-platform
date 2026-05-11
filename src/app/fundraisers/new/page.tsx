@@ -183,7 +183,15 @@ export default function NewFundraiserPage() {
         address: CONTRACT_ADDRESS,
         abi: CONTRACT_ABI,
         functionName: 'createCampaign',
-        args: [values.title, values.description, values.additionalNotes || "", values.category === 'other' ? values.otherCategory! : values.category, mediaUrls, parseUnits(parseFloat(values.targetAmount).toFixed(18), 18), BigInt(Math.floor(values.deadline.getTime() / 1000))],
+        args: [
+          values.title, 
+          values.description, 
+          values.additionalNotes || "", 
+          values.category === 'other' ? values.otherCategory! : values.category, 
+          mediaUrls, 
+          parseUnits(parseFloat(values.targetAmount).toFixed(18), 18), 
+          BigInt(Math.floor(values.deadline.getTime() / 1000))
+        ],
       });
     } catch (error: any) { toast({ title: "Submission Failed", description: error.message, variant: "destructive" }); } finally { setIsUploading(false); }
   }
@@ -216,6 +224,15 @@ export default function NewFundraiserPage() {
                 <FormItem><FormLabel className="text-sm md:text-base font-bold">Description *</FormLabel>
                 <FormControl><TiptapEditor value={field.value} onChange={field.onChange} placeholder="Tell your story here..." /></FormControl>
                 <FormMessage /></FormItem>
+              )} />
+              <FormField control={form.control} name="additionalNotes" render={({ field }) => (
+                <FormItem>
+                  <FormLabel className="text-sm md:text-base font-bold">Additional Notes (Optional)</FormLabel>
+                  <FormControl>
+                    <TiptapEditor value={field.value || ""} onChange={field.onChange} placeholder="Any extra information for your supporters..." />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
               )} />
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
                 <FormField control={form.control} name="category" render={({ field }) => (

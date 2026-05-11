@@ -53,6 +53,7 @@ export function handleCampaignCreated(event: CampaignCreatedEvent): void {
   campaign.owner = event.params.owner
   campaign.title = event.params.title
   campaign.description = event.params.description
+  campaign.additionalNotes = event.params.additionalNotes
   campaign.category = event.params.category
   campaign.mediaUrls = event.params.mediaUrls
   campaign.target = event.params.target

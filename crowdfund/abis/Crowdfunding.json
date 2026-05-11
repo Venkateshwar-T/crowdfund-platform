@@ -34,6 +34,12 @@
 			{
 				"indexed": false,
 				"internalType": "string",
+				"name": "additionalNotes",
+				"type": "string"
+			},
+			{
+				"indexed": false,
+				"internalType": "string",
 				"name": "category",
 				"type": "string"
 			},
