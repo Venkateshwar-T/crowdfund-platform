@@ -11,7 +11,8 @@ import {
   ExternalLink,
   Coins,
   User,
-  ChevronDown
+  ChevronDown,
+  Clock
 } from 'lucide-react';
 import { MdVerifiedUser, MdOutlineReportProblem as ReportIcon } from 'react-icons/md';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
@@ -35,6 +36,7 @@ import { useEthPrice } from '@/hooks/use-eth-price';
 import { useUserName } from '@/hooks/use-user-name';
 import { useQuery, gql } from '@apollo/client';
 import DOMPurify from 'dompurify';
+import { format, formatDistanceToNow } from 'date-fns';
 import {
   Collapsible,
   CollapsibleContent,
@@ -170,6 +172,8 @@ export default function CampaignDetailsPage({ params }: { params: Promise<{ id: 
   const amountCollectedUSD = parseFloat(formatUnits(campaignData.amountCollectedUsd, 18));
   const targetUSD = parseFloat(formatUnits(campaignData.target, 18));
   const deadlineMs = Number(campaignData.deadline) * 1000;
+  const deadlineDate = new Date(deadlineMs);
+  const isExpired = deadlineDate < new Date();
   const isOwner = userAddress?.toLowerCase() === campaignData.owner.toLowerCase();
   const remainingUSD = Math.max(targetUSD - amountCollectedUSD, 0);
 
@@ -183,7 +187,7 @@ export default function CampaignDetailsPage({ params }: { params: Promise<{ id: 
     contributedAmount: amountCollectedUSD,
     targetAmount: targetUSD,
     contributors: campaignData.donations?.length || 0,
-    deadline: new Date(deadlineMs).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }),
+    deadline: deadlineDate,
     status: campaignData.status
   };
 
@@ -295,7 +299,23 @@ export default function CampaignDetailsPage({ params }: { params: Promise<{ id: 
               )}
               <div className="flex flex-col gap-2">
                 <h2 className="text-[10px] md:text-sm font-bold uppercase tracking-widest text-primary">Deadline</h2>
-                <div className="flex items-center gap-2"><Calendar className="h-4 w-4 text-primary" /><span className="text-xs md:text-base font-bold text-foreground">{campaign.deadline}</span></div>
+                <div className="flex flex-col gap-1">
+                  <div className="flex items-center gap-2">
+                    <Calendar className="h-4 w-4 text-primary" />
+                    <span className="text-xs md:text-base font-bold text-foreground">
+                      {format(campaign.deadline, 'MMM d, yyyy • hh:mm a')}
+                    </span>
+                  </div>
+                  <div className="flex items-center gap-2 px-1">
+                    <Clock className="h-3 w-3 text-muted-foreground" />
+                    <span className={cn(
+                      "text-[10px] md:text-xs font-bold uppercase tracking-tight",
+                      isExpired ? "text-destructive" : "text-primary"
+                    )}>
+                      {isExpired ? 'Campaign Ended' : `${formatDistanceToNow(campaign.deadline)} remaining`}
+                    </span>
+                  </div>
+                </div>
               </div>
             </div>
             <div className="flex flex-col h-full items-center justify-center gap-4 order-1 md:order-2 p-4 md:p-10 bg-primary/5 rounded-2xl border border-primary/10 min-h-[250px] md:min-h-[400px]">

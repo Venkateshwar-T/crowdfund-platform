@@ -10,6 +10,7 @@ import { useUserName } from '@/hooks/use-user-name';
 import { cn, formatCurrency } from '@/lib/utils';
 import { STATUS_CONFIG, FALLBACK_IMAGE, type CampaignStatus } from '@/lib/constants';
 import { Skeleton } from '@/components/ui/skeleton';
+import { formatDistanceToNow } from 'date-fns';
 
 export interface CampaignCardProps {
   id: string;
@@ -19,7 +20,7 @@ export interface CampaignCardProps {
   contributedAmount: number;
   targetAmount: number;
   contributors: number;
-  deadline: string;
+  deadline: number; // Unix timestamp in seconds
   status: CampaignStatus;
   className?: string;
 }
@@ -40,6 +41,10 @@ export function CampaignCard({
   const [isImageLoading, setIsImageLoading] = useState(true);
   const progress = Math.min((contributedAmount / targetAmount) * 100, 100);
   const { displayName, loading: nameLoading } = useUserName(ownerAddress);
+
+  const deadlineDate = new Date(Number(deadline) * 1000);
+  const isExpired = deadlineDate < new Date();
+  const timeRemaining = isExpired ? 'Ended' : `${formatDistanceToNow(deadlineDate)} left`;
 
   useEffect(() => {
     if (images.length <= 1) return;
@@ -144,8 +149,11 @@ export function CampaignCard({
                 <Calendar className="h-2 w-2 md:h-3 md:w-3" />
                 <span className="text-[7px] md:text-[10px] font-bold uppercase tracking-wider">Deadline</span>
               </div>
-              <div className="text-[12px] md:text-sm font-black text-foreground">
-                {deadline}
+              <div className={cn(
+                "text-[12px] md:text-sm font-black",
+                isExpired ? "text-destructive" : "text-foreground"
+              )}>
+                {timeRemaining}
               </div>
             </div>
           </div>

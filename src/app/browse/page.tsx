@@ -101,7 +101,6 @@ function BrowseCampaigns() {
   const campaigns = allCampaigns.map((c) => {
     const amountCollected = parseFloat(formatUnits(c.amountCollectedUsd, 18));
     const target = parseFloat(formatUnits(c.target, 18));
-    const deadlineMs = Number(c.deadline) * 1000;
 
     return {
       id: c.slug,
@@ -111,11 +110,7 @@ function BrowseCampaigns() {
       contributedAmount: amountCollected,
       targetAmount: target,
       contributors: 0, 
-      deadline: new Date(deadlineMs).toLocaleDateString('en-GB', {
-        day: '2-digit',
-        month: 'short',
-        year: 'numeric'
-      }),
+      deadline: Number(c.deadline),
       status: c.status
     };
   });
