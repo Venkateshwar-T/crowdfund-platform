@@ -1,11 +1,96 @@
 
-export const CONTRACT_ADDRESS = "0xa5AA25Df7fC45dCdC5dc3A661C538F138EB60A19";
+export const CONTRACT_ADDRESS = "0x69E4ac643E1060626549d86a3DEc81375160Ba3c";
 
 export const CONTRACT_ABI = [
 	{
 		"inputs": [],
 		"stateMutability": "nonpayable",
 		"type": "constructor"
+	},
+	{
+		"inputs": [],
+		"name": "AlreadyRefunded",
+		"type": "error"
+	},
+	{
+		"inputs": [],
+		"name": "AlreadyWithdrawn",
+		"type": "error"
+	},
+	{
+		"inputs": [],
+		"name": "ArrayMismatch",
+		"type": "error"
+	},
+	{
+		"inputs": [],
+		"name": "CampaignEnded",
+		"type": "error"
+	},
+	{
+		"inputs": [],
+		"name": "EmptyArray",
+		"type": "error"
+	},
+	{
+		"inputs": [],
+		"name": "FutureDeadlineRequired",
+		"type": "error"
+	},
+	{
+		"inputs": [],
+		"name": "GoalNotMet",
+		"type": "error"
+	},
+	{
+		"inputs": [],
+		"name": "GoalWasMet",
+		"type": "error"
+	},
+	{
+		"inputs": [],
+		"name": "IncorrectEthAmount",
+		"type": "error"
+	},
+	{
+		"inputs": [],
+		"name": "InvalidLimit",
+		"type": "error"
+	},
+	{
+		"inputs": [],
+		"name": "InvalidMediaCount",
+		"type": "error"
+	},
+	{
+		"inputs": [],
+		"name": "NoFundsToRefund",
+		"type": "error"
+	},
+	{
+		"inputs": [],
+		"name": "NotOwner",
+		"type": "error"
+	},
+	{
+		"inputs": [],
+		"name": "OffsetOutOfBounds",
+		"type": "error"
+	},
+	{
+		"inputs": [],
+		"name": "RefundFailed",
+		"type": "error"
+	},
+	{
+		"inputs": [],
+		"name": "StillActive",
+		"type": "error"
+	},
+	{
+		"inputs": [],
+		"name": "WithdrawalFailed",
+		"type": "error"
 	},
 	{
 		"anonymous": false,
@@ -17,16 +102,16 @@ export const CONTRACT_ABI = [
 				"type": "uint256"
 			},
 			{
-				"indexed": false,
+				"indexed": true,
 				"internalType": "address",
 				"name": "owner",
 				"type": "address"
 			},
 			{
 				"indexed": false,
-				"internalType": "string",
+				"internalType": "bytes32",
 				"name": "title",
-				"type": "string"
+				"type": "bytes32"
 			},
 			{
 				"indexed": false,
@@ -42,9 +127,9 @@ export const CONTRACT_ABI = [
 			},
 			{
 				"indexed": false,
-				"internalType": "string",
+				"internalType": "bytes32",
 				"name": "category",
-				"type": "string"
+				"type": "bytes32"
 			},
 			{
 				"indexed": false,
@@ -121,7 +206,7 @@ export const CONTRACT_ABI = [
 				"type": "uint256"
 			}
 		],
-		"name": "RefundClaimed",
+		"name": "RefundClaimedEvent",
 		"type": "event"
 	},
 	{
@@ -146,6 +231,37 @@ export const CONTRACT_ABI = [
 	{
 		"inputs": [
 			{
+				"internalType": "uint256[]",
+				"name": "_ids",
+				"type": "uint256[]"
+			}
+		],
+		"name": "batchClaimRefunds",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "uint256[]",
+				"name": "_ids",
+				"type": "uint256[]"
+			},
+			{
+				"internalType": "uint256[]",
+				"name": "_amounts",
+				"type": "uint256[]"
+			}
+		],
+		"name": "batchDonate",
+		"outputs": [],
+		"stateMutability": "payable",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
 				"internalType": "uint256",
 				"name": "",
 				"type": "uint256"
@@ -159,24 +275,19 @@ export const CONTRACT_ABI = [
 				"type": "address"
 			},
 			{
-				"internalType": "string",
+				"internalType": "bool",
+				"name": "withdrawn",
+				"type": "bool"
+			},
+			{
+				"internalType": "bytes32",
 				"name": "title",
-				"type": "string"
+				"type": "bytes32"
 			},
 			{
-				"internalType": "string",
-				"name": "description",
-				"type": "string"
-			},
-			{
-				"internalType": "string",
-				"name": "additionalNotes",
-				"type": "string"
-			},
-			{
-				"internalType": "string",
+				"internalType": "bytes32",
 				"name": "category",
-				"type": "string"
+				"type": "bytes32"
 			},
 			{
 				"internalType": "uint256",
@@ -199,9 +310,14 @@ export const CONTRACT_ABI = [
 				"type": "uint256"
 			},
 			{
-				"internalType": "bool",
-				"name": "withdrawn",
-				"type": "bool"
+				"internalType": "string",
+				"name": "description",
+				"type": "string"
+			},
+			{
+				"internalType": "string",
+				"name": "additionalNotes",
+				"type": "string"
 			}
 		],
 		"stateMutability": "view",
@@ -223,9 +339,9 @@ export const CONTRACT_ABI = [
 	{
 		"inputs": [
 			{
-				"internalType": "string",
+				"internalType": "bytes32",
 				"name": "_title",
-				"type": "string"
+				"type": "bytes32"
 			},
 			{
 				"internalType": "string",
@@ -238,9 +354,9 @@ export const CONTRACT_ABI = [
 				"type": "string"
 			},
 			{
-				"internalType": "string",
+				"internalType": "bytes32",
 				"name": "_category",
-				"type": "string"
+				"type": "bytes32"
 			},
 			{
 				"internalType": "string[]",
@@ -283,8 +399,14 @@ export const CONTRACT_ABI = [
 		"type": "function"
 	},
 	{
-		"inputs": [],
-		"name": "getCampaigns",
+		"inputs": [
+			{
+				"internalType": "uint256",
+				"name": "_id",
+				"type": "uint256"
+			}
+		],
+		"name": "getCampaign",
 		"outputs": [
 			{
 				"components": [
@@ -294,29 +416,19 @@ export const CONTRACT_ABI = [
 						"type": "address"
 					},
 					{
-						"internalType": "string",
+						"internalType": "bool",
+						"name": "withdrawn",
+						"type": "bool"
+					},
+					{
+						"internalType": "bytes32",
 						"name": "title",
-						"type": "string"
+						"type": "bytes32"
 					},
 					{
-						"internalType": "string",
-						"name": "description",
-						"type": "string"
-					},
-					{
-						"internalType": "string",
-						"name": "additionalNotes",
-						"type": "string"
-					},
-					{
-						"internalType": "string",
+						"internalType": "bytes32",
 						"name": "category",
-						"type": "string"
-					},
-					{
-						"internalType": "string[]",
-						"name": "mediaUrls",
-						"type": "string[]"
+						"type": "bytes32"
 					},
 					{
 						"internalType": "uint256",
@@ -339,9 +451,113 @@ export const CONTRACT_ABI = [
 						"type": "uint256"
 					},
 					{
+						"internalType": "string",
+						"name": "description",
+						"type": "string"
+					},
+					{
+						"internalType": "string",
+						"name": "additionalNotes",
+						"type": "string"
+					},
+					{
+						"internalType": "string[]",
+						"name": "mediaUrls",
+						"type": "string[]"
+					}
+				],
+				"internalType": "struct Crowdfunding.Campaign",
+				"name": "",
+				"type": "tuple"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "getCampaignCount",
+		"outputs": [
+			{
+				"internalType": "uint256",
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "uint256",
+				"name": "_offset",
+				"type": "uint256"
+			},
+			{
+				"internalType": "uint256",
+				"name": "_limit",
+				"type": "uint256"
+			}
+		],
+		"name": "getCampaignsPaginated",
+		"outputs": [
+			{
+				"components": [
+					{
+						"internalType": "address",
+						"name": "owner",
+						"type": "address"
+					},
+					{
 						"internalType": "bool",
 						"name": "withdrawn",
 						"type": "bool"
+					},
+					{
+						"internalType": "bytes32",
+						"name": "title",
+						"type": "bytes32"
+					},
+					{
+						"internalType": "bytes32",
+						"name": "category",
+						"type": "bytes32"
+					},
+					{
+						"internalType": "uint256",
+						"name": "target",
+						"type": "uint256"
+					},
+					{
+						"internalType": "uint256",
+						"name": "deadline",
+						"type": "uint256"
+					},
+					{
+						"internalType": "uint256",
+						"name": "amountCollected",
+						"type": "uint256"
+					},
+					{
+						"internalType": "uint256",
+						"name": "ethRaised",
+						"type": "uint256"
+					},
+					{
+						"internalType": "string",
+						"name": "description",
+						"type": "string"
+					},
+					{
+						"internalType": "string",
+						"name": "additionalNotes",
+						"type": "string"
+					},
+					{
+						"internalType": "string[]",
+						"name": "mediaUrls",
+						"type": "string[]"
 					}
 				],
 				"internalType": "struct Crowdfunding.Campaign[]",
@@ -366,6 +582,54 @@ export const CONTRACT_ABI = [
 		"type": "function"
 	},
 	{
+		"inputs": [
+			{
+				"internalType": "uint256",
+				"name": "_id",
+				"type": "uint256"
+			},
+			{
+				"internalType": "address",
+				"name": "_user",
+				"type": "address"
+			}
+		],
+		"name": "getUserDonation",
+		"outputs": [
+			{
+				"internalType": "uint256",
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "uint256",
+				"name": "_id",
+				"type": "uint256"
+			},
+			{
+				"internalType": "address",
+				"name": "_user",
+				"type": "address"
+			}
+		],
+		"name": "hasUserClaimedRefund",
+		"outputs": [
+			{
+				"internalType": "bool",
+				"name": "",
+				"type": "bool"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
 		"inputs": [],
 		"name": "numberOfCampaigns",
 		"outputs": [
@@ -373,6 +637,30 @@ export const CONTRACT_ABI = [
 				"internalType": "uint256",
 				"name": "",
 				"type": "uint256"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "uint256",
+				"name": "",
+				"type": "uint256"
+			},
+			{
+				"internalType": "address",
+				"name": "",
+				"type": "address"
+			}
+		],
+		"name": "refundClaimed",
+		"outputs": [
+			{
+				"internalType": "bool",
+				"name": "",
+				"type": "bool"
 			}
 		],
 		"stateMutability": "view",

@@ -51,7 +51,7 @@ export function FloatingCTA({ onContribute, visible, status, isOwner = false }: 
     >
       <div className={cn(
         "p-3 md:p-4 rounded-2xl md:rounded-3xl text-white flex items-center justify-between gap-4 shadow-2xl ring-1 ring-white/10 backdrop-blur-xl",
-        status === 'Failed' ? "bg-destructive/90" : "bg-foreground/90"
+        status === 'Failed' ? "bg-[#27AE60]" : "bg-foreground/90"
       )}>
         <div className="pl-2">
           <p className="text-[10px] md:text-xs text-white/60 font-bold uppercase tracking-widest">{content.label}</p>
@@ -63,7 +63,7 @@ export function FloatingCTA({ onContribute, visible, status, isOwner = false }: 
           className={cn(
             "h-10 md:h-12 px-6 md:px-8 rounded-xl font-black text-xs md:text-sm shadow-lg transition-transform active:scale-95",
             isButtonActive ? "bg-primary hover:bg-primary/90 shadow-primary/20" : 
-            status === 'Failed' ? "bg-white text-destructive hover:bg-white/90 shadow-black/10" :
+            status === 'Failed' ? "bg-white text-[#27AE60] hover:bg-white/90 shadow-black/10" :
             "bg-white/10 text-white border border-white/20"
           )}
         >

@@ -8,10 +8,12 @@ type Campaign @entity(immutable: false) {
   id: ID!
   slug: String! @index
   owner: Bytes!
-  title: String!
+  title: Bytes!
+  titleSearch: String!
   description: String!
   additionalNotes: String
-  category: String!
+  category: Bytes!
+  categorySearch: String!
   target: BigInt!
   deadline: BigInt!
   amountCollectedUsd: BigInt!

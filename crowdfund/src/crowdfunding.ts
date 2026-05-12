@@ -3,7 +3,7 @@ import {
   CampaignCreated as CampaignCreatedEvent,
   Donated as DonatedEvent,
   Withdrawn as WithdrawnEvent,
-  RefundClaimed as RefundClaimedEvent
+  RefundClaimedEvent
 } from "../generated/Crowdfunding/Crowdfunding"
 import { Campaign, Donation } from "../generated/schema"
 
@@ -47,8 +47,12 @@ export function handleCampaignCreated(event: CampaignCreatedEvent): void {
   let campaign = new Campaign(event.params.id.toString())
   
   // Create slug and append ID to guarantee uniqueness
-  let baseSlug = createSlug(event.params.title)
+  let titleString = event.params.title.toString().replaceAll('\u0000', '');
+  let baseSlug = createSlug(titleString); 
   campaign.slug = baseSlug + "-" + event.params.id.toString()
+  
+  campaign.titleSearch = event.params.title.toString()
+  campaign.categorySearch = event.params.category.toString()
   
   campaign.owner = event.params.owner
   campaign.title = event.params.title
@@ -97,7 +101,7 @@ export function handleWithdrawn(event: WithdrawnEvent): void {
   }
 }
 
-export function handleRefundClaimed(event: RefundClaimedEvent): void {
+export function handleRefundClaimedEvent(event: RefundClaimedEvent): void {
   let campaign = Campaign.load(event.params.id.toString())
   if (campaign) {
     campaign.ethRaised = campaign.ethRaised.minus(event.params.amountEth)

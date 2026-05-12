@@ -19,3 +19,18 @@ export function formatCurrency(val: number) {
 export function sanitizeTitle(title: string) {
   return title.trim().replace(/\s+/g, ' ');
 }
+
+/**
+ * Formats raw USD amounts from the blockchain for the UI.
+ * Handles the "slippage surplus" by snapping to the target if it's within a 1% margin.
+ */
+export function formatCampaignUsd(amount: number, target?: number) {
+  if (target) {
+    const diff = amount - target;
+    // If we're over the target by less than 1%, snap it down for a clean UI
+    if (diff > 0 && diff < (target * 0.01)) {
+      return target.toFixed(2);
+    }
+  }
+  return amount.toFixed(2);
+}

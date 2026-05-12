@@ -27,7 +27,7 @@ export function SupporterRow({ address, amountUSD, timestamp }: { address: strin
       </div>
       <div className="text-right shrink-0">
         <span className="text-xs md:text-base font-black text-primary">
-          ${amountUSD.toLocaleString(undefined, { maximumFractionDigits: 2 })}
+          ${amountUSD.toLocaleString(undefined, { maximumFractionDigits: 1 })}
         </span>
       </div>
     </div>

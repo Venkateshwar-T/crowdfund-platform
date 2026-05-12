@@ -12,8 +12,10 @@ import {
   HeartHandshake,
   Wallet as WalletIcon,
   Settings2,
+  Coins,
+  AlertCircle
 } from 'lucide-react';
-import { useAccount, useDisconnect, useBalance } from 'wagmi';
+import { useAccount, useDisconnect, useBalance, useWriteContract, useReadContracts, useWaitForTransactionReceipt } from 'wagmi';
 import { useQuery, gql } from '@apollo/client';
 import Link from 'next/link';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
@@ -30,11 +32,12 @@ import {
   TabsList,
   TabsTrigger,
 } from "@/components/ui/tabs";
-import { cn, shortenAddress } from '@/lib/utils';
-import { formatUnits } from 'viem';
+import { cn, formatCampaignUsd, shortenAddress } from '@/lib/utils';
+import { formatUnits, hexToString, trim } from 'viem';
 import { ProfileStatCard, ProfileCampaignCard, ProfileContributionCard } from '@/components/shared/profile-cards';
 import { db, auth } from '@/lib/firebase';
 import { doc, getDoc, setDoc } from 'firebase/firestore';
+import { CONTRACT_ADDRESS, CONTRACT_ABI } from '@/lib/contract';
 
 const GET_USER_DATA = gql`
   query GetUserData($owner: Bytes!) {
@@ -102,6 +105,9 @@ export default function ProfilePage() {
   const [username, setUsername] = useState('');
   const [isSavingName, setIsSavingName] = useState(false);
 
+  const { data: hash, writeContract, isPending: isWalletActionPending } = useWriteContract();
+  const { isLoading: isTransactionMining, isSuccess: isTransactionConfirmed } = useWaitForTransactionReceipt({ hash });
+
   useEffect(() => {
     async function fetchUsername() {
       if (auth.currentUser && address) {
@@ -130,57 +136,113 @@ export default function ProfilePage() {
     }
   };
 
-  const { data: subgraphData, loading: isSubgraphLoading } = useQuery(GET_USER_DATA, {
+  const { data: subgraphData, loading: isSubgraphLoading, refetch } = useQuery(GET_USER_DATA, {
     variables: { owner: address?.toLowerCase() },
     skip: !address,
     pollInterval: 10000,
   });
 
   const processedData = useMemo(() => {
-    if (!subgraphData) return { myCampaigns: [], myContributions: [], totalUSD: 0, totalContributedUSD: 0 };
+    if (!subgraphData) return { myCampaigns: [], myContributions: [], totalUSD: 0, totalContributedUSD: 0, failedCampaignIds: [] };
     
     const now = new Date();
+    let failedIds: bigint[] = [];
 
     const myCampaigns = subgraphData.myCampaigns.map((c: any) => {
-      const amountCollected = parseFloat(formatUnits(c.amountCollectedUsd, 18));
+      const collected = parseFloat(formatUnits(c.amountCollectedUsd, 18));
       const target = parseFloat(formatUnits(c.target, 18));
       const isExpired = new Date(Number(c.deadline) * 1000) < now;
       
-      const effectiveStatus = (c.status === 'Active' && isExpired && amountCollected < target) 
-        ? 'Failed' 
-        : c.status;
+      // SYNCED STATUS LOGIC: Includes $0.05 margin
+      const isGoalMet = BigInt(c.amountCollectedUsd) >= BigInt(c.target) || (target - collected) <= 0.05;
+
+      let effectiveStatus = c.status;
+      if (isGoalMet) effectiveStatus = 'Successful';
+      else if (isExpired) effectiveStatus = 'Failed';
 
       return { 
         ...c, 
-        effectiveStatus,
-        amountCollected,
-        target
+        effectiveStatus, 
+        amountCollected: collected, 
+        target 
       };
     });
 
-    const totalUSD = subgraphData.myCampaigns.reduce((acc: number, c: any) => acc + parseFloat(formatUnits(c.amountCollectedUsd, 18)), 0);
+    const totalUSD = myCampaigns.reduce((acc: number, c: any) => {
+      // Sum the sanitized "Display" amounts
+      return acc + Number(formatCampaignUsd(c.amountCollected, c.target));
+    }, 0);
     const totalContributedUSD = subgraphData.myDonations.reduce((acc: number, d: any) => acc + parseFloat(formatUnits(d.amountUsd, 18)), 0);
     
     const myContributions = subgraphData.myDonations.map((d: any) => {
-      const amountCollected = parseFloat(formatUnits(d.campaign.amountCollectedUsd, 18));
+      const collected = parseFloat(formatUnits(d.campaign.amountCollectedUsd, 18));
       const target = parseFloat(formatUnits(d.campaign.target, 18));
       const isExpired = new Date(Number(d.campaign.deadline) * 1000) < now;
       
-      const effectiveStatus = (d.campaign.status === 'Active' && isExpired && amountCollected < target) 
-        ? 'Failed' 
-        : d.campaign.status;
+      const isGoalMet = BigInt(d.campaign.amountCollectedUsd) >= BigInt(d.campaign.target) || (target - collected) <= 0.05;
+
+      let effectiveStatus = d.campaign.status;
+      if (isGoalMet) effectiveStatus = 'Successful';
+      else if (isExpired) effectiveStatus = 'Failed';
+
+      if (effectiveStatus === 'Failed') {
+        failedIds.push(BigInt(d.campaign.id));
+      }
 
       return {
         id: d.campaign.slug,
+        blockchainId: d.campaign.id,
         title: d.campaign.title,
         ownerAddress: d.campaign.owner,
         personalContribution: parseFloat(formatUnits(d.amountEth, 18)),
-        status: effectiveStatus
+        status: effectiveStatus,
+        target: target,
+        collected: collected
       };
     });
 
-    return { myCampaigns, myContributions, totalUSD, totalContributedUSD };
+    const failedCampaignIds = Array.from(new Set(failedIds));
+
+    return { myCampaigns, myContributions, totalUSD, totalContributedUSD, failedCampaignIds };
   }, [subgraphData]);
+
+  const { data: refundStatuses, refetch: refetchRefunds } = useReadContracts({
+    contracts: processedData.failedCampaignIds.map(id => ({
+      address: CONTRACT_ADDRESS as `0x${string}`,
+      abi: CONTRACT_ABI,
+      functionName: 'hasUserClaimedRefund',
+      args: [id, address as `0x${string}`],
+    }))
+  });
+
+  const pendingRefundIds = useMemo(() => {
+    if (!refundStatuses) return [];
+    return processedData.failedCampaignIds.filter((_, index) => {
+      const status = refundStatuses[index];
+      return status?.status === 'success' && (status.result as unknown as boolean) === false;
+    });
+  }, [refundStatuses, processedData.failedCampaignIds]);
+
+  const handleBatchRefund = () => {
+    if (pendingRefundIds.length === 0) return;
+    writeContract({
+      address: CONTRACT_ADDRESS,
+      abi: CONTRACT_ABI,
+      functionName: 'batchClaimRefunds',
+      args: [pendingRefundIds],
+    }, {
+      onSuccess: () => toast({ title: "Transaction Sent", description: "Batch refund is being processed." }),
+      onError: (err: any) => toast({ title: "Batch Failed", description: err.message, variant: "destructive" })
+    });
+  };
+
+  useEffect(() => {
+    if (isTransactionConfirmed) {
+      toast({ title: "Success!", description: "Refunds have been claimed." });
+      refetch();
+      refetchRefunds();
+    }
+  }, [isTransactionConfirmed, refetch, refetchRefunds, toast]);
 
   const ethValueInWallet = parseFloat(userBalance?.formatted || '0');
   const usdValueInWallet = ethValueInWallet * (ethPrices?.usd || 0);
@@ -250,8 +312,18 @@ export default function ProfilePage() {
               <div className="mt-2 text-xs font-bold text-primary bg-primary/10 px-2 py-0.5 rounded-full w-fit">≈${usdValueInWallet.toLocaleString(undefined, { maximumFractionDigits: 2, minimumFractionDigits: 2 })}</div>
             </div>
           </Card>
-          <ProfileStatCard title="Raised (USD)" value={`$${processedData.totalUSD.toLocaleString(undefined, { maximumFractionDigits: 2, minimumFractionDigits: 2 })}`} icon={TrendingUp} />
-          <ProfileStatCard title="Contributed (USD)" value={`$${processedData.totalContributedUSD.toLocaleString(undefined, { maximumFractionDigits: 2, minimumFractionDigits: 2 })}`} icon={HeartHandshake} />
+          
+          {/* SYNCED STAT CARDS: Applying formatter directly to the totals */}
+          <ProfileStatCard 
+            title="Raised (USD)" 
+            value={`$${formatCampaignUsd(processedData.totalUSD)}`} 
+            icon={TrendingUp} 
+          />
+          <ProfileStatCard 
+            title="Contributed (USD)" 
+            value={`$${formatCampaignUsd(processedData.totalContributedUSD)}`}
+            icon={HeartHandshake} 
+          />
         </div>
 
         <Tabs defaultValue="my-campaigns" className="w-full mt-8">
@@ -280,8 +352,9 @@ export default function ProfilePage() {
                     <ProfileCampaignCard 
                       key={c.id} 
                       id={c.slug} 
-                      title={c.title} 
-                      amountCollected={c.amountCollected}
+                      title={hexToString(trim(c.title as `0x${string}`, { dir: 'right' })).replace(/\0/g, '')} 
+                      // SYNCED CAMPAIGN CARD: Pass target to formatter for ceiling check
+                      amountCollected={Number(formatCampaignUsd(c.amountCollected, c.target))}
                       target={c.target}
                       status={c.effectiveStatus} 
                     />
@@ -301,14 +374,38 @@ export default function ProfilePage() {
               )}
             </TabsContent>
 
-            <TabsContent value="contributions" className="mt-0">
+            <TabsContent value="contributions" className="mt-0 flex flex-col gap-4">
+              {pendingRefundIds.length > 0 && (
+                <Card className="p-4 rounded-2xl bg-[#27AE60]/5 border-[#27AE60]/20 flex flex-col md:flex-row items-center justify-between gap-4 animate-in fade-in slide-in-from-top-4 duration-500">
+                  <div className="flex items-center gap-3">
+                    <div className="p-2 bg-[#27AE60]/10 rounded-xl text-[#27AE60]">
+                      <AlertCircle className="h-5 w-5" />
+                    </div>
+                    <div>
+                      <h4 className="text-sm font-black text-[#27AE60]">Refunds Available</h4>
+                      <p className="text-[10px] md:text-xs text-[#27AE60]/70 font-medium">
+                        You have contributions ready to be claimed from {pendingRefundIds.length} failed campaigns.
+                      </p>
+                    </div>
+                  </div>
+                  <CustomButton 
+                    onClick={handleBatchRefund}
+                    isLoading={isWalletActionPending || isTransactionMining}
+                    className="w-full md:w-fit rounded-xl h-10 px-6 bg-[#27AE60] text-white hover:bg-[#27AE60]/90 gap-2 font-black text-xs"
+                  >
+                    <Coins className="h-4 w-4" />
+                    Claim All ({pendingRefundIds.length})
+                  </CustomButton>
+                </Card>
+              )}
+
               {processedData.myContributions.length > 0 ? (
                 <div className="flex flex-col gap-3">
                   {processedData.myContributions.map((c: any) => (
                     <ProfileContributionCard 
                       key={c.id} 
                       id={c.id}
-                      title={c.title} 
+                      title={hexToString(trim(c.title as `0x${string}`, { dir: 'right' })).replace(/\0/g, '')} 
                       ownerAddress={c.ownerAddress}
                       personalContribution={c.personalContribution}
                     />

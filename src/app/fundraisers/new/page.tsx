@@ -5,6 +5,7 @@ import { X, Image as ImageIcon, CheckCircle2, ArrowLeft, PlusCircle, Bold, Itali
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
+import { stringToHex, padHex } from 'viem';
 import Link from 'next/link';
 import { cn } from '@/lib/utils';
 import { CustomButton } from '@/components/shared/custom-button';
@@ -34,18 +35,17 @@ const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
 const MAX_FILES = 5;
 
 const formSchema = z.object({
-  title: z.string().min(10, 'Title must be at least 10 characters').max(100),
+  // TITLE MUST BE MAX 32 FOR BYTES32
+  title: z.string().min(10, 'Title must be at least 10 characters').max(32, 'Title must be under 32 characters'),
   description: z.string().min(50, 'Description must be at least 50 characters'),
   category: z.string().min(1, 'Please select a category'),
-  otherCategory: z.string().optional(),
+  otherCategory: z.string().max(32, 'Category must be under 32 characters').optional(),
   targetAmount: z.string().refine((val) => !isNaN(Number(val)) && Number(val) > 0, {
     message: 'Amount must be a positive number',
   }),
   deadline: z.date({
     required_error: 'A deadline is required',
   }).refine((date) => {
-    const today = new Date();
-    // No setHours(0,0,0,0) here because we care about minutes
     return date > new Date();
   }, {
     message: "Deadline must be in the future",
@@ -102,7 +102,8 @@ const TiptapEditor = ({ value, onChange, placeholder }: { value: string, onChang
 export default function NewFundraiserPage() {
   const { isConnected } = useAccount();
   const { openConnectModal } = useConnectModal();
-  const { data: hash, writeContract, isPending: isWalletLoading } = useWriteContract();
+  // SWITCHED TO writeContractAsync
+  const { data: hash, writeContractAsync, isPending: isWalletLoading } = useWriteContract();
   const { isLoading: isMining, isSuccess: isTransactionConfirmed } = useWaitForTransactionReceipt({ hash });
   const { toast } = useToast();
   const [isUploading, setIsUploading] = useState(false);
@@ -160,29 +161,45 @@ export default function NewFundraiserPage() {
 
   async function onSubmit(values: FormValues) {
     if (!isConnected) {
-      toast({ title: "Connect Wallet", description: "Please connect your wallet first to continue.", variant: "destructive" });
+      toast({ title: "Connect Wallet", description: "Please connect your wallet first.", variant: "destructive" });
       openConnectModal?.();
       return;
     }
     if (files.length === 0) return toast({ title: "Media required", description: "Please upload at least one image.", variant: "destructive" });
+    
     setIsUploading(true);
     try {
       const mediaUrls = await Promise.all(files.map(file => uploadToPinata(file)));
-      writeContract({
+      
+      const rawCategory = values.category === 'other' ? values.otherCategory! : values.category;
+      const bytes32Title = padHex(stringToHex(values.title), { size: 32, dir: 'right' });
+      const bytes32Category = padHex(stringToHex(rawCategory), { size: 32, dir: 'right' });
+
+      // AWAIT THE ASYNC CALL
+      await writeContractAsync({
         address: CONTRACT_ADDRESS,
         abi: CONTRACT_ABI,
         functionName: 'createCampaign',
         args: [
-          values.title, 
+          bytes32Title, 
           values.description, 
           values.additionalNotes || "", 
-          values.category === 'other' ? values.otherCategory! : values.category, 
+          bytes32Category, 
           mediaUrls, 
           parseUnits(parseFloat(values.targetAmount).toFixed(18), 18), 
           BigInt(Math.floor(values.deadline.getTime() / 1000))
         ],
       });
-    } catch (error: any) { toast({ title: "Submission Failed", description: error.message, variant: "destructive" }); } finally { setIsUploading(false); }
+    } catch (error: any) { 
+      console.error("Submission Error:", error);
+      toast({ 
+        title: "Submission Failed", 
+        description: error.shortMessage || error.message || "User rejected or contract error", 
+        variant: "destructive" 
+      }); 
+    } finally { 
+      setIsUploading(false); 
+    }
   }
 
   if (showSuccess) return (

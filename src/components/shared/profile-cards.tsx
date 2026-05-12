@@ -6,7 +6,7 @@ import { LucideIcon } from 'lucide-react';
 import { Card } from '@/components/ui/card';
 import { StatusBadge } from './status-badge';
 import { useUserName } from '@/hooks/use-user-name';
-import { cn } from '@/lib/utils';
+import { cn, formatCampaignUsd } from '@/lib/utils';
 
 interface ProfileStatCardProps {
   title: string;
@@ -25,7 +25,7 @@ export function ProfileStatCard({ title, value, icon: Icon, className }: Profile
         <Icon className="h-5 w-5 md:h-6 md:w-6" />
       </div>
       <div>
-        <p className="text-[10px] md:text-xs text-muted-foreground font-black uppercase tracking-[0.2em] mb-1">{title}</p>
+        <p className="text-xs md:text-xs text-muted-foreground font-black uppercase tracking-[0.2em] mb-1">{title}</p>
         <h3 className="text-xl md:text-4xl font-black text-foreground">{value}</h3>
       </div>
     </Card>
@@ -57,7 +57,7 @@ export function ProfileCampaignCard({
               {title}
             </h4>
             <p className="text-[10px] md:text-sm text-muted-foreground font-medium tracking-tight">
-              ${amountCollected.toLocaleString(undefined, { maximumFractionDigits: 2, minimumFractionDigits: 2 })} / ${target.toLocaleString(undefined, { maximumFractionDigits: 2, minimumFractionDigits: 2 })} raised
+            ${formatCampaignUsd(parseFloat(amountCollected.toLocaleString()))} / ${target.toLocaleString(undefined, { maximumFractionDigits: 2, minimumFractionDigits: 2 })} raised
             </p>
           </div>
           <StatusBadge status={status} className="shrink-0" />

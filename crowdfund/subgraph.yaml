@@ -8,7 +8,7 @@ dataSources:
     name: Crowdfunding
     network: sepolia
     source:
-      address: "0xa5AA25Df7fC45dCdC5dc3A661C538F138EB60A19"
+      address: "0x69E4ac643E1060626549d86a3DEc81375160Ba3c"
       abi: Crowdfunding
       startBlock: 10825971 
     mapping:
@@ -23,12 +23,12 @@ dataSources:
           file: ./abis/Crowdfunding.json
       eventHandlers:
         # Updated signature to match the new contract's expanded event
-        - event: CampaignCreated(indexed uint256,address,string,string,string,string,string[],uint256,uint256)
+        - event: CampaignCreated(indexed uint256,indexed address,bytes32,string,string,bytes32,string[],uint256,uint256)
           handler: handleCampaignCreated
         - event: Donated(indexed uint256,indexed address,uint256,uint256)
           handler: handleDonated
-        - event: RefundClaimed(indexed uint256,indexed address,uint256)
-          handler: handleRefundClaimed
+        - event: RefundClaimedEvent(indexed uint256,indexed address,uint256)
+          handler: handleRefundClaimedEvent
         - event: Withdrawn(indexed uint256,uint256)
           handler: handleWithdrawn
       file: ./src/crowdfunding.ts

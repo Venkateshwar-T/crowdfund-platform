@@ -4,6 +4,7 @@ import { useState, useEffect, useMemo, Suspense } from 'react';
 import { useQuery, gql } from '@apollo/client';
 import { useSearchParams } from 'next/navigation';
 import { formatUnits } from 'viem';
+import { hexToString, trim } from 'viem';
 import { BrowseFilterBar, type FilterState } from '@/components/BrowsePage/browse-filter-bar';
 import { CampaignCard } from '@/components/BrowsePage/campaign-card';
 import { Loader2 } from 'lucide-react';
@@ -20,7 +21,9 @@ const GET_CAMPAIGNS = gql`
     ) {
       id
       slug
-      title
+      title          # For display logic
+      titleSearch    # For the data layer
+      categorySearch # For the data layer
       owner
       target
       deadline
@@ -47,11 +50,19 @@ function BrowseCampaigns() {
 
   const filterVariables = useMemo(() => {
     const where: any = {};
+    
     if (q) {
       where.or = [
-        { title_contains_nocase: q },
-        { category_contains_nocase: q }
+        { titleSearch_contains_nocase: q },
+        { categorySearch_contains_nocase: q }
       ];
+    }
+  
+    if (filters.categories.length > 0) {
+      // IMPORTANT: Match the case of your IDs. 
+      // If you saved 'Medical' to the blockchain, use .map(c => c.charAt(0).toUpperCase() + c.slice(1))
+      // If you saved 'medical', use it raw.
+      where.categorySearch_in = filters.categories; 
     }
     if (filters.status !== 'all') {
       where.status = filters.status;
@@ -99,19 +110,32 @@ function BrowseCampaigns() {
   };
 
   const campaigns = allCampaigns.map((c) => {
+    // 1. DECODE TITLE PROPERLY (Bytes32 fix)
+    const decodedTitle = hexToString(
+      trim(c.title as `0x${string}`, { dir: 'right' })
+    ).replace(/\0/g, '');
+
     const amountCollected = parseFloat(formatUnits(c.amountCollectedUsd, 18));
     const target = parseFloat(formatUnits(c.target, 18));
+    const isExpired = (Number(c.deadline) * 1000) < Date.now();
+
+    // 2. SYNCED STATUS LOGIC ($0.05 Grace Margin)
+    const goalMet = BigInt(c.amountCollectedUsd) >= BigInt(c.target) || (target - amountCollected) <= 0.05;
+    
+    let effectiveStatus = c.status;
+    if (goalMet) effectiveStatus = 'Successful';
+    else if (isExpired) effectiveStatus = 'Failed';
 
     return {
       id: c.slug,
-      title: c.title,
+      title: decodedTitle,
       images: c.mediaUrls && c.mediaUrls.length > 0 ? c.mediaUrls : [],
       ownerAddress: c.owner,
       contributedAmount: amountCollected,
       targetAmount: target,
       contributors: 0, 
       deadline: Number(c.deadline),
-      status: c.status
+      status: effectiveStatus // Use the corrected status
     };
   });
 
