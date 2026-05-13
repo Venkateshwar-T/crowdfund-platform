@@ -226,7 +226,7 @@ export default function CampaignDetailsPage({ params }: { params: Promise<{ id: 
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="flex flex-col gap-6">
-              <div className="flex flex-col gap-1"><h2 className="text-[10px] font-bold uppercase tracking-widest text-primary">Category</h2><div className="flex items-center gap-2"><Tag size={14} className="text-primary"/><span className="text-sm font-bold">{campaign.category}</span></div></div>
+              <div className="flex flex-col gap-1"><h2 className="text-[10px] font-bold uppercase tracking-widest text-primary">Category</h2><div className="flex items-center gap-2"><Tag size={14} className="text-primary"/><span className="text-sm font-bold capitalize">{campaign.category}</span></div></div>
               <div className="flex flex-col gap-1"><h2 className="text-[10px] font-bold uppercase tracking-widest text-primary">About</h2><div className="prose prose-sm max-w-none prose-p:text-muted-foreground" dangerouslySetInnerHTML={sanitizeHTML(campaign.description)} /></div>
               <div className="flex flex-col gap-1"><h2 className="text-[10px] font-bold uppercase tracking-widest text-primary">Deadline</h2><div className="flex items-center gap-2 font-bold text-sm text-foreground"><Calendar size={14} className="text-primary"/>{format(campaign.deadline, 'MMM d, yyyy • hh:mm a')}</div></div>
             </div>

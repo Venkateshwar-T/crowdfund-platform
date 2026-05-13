@@ -124,7 +124,7 @@ export function CampaignCard({
           </h3>
 
           <div className="mt-auto grid grid-cols-2 gap-1.5 md:gap-3">
-            <div className="p-2 md:p-3 bg-secondary/50 rounded-lg border border-border/10">
+            <div className="p-2 md:p-3 bg-secondary/50 rounded-sm md:rounded-lg border border-border/10">
               <div className="flex items-center gap-1 text-muted-foreground mb-1">
                 <Wallet className="h-2.5 w-2.5 md:h-3 md:w-3" />
                 <span className="text-[7px] md:text-[9px] font-bold uppercase tracking-widest">Raised</span>

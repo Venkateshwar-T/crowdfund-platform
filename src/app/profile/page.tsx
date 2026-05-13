@@ -265,7 +265,7 @@ export default function ProfilePage() {
       <div className="flex flex-col gap-6 md:gap-8">
         <Card className="p-8 md:p-10 rounded-3xl md:rounded-[2.5rem] bg-white/70 backdrop-blur-xl border-white/20 shadow-xl overflow-hidden relative">
           <div className="absolute top-0 left-0 w-full h-24 md:h-32 bg-gradient-to-r from-primary/10 to-accent/20 -z-10" />
-          <div className="flex flex-col md:flex-row items-center md:items-end gap-6 md:gap-8">
+          <div className="flex flex-col md:flex-row items-center md:items-end gap-4 md:gap-8">
             <Avatar className="h-24 w-24 md:h-32 md:w-32 border-4 border-background shadow-2xl ring-1 ring-border/10 transition-transform">
               <AvatarFallback className="bg-muted text-muted-foreground">
                 <User size={64} className="md:w-20 md:h-20" />
@@ -328,7 +328,7 @@ export default function ProfilePage() {
 
         <Tabs defaultValue="my-campaigns" className="w-full mt-8">
           <div className="flex justify-center mb-4 md:mb-8">
-            <TabsList className="bg-white/50 backdrop-blur-md px-2 rounded-2xl h-14 grid gap-1 grid-cols-2 max-w-md w-full border shadow-sm">
+            <TabsList className="bg-white/50 backdrop-blur-md px-2 rounded-2xl h-12 grid gap-1 grid-cols-2 max-w-md w-full border shadow-sm">
               <TabsTrigger value="my-campaigns" className="rounded-xl font-black text-xs md:text-sm data-[state=active]:bg-primary data-[state=active]:text-white flex items-center justify-center gap-3 transition-all">
                 My Campaigns
                 <span className="flex items-center justify-center bg-muted/20 text-[10px] h-5 w-5 rounded-full border border-current opacity-70">

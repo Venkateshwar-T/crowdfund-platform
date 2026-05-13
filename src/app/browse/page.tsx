@@ -30,6 +30,9 @@ const GET_CAMPAIGNS = gql`
       amountCollectedUsd
       status
       mediaUrls
+      donations {
+        id
+      }
     }
   }
 `;
@@ -133,9 +136,9 @@ function BrowseCampaigns() {
       ownerAddress: c.owner,
       contributedAmount: amountCollected,
       targetAmount: target,
-      contributors: 0, 
+      contributors: c.donations?.length || 0, 
       deadline: Number(c.deadline),
-      status: effectiveStatus // Use the corrected status
+      status: effectiveStatus
     };
   });
 
@@ -162,7 +165,7 @@ function BrowseCampaigns() {
             </div>
           ) : (
             <>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 md:gap-6">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 md:gap-6">
                 {campaigns.map((campaign) => (
                   <CampaignCard key={campaign.id} {...campaign} />
                 ))}

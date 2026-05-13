@@ -20,7 +20,7 @@ export function SupporterRow({ address, amountUSD, timestamp }: { address: strin
           <span className="text-xs md:text-sm font-bold text-foreground truncate">
             {loading ? "..." : displayName}
           </span>
-          <span className="text-[9px] text-muted-foreground uppercase font-black tracking-tighter">
+          <span className="text-[9px] text-muted-foreground font-semibold">
             {new Date(Number(timestamp) * 1000).toLocaleDateString()} • {shortenAddress(address)}
           </span>
         </div>
