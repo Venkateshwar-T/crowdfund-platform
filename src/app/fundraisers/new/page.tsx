@@ -222,137 +222,166 @@ export default function NewFundraiserPage() {
           <p className="text-sm md:text-base tracking-wide text-muted-foreground mb-8">Decentralized fundraising. Real transparency. Powered by blockchain.</p>
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6 md:space-y-8">
-              <FormField control={form.control} name="title" render={({ field }) => (
-                <FormItem><FormLabel className="text-sm md:text-base font-bold">Campaign Title <span className="text-destructive">*</span></FormLabel>
-                <FormControl><Input placeholder="e.g. Help Sarah's Medical Recovery" className="h-10 md:h-12 rounded-xl" {...field} /></FormControl>
-                <FormMessage /></FormItem>
-              )} />
-              
-              <FormField control={form.control} name="description" render={({ field }) => (
-                <FormItem><FormLabel className="text-sm md:text-base font-bold">Description <span className="text-destructive">*</span></FormLabel>
-                <FormControl><TiptapEditor value={field.value} onChange={field.onChange} placeholder="Tell your story here..." /></FormControl>
-                <FormMessage /></FormItem>
-              )} />
-
-              <div className="space-y-4">
-                <FormField control={form.control} name="category" render={({ field }) => (
-                  <FormItem>
-                    <FormLabel className="text-sm md:text-base font-bold">Select Category <span className="text-destructive">*</span></FormLabel>
-                    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3 mt-2">
-                      {CAMPAIGN_CATEGORIES.map((cat) => {
-                        const Icon = cat.icon;
-                        const isSelected = field.value === cat.id;
-                        return (
-                          <button
-                            key={cat.id}
-                            type="button"
-                            onClick={() => field.onChange(cat.id)}
-                            className={cn(
-                              "flex flex-col items-center justify-center p-4 rounded-2xl border-2 transition-all gap-2 text-center group",
-                              isSelected 
-                                ? "border-primary bg-primary/5 text-primary shadow-inner" 
-                                : "border-muted-foreground/10 hover:border-primary/30 bg-background text-muted-foreground"
-                            )}
-                          >
-                            <Icon className={cn("h-6 w-6 transition-transform group-active:scale-90", isSelected ? "text-primary" : "text-muted-foreground")} />
-                            <span className="text-[10px] font-bold uppercase tracking-tight leading-tight">{cat.label}</span>
-                          </button>
-                        );
-                      })}
-                      <button
-                        type="button"
-                        onClick={() => field.onChange('other')}
-                        className={cn(
-                          "flex flex-col items-center justify-center p-4 rounded-2xl border-2 transition-all gap-2 text-center group",
-                          field.value === 'other'
-                            ? "border-primary bg-primary/5 text-primary shadow-inner" 
-                            : "border-muted-foreground/10 hover:border-primary/30 bg-background text-muted-foreground"
-                        )}
-                      >
-                        <PlusCircle className={cn("h-6 w-6 transition-transform group-active:scale-90", field.value === 'other' ? "text-primary" : "text-muted-foreground")} />
-                        <span className="text-[10px] font-bold uppercase tracking-tight">Other</span>
-                      </button>
-                    </div>
-                    <FormMessage />
-                  </FormItem>
+              <fieldset disabled={!isConnected} className="space-y-6 md:space-y-8 disabled:opacity-80">
+                <FormField control={form.control} name="title" render={({ field }) => (
+                  <FormItem><FormLabel className="text-sm md:text-base font-bold">Campaign Title <span className="text-destructive">*</span></FormLabel>
+                  <FormControl><Input placeholder="e.g. Help Sarah's Medical Recovery" className="h-10 md:h-12 rounded-xl" {...field} /></FormControl>
+                  <FormMessage /></FormItem>
+                )} />
+                
+                <FormField control={form.control} name="description" render={({ field }) => (
+                  <FormItem><FormLabel className="text-sm md:text-base font-bold">Description <span className="text-destructive">*</span></FormLabel>
+                  <FormControl><TiptapEditor value={field.value} onChange={field.onChange} placeholder="Tell your story here..." /></FormControl>
+                  <FormMessage /></FormItem>
                 )} />
 
-                {categoryValue === 'other' && (
-                  <FormField control={form.control} name="otherCategory" render={({ field }) => (
-                    <FormItem className="animate-in fade-in slide-in-from-top-2 duration-300">
-                      <FormLabel className="text-sm md:text-base font-bold">Specify Category Name <span className="text-destructive">*</span></FormLabel>
-                      <FormControl><Input placeholder="e.g. Wildlife Preservation" className="h-10 md:h-12 rounded-xl" {...field} /></FormControl>
+                <div className="space-y-4">
+                  <FormField control={form.control} name="category" render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="text-sm md:text-base font-bold">Select Category <span className="text-destructive">*</span></FormLabel>
+                      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3 mt-2">
+                        {CAMPAIGN_CATEGORIES.map((cat) => {
+                          const Icon = cat.icon;
+                          const isSelected = field.value === cat.id;
+                          return (
+                            <button
+                              key={cat.id}
+                              type="button"
+                              onClick={() => field.onChange(cat.id)}
+                              className={cn(
+                                "flex flex-col items-center justify-center p-4 rounded-2xl border-2 transition-all gap-2 text-center group",
+                                isSelected 
+                                  ? "border-primary bg-primary/5 text-primary shadow-inner" 
+                                  : "border-muted-foreground/10 hover:border-primary/30 bg-background text-muted-foreground"
+                              )}
+                            >
+                              <Icon className={cn("h-6 w-6 transition-transform group-active:scale-90", isSelected ? "text-primary" : "text-muted-foreground")} />
+                              <span className="text-[10px] font-bold uppercase tracking-tight leading-tight">{cat.label}</span>
+                            </button>
+                          );
+                        })}
+                        <button
+                          type="button"
+                          onClick={() => field.onChange('other')}
+                          className={cn(
+                            "flex flex-col items-center justify-center p-4 rounded-2xl border-2 transition-all gap-2 text-center group",
+                            field.value === 'other'
+                              ? "border-primary bg-primary/5 text-primary shadow-inner" 
+                              : "border-muted-foreground/10 hover:border-primary/30 bg-background text-muted-foreground"
+                          )}
+                        >
+                          <PlusCircle className={cn("h-6 w-6 transition-transform group-active:scale-90", field.value === 'other' ? "text-primary" : "text-muted-foreground")} />
+                          <span className="text-[10px] font-bold uppercase tracking-tight">Other</span>
+                        </button>
+                      </div>
                       <FormMessage />
                     </FormItem>
                   )} />
-                )}
-              </div>
 
-              <Card className="p-4 md:p-6 border-muted-foreground/10 bg-primary/5 rounded-3xl">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
-                  <FormField control={form.control} name="targetAmount" render={({ field }) => (
-                    <FormItem><FormLabel className="text-sm md:text-base font-bold">Target Amount (USD) <span className="text-destructive">*</span></FormLabel>
-                    <FormControl>
-                      <div className="relative">
-                        <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground font-bold text-sm">$</span>
-                        <Input 
-                          type="number" 
-                          step="0.01" 
-                          className="h-10 md:h-12 pl-7 rounded-xl" 
-                          {...field} 
-                          onChange={(e) => {
-                            let val = e.target.value;
-                            if (val.includes('.')) {
-                              const [int, dec] = val.split('.');
-                              if (dec && dec.length > 2) {
-                                val = `${int}.${dec.slice(0, 2)}`;
+                  {categoryValue === 'other' && (
+                    <FormField control={form.control} name="otherCategory" render={({ field }) => (
+                      <FormItem className="animate-in fade-in slide-in-from-top-2 duration-300">
+                        <FormLabel className="text-sm md:text-base font-bold">Specify Category Name <span className="text-destructive">*</span></FormLabel>
+                        <FormControl><Input placeholder="e.g. Wildlife Preservation" className="h-10 md:h-12 rounded-xl" {...field} /></FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )} />
+                  )}
+                </div>
+
+                <Card className="p-4 md:p-6 border-muted-foreground/10 bg-primary/5 rounded-3xl">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
+                    <FormField control={form.control} name="targetAmount" render={({ field }) => (
+                      <FormItem><FormLabel className="text-sm md:text-base font-bold">Target Amount (USD) <span className="text-destructive">*</span></FormLabel>
+                      <FormControl>
+                        <div className="relative">
+                          <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground font-bold text-sm">$</span>
+                          <Input 
+                            type="number" 
+                            step="0.01" 
+                            className="h-10 md:h-12 pl-7 rounded-xl" 
+                            {...field} 
+                            onChange={(e) => {
+                              let val = e.target.value;
+                              if (val.includes('.')) {
+                                const [int, dec] = val.split('.');
+                                if (dec && dec.length > 2) {
+                                  val = `${int}.${dec.slice(0, 2)}`;
+                                }
                               }
-                            }
-                            field.onChange(val);
-                          }}
-                        />
-                      </div>
-                    </FormControl>
-                    <FormMessage /></FormItem>
-                  )} />
-                  <FormField control={form.control} name="deadline" render={({ field }) => (
-                    <FormItem className="flex flex-col gap-1.5"><FormLabel className="text-sm md:text-base font-bold">Deadline Date <span className="text-destructive">*</span></FormLabel>
-                    <FormControl><CustomDatePicker value={field.value} onChange={field.onChange} /></FormControl><FormMessage /></FormItem>
-                  )} />
-                </div>
-              </Card>
-
-              <div className="space-y-4">
-                <FormLabel className="text-sm md:text-base font-bold">Image Upload (Max 5) <span className="text-destructive">*</span></FormLabel>
-                <div className={cn("relative border-2 border-dashed rounded-3xl p-6 md:p-8 flex flex-col items-center justify-center gap-3 cursor-pointer transition-colors", dragActive ? "border-primary bg-primary/5" : "border-muted-foreground/20 hover:border-primary/50")} onDragOver={handleDrag} onDrop={handleDrop} onClick={() => document.getElementById('file-upload')?.click()}>
-                  <input id="file-upload" type="file" className="hidden" multiple accept="image/*" onChange={handleFileChange} />
-                  <ImageIcon className="h-8 w-8 text-primary" /><p className="text-xs font-bold">Click or drag & drop</p>
-                </div>
-                {files.length > 0 && (
-                  <div className="grid grid-cols-2 sm:grid-cols-5 gap-3">
-                    {files.map((_, i) => (
-                      <div key={i} className="relative aspect-square rounded-xl overflow-hidden border">
-                        <img src={previews[i]} className="object-cover w-full h-full" alt="preview" />
-                        <button type="button" onClick={(e) => { e.stopPropagation(); removeFile(i); }} className="absolute top-1 right-1 bg-destructive text-white p-1 rounded-full shadow-lg">
-                          <X size={12} />
-                        </button>
-                      </div>
-                    ))}
+                              field.onChange(val);
+                            }}
+                          />
+                        </div>
+                      </FormControl>
+                      <FormMessage /></FormItem>
+                    )} />
+                    <FormField control={form.control} name="deadline" render={({ field }) => (
+                      <FormItem className="flex flex-col"><FormLabel className="text-sm md:text-base font-bold">Deadline Date <span className="text-destructive">*</span></FormLabel>
+                      <FormControl><CustomDatePicker value={field.value} onChange={field.onChange} /></FormControl><FormMessage /></FormItem>
+                    )} />
                   </div>
-                )}
-              </div>
+                </Card>
 
-              <FormField control={form.control} name="additionalNotes" render={({ field }) => (
-                <FormItem>
-                  <FormLabel className="text-sm md:text-base font-bold">Additional Notes (Optional)</FormLabel>
-                  <FormControl>
-                    <TiptapEditor value={field.value || ""} onChange={field.onChange} placeholder="Any extra information for your supporters..." />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )} />
+                <div className="space-y-4">
+                  <FormLabel className="text-sm md:text-base font-bold">Image Upload (Max 5) <span className="text-destructive">*</span></FormLabel>
+                  <div 
+                    className={cn(
+                      "relative flex flex-col items-center border-2 border-dashed rounded-3xl hover:bg-primary/10 hover:border-primary/30 cursor-pointer p-6 md:p-8 ...",
+                      dragActive ? "border-primary bg-primary/5" : "border-muted-foreground/20",
+                      !isConnected && "opacity-50 cursor-not-allowed pointer-events-none" // Guarding styles
+                    )} 
+                    onDragOver={isConnected ? handleDrag : undefined} 
+                    onDrop={isConnected ? handleDrop : undefined} 
+                    onClick={() => isConnected && document.getElementById('file-upload')?.click()}
+                  >
+                    <input 
+                      id="file-upload" 
+                      type="file" 
+                      className="hidden" 
+                      disabled={!isConnected} // Native browser guard
+                      multiple 
+                      accept="image/*" 
+                      onChange={handleFileChange} 
+                    />
+                    <ImageIcon className="h-8 w-8 text-primary" />
+                    <p className="text-xs font-bold">
+                      {isConnected ? "Click or drag & drop" : "Connect wallet to upload images"}
+                    </p>
+                  </div>
+                  {files.length > 0 && (
+                    <div className="grid grid-cols-2 sm:grid-cols-5 gap-3">
+                      {files.map((_, i) => (
+                        <div key={i} className="relative aspect-square rounded-xl overflow-hidden border">
+                          <img src={previews[i]} className="object-cover w-full h-full" alt="preview" />
+                          <button type="button" onClick={(e) => { e.stopPropagation(); removeFile(i); }} className="absolute top-1 right-1 bg-destructive text-white p-1 rounded-full shadow-lg">
+                            <X size={12} />
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
 
-              <CustomButton type="submit" className="w-full h-12 md:h-14 rounded-full font-bold text-base md:text-lg" isLoading={isUploading || isWalletLoading || isMining}>Create Campaign</CustomButton>
+                <FormField control={form.control} name="additionalNotes" render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="text-sm md:text-base font-bold">Additional Notes (Optional)</FormLabel>
+                    <FormControl>
+                      <TiptapEditor value={field.value || ""} onChange={field.onChange} placeholder="Any extra information for your supporters..." />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )} />
+              </fieldset>
+
+              <CustomButton 
+                type={isConnected ? "submit" : "button"} // Prevent form submission if disconnected
+                onClick={!isConnected ? openConnectModal : undefined} // Trigger wallet modal
+                className="w-full h-12 md:h-14 rounded-full font-bold text-base md:text-lg" 
+                isLoading={isUploading || isWalletLoading || isMining}
+              >
+                {isConnected ? "Create Campaign" : "Connect Wallet to Launch"}
+              </CustomButton>
             </form>
           </Form>
         </div>

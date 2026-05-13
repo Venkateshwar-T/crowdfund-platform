@@ -3,11 +3,23 @@
 import { User } from 'lucide-react';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { useUserName } from '@/hooks/use-user-name';
-import { shortenAddress } from '@/lib/utils';
+import { formatCampaignUsd, shortenAddress } from '@/lib/utils';
+import { useMemo } from 'react';
 
 export function SupporterRow({ address, amountUSD, timestamp }: { address: string, amountUSD: number, timestamp: string }) {
   const { displayName, loading } = useUserName(address);
   
+  const displayAmount = useMemo(() => {
+    const intendedAmount = Math.floor(amountUSD);
+    const diff = amountUSD - intendedAmount;
+    
+    // If the difference is less than 1.5% of the intended amount (covering your 0.5% buffer)
+    // and it's a small positive difference, snap it to the whole number.
+    const threshold = intendedAmount * 0.015; 
+    
+    return (diff > 0 && diff <= threshold) ? intendedAmount : amountUSD;
+  }, [amountUSD]);
+
   return (
     <div className="flex items-center justify-between pb-4 border-b border-border/50 last:border-0 last:pb-0">
       <div className="flex items-center gap-3">
@@ -27,7 +39,10 @@ export function SupporterRow({ address, amountUSD, timestamp }: { address: strin
       </div>
       <div className="text-right shrink-0">
         <span className="text-xs md:text-base font-black text-primary">
-          ${amountUSD.toLocaleString(undefined, { maximumFractionDigits: 1 })}
+          ${displayAmount.toLocaleString(undefined, { 
+            minimumFractionDigits: 2, 
+            maximumFractionDigits: 2 
+          })}
         </span>
       </div>
     </div>

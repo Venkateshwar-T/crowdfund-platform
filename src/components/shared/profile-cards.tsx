@@ -48,6 +48,12 @@ export function ProfileCampaignCard({
   target: number, 
   status: any 
 }) {
+  const intendedAmount = Math.floor(amountCollected);
+    const diff = amountCollected - intendedAmount;
+    const threshold = intendedAmount * 0.015; 
+    
+    const displayAmount = (diff > 0 && diff <= threshold) ? intendedAmount : amountCollected;
+
   return (
     <Link href={`/browse/${id}`} className="block group w-full">
       <Card className="p-4 rounded-xl border border-border/50 bg-white/50 hover:bg-white transition-all shadow-sm">
@@ -57,7 +63,7 @@ export function ProfileCampaignCard({
               {title}
             </h4>
             <p className="text-[10px] md:text-sm text-muted-foreground font-medium tracking-tight">
-            ${formatCampaignUsd(parseFloat(amountCollected.toLocaleString()))} / ${target.toLocaleString(undefined, { maximumFractionDigits: 2, minimumFractionDigits: 2 })} raised
+            ${formatCampaignUsd(parseFloat(displayAmount.toLocaleString(undefined, { maximumFractionDigits: 2, minimumFractionDigits: 2 })))} / ${target.toLocaleString(undefined, { maximumFractionDigits: 2, minimumFractionDigits: 2 })} raised
             </p>
           </div>
           <StatusBadge status={status} className="shrink-0" />

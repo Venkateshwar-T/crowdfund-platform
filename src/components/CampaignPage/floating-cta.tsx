@@ -9,9 +9,10 @@ interface FloatingCTAProps {
   visible: boolean;
   status: 'Active' | 'Successful' | 'Failed';
   isOwner?: boolean;
+  hasContributed?: boolean;
 }
 
-export function FloatingCTA({ onContribute, visible, status, isOwner = false }: FloatingCTAProps) {
+export function FloatingCTA({ onContribute, visible, status, isOwner = false, hasContributed = false}: FloatingCTAProps) {
   const [isNavVisible, setIsNavVisible] = useState(true);
   const [lastScrollY, setLastScrollY] = useState(0);
 
@@ -30,7 +31,11 @@ export function FloatingCTA({ onContribute, visible, status, isOwner = false }: 
   }, [lastScrollY]);
 
   let content = {
-    Active: { label: 'Drive Impact', sub: 'Help this cause', btn: 'Contribute Now' },
+    Active: { 
+      label: hasContributed ? 'Contribute Again' : 'Drive Impact', // Dynamic label
+      sub: hasContributed ? "You've backed this cause!" : 'Help this cause', // Dynamic subtext
+      btn: hasContributed ? 'Support Again' : 'Contribute Now' // Dynamic button text
+    },
     Successful: { label: 'Target Met', sub: 'Goal successfully reached', btn: 'Campaign Ended' },
     Failed: { label: 'Campaign Ended', sub: 'Funding goal not reached', btn: 'Claim Refund' }
   }[status];

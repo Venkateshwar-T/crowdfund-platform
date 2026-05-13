@@ -131,15 +131,18 @@ export default function CampaignDetailsPage({ params }: { params: Promise<{ id: 
     else if (expired) status = 'Failed';
 
     // UI Ceiling ($5.01 -> $5.00)
-    const diff = collected - target;
-    const displayUSD = (diff > 0 && diff < (target * 0.01)) ? target : collected;
+    const intendedAmount = Math.floor(collected);
+    const diff = collected - intendedAmount;
+    const threshold = intendedAmount * 0.015; 
+    
+    const displayAmount = (diff > 0 && diff <= threshold) ? intendedAmount : collected;
 
     return {
       amountCollectedUSD: collected,
       targetUSD: target,
       isExpired: expired,
       effectiveStatus: status,
-      displayRaisedUSD: displayUSD,
+      displayRaisedUSD: displayAmount,
       remainingUSD: Math.max(target - collected, 0),
       campaign: {
         title: hexToString(trim(campaignData.title as `0x${string}`, { dir: 'right' })).replace(/\0/g, ''),
@@ -233,7 +236,7 @@ export default function CampaignDetailsPage({ params }: { params: Promise<{ id: 
             <div className="flex flex-col items-center justify-center p-6 bg-primary/5 rounded-2xl border border-primary/10">
               <ProgressCircle progress={Math.min((campaign.contributedAmount / campaign.targetAmount) * 100, 100)} />
               <div className="text-center mt-4 flex flex-col gap-1">
-                <p className="text-xl font-black text-foreground">${displayRaisedUSD.toFixed(2)} <span className="text-muted-foreground text-sm font-medium">raised of ${targetUSD.toFixed(2)}</span></p>
+                <p className="text-xl font-black text-foreground">${displayRaisedUSD.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2 })} <span className="text-muted-foreground text-sm font-medium">raised of ${targetUSD.toFixed(2)}</span></p>
                 <ContributorBadge count={campaign.contributors} showSupportersLabel className="mx-auto" />
               </div>
             </div>
@@ -271,7 +274,7 @@ export default function CampaignDetailsPage({ params }: { params: Promise<{ id: 
       
       {/* FLOATING CTA - SCROLLS TO THE ACTUAL ACTION BOX */}
       {((!isOwner && campaign.status === 'Active') || (isOwner && campaign.status === 'Successful' && !campaignData.withdrawn)) && (
-        <FloatingCTA onContribute={() => actionRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' })} visible={!isActionInView} status={campaign.status as any} isOwner={isOwner} />
+        <FloatingCTA onContribute={() => actionRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' })} visible={!isActionInView} status={campaign.status as any} isOwner={isOwner} hasContributed={hasContributed}/>
       )}
     </div>
   );
