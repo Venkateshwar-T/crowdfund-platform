@@ -27,7 +27,7 @@ export function HeroSection() {
               asChild
               className="rounded-full px-6 h-10 text-base sm:px-10 sm:h-14 sm:text-lg font-bold"
             >
-              <Link href="/fundraisers/new">Start a Fundraiser</Link>
+              <Link href="/fundraisers/new">Start a Campaign</Link>
             </CustomButton>
             
             <CustomButton 

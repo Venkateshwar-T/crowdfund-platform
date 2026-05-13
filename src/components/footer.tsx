@@ -102,7 +102,7 @@ export function Footer() {
               </p>
             </div>
             <CustomButton asChild className="rounded-full px-8 h-10 md:h-12 text-base font-bold whitespace-nowrap w-full md:w-auto">
-              <Link href="/fundraisers/new">Start a Fundraiser</Link>
+              <Link href="/fundraisers/new">Start a Campaign</Link>
             </CustomButton>
           </div>
         </div>
