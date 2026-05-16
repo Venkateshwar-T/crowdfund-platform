@@ -35,7 +35,6 @@ const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
 const MAX_FILES = 5;
 
 const formSchema = z.object({
-  // TITLE MUST BE MAX 32 FOR BYTES32
   title: z.string().min(10, 'Title must be at least 10 characters').max(32, 'Title must be under 32 characters'),
   description: z.string().min(50, 'Description must be at least 50 characters'),
   category: z.string().min(1, 'Please select a category'),
@@ -102,7 +101,6 @@ const TiptapEditor = ({ value, onChange, placeholder }: { value: string, onChang
 export default function NewFundraiserPage() {
   const { isConnected } = useAccount();
   const { openConnectModal } = useConnectModal();
-  // SWITCHED TO writeContractAsync
   const { data: hash, writeContractAsync, isPending: isWalletLoading } = useWriteContract();
   const { isLoading: isMining, isSuccess: isTransactionConfirmed } = useWaitForTransactionReceipt({ hash });
   const { toast } = useToast();
@@ -161,11 +159,21 @@ export default function NewFundraiserPage() {
 
   async function onSubmit(values: FormValues) {
     if (!isConnected) {
-      toast({ title: "Connect Wallet", description: "Please connect your wallet first.", variant: "destructive" });
+      toast({ 
+        variant: "destructive",
+        title: "Authentication Required", 
+        description: "Connect your wallet to launch a decentralized campaign." 
+      });
       openConnectModal?.();
       return;
     }
-    if (files.length === 0) return toast({ title: "Media required", description: "Please upload at least one image.", variant: "destructive" });
+    if (files.length === 0) {
+      return toast({ 
+        variant: "destructive",
+        title: "Photos Needed", 
+        description: "Please add at least one image to help supporters understand your cause." 
+      });
+    }
     
     setIsUploading(true);
     try {
@@ -175,7 +183,6 @@ export default function NewFundraiserPage() {
       const bytes32Title = padHex(stringToHex(values.title), { size: 32, dir: 'right' });
       const bytes32Category = padHex(stringToHex(rawCategory), { size: 32, dir: 'right' });
 
-      // AWAIT THE ASYNC CALL
       await writeContractAsync({
         address: CONTRACT_ADDRESS,
         abi: CONTRACT_ABI,
@@ -191,11 +198,10 @@ export default function NewFundraiserPage() {
         ],
       });
     } catch (error: any) { 
-      console.error("Submission Error:", error);
       toast({ 
-        title: "Submission Failed", 
-        description: error.shortMessage || error.message || "User rejected or contract error", 
-        variant: "destructive" 
+        variant: "destructive",
+        title: "Launch Cancelled", 
+        description: "The transaction was canceled or declined in your wallet." 
       }); 
     } finally { 
       setIsUploading(false); 
@@ -327,9 +333,9 @@ export default function NewFundraiserPage() {
                   <FormLabel className="text-sm md:text-base font-bold">Image Upload (Max 5) <span className="text-destructive">*</span></FormLabel>
                   <div 
                     className={cn(
-                      "relative flex flex-col items-center border-2 border-dashed rounded-3xl hover:bg-primary/10 hover:border-primary/30 cursor-pointer p-6 md:p-8 ...",
+                      "relative flex flex-col items-center border-2 border-dashed rounded-3xl hover:bg-primary/10 hover:border-primary/30 cursor-pointer p-6 md:p-8",
                       dragActive ? "border-primary bg-primary/5" : "border-muted-foreground/20",
-                      !isConnected && "opacity-50 cursor-not-allowed pointer-events-none" // Guarding styles
+                      !isConnected && "opacity-50 cursor-not-allowed pointer-events-none"
                     )} 
                     onDragOver={isConnected ? handleDrag : undefined} 
                     onDrop={isConnected ? handleDrop : undefined} 
@@ -339,7 +345,7 @@ export default function NewFundraiserPage() {
                       id="file-upload" 
                       type="file" 
                       className="hidden" 
-                      disabled={!isConnected} // Native browser guard
+                      disabled={!isConnected} 
                       multiple 
                       accept="image/*" 
                       onChange={handleFileChange} 
@@ -375,12 +381,20 @@ export default function NewFundraiserPage() {
               </fieldset>
 
               <CustomButton 
-                type={isConnected ? "submit" : "button"} // Prevent form submission if disconnected
-                onClick={!isConnected ? openConnectModal : undefined} // Trigger wallet modal
+                type={isConnected ? "submit" : "button"} 
+                onClick={!isConnected ? openConnectModal : undefined} 
                 className="w-full h-12 md:h-14 rounded-full font-bold text-base md:text-lg" 
                 isLoading={isUploading || isWalletLoading || isMining}
               >
-                {isConnected ? "Create Campaign" : "Connect Wallet to Launch"}
+                {isUploading 
+                  ? "Uploading Images..." 
+                  : isWalletLoading 
+                  ? "Opening Wallet..." 
+                  : isMining 
+                  ? "Finalizing..." 
+                  : isConnected 
+                  ? "Create Campaign" 
+                  : "Connect Wallet to Launch"}
               </CustomButton>
             </form>
           </Form>

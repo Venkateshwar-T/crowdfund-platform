@@ -4,6 +4,7 @@ import { Navbar } from '@/components/navbar';
 import { Footer } from '@/components/footer';
 import { BottomNav } from '@/components/bottom-nav';
 import { Web3Provider } from '@/components/web3-provider';
+import { Toaster } from '@/components/ui/toaster';
 
 export const metadata: Metadata = {
   title: 'CrowdFund | Launch Your Dreams',
@@ -28,6 +29,7 @@ export default function RootLayout({
             <main className="flex-grow">{children}</main>
             <BottomNav />
             <Footer />
+            <Toaster />
         </Web3Provider>
       </body>
     </html>

@@ -128,9 +128,17 @@ export default function ProfilePage() {
         updatedAt: new Date(),
       }, { merge: true });
       setIsEditingUsername(false);
-      toast({ title: "Profile Updated", description: "Display name saved securely." });
+      toast({ 
+        variant: "success",
+        title: "Profile Updated", 
+        description: "Your display name has been updated successfully." 
+      });
     } catch (error: any) {
-      toast({ title: "Update Failed", description: error.message, variant: "destructive" });
+      toast({ 
+        variant: "destructive",
+        title: "Update Failed", 
+        description: "We couldn't save your profile changes. Please try again." 
+      });
     } finally {
       setIsSavingName(false);
     }
@@ -152,42 +160,29 @@ export default function ProfilePage() {
       const collected = parseFloat(formatUnits(c.amountCollectedUsd, 18));
       const target = parseFloat(formatUnits(c.target, 18));
       const isExpired = new Date(Number(c.deadline) * 1000) < now;
-      
-      // SYNCED STATUS LOGIC: Includes $0.05 margin
       const isGoalMet = BigInt(c.amountCollectedUsd) >= BigInt(c.target) || (target - collected) <= 0.05;
 
       let effectiveStatus = c.status;
       if (isGoalMet) effectiveStatus = 'Successful';
       else if (isExpired) effectiveStatus = 'Failed';
 
-      return { 
-        ...c, 
-        effectiveStatus, 
-        amountCollected: collected, 
-        target 
-      };
+      return { ...c, effectiveStatus, amountCollected: collected, target };
     });
 
-    const totalUSD = myCampaigns.reduce((acc: number, c: any) => {
-      // Sum the sanitized "Display" amounts
-      return acc + Number(formatCampaignUsd(c.amountCollected, c.target));
-    }, 0);
+    const totalUSD = myCampaigns.reduce((acc: number, c: any) => acc + Number(formatCampaignUsd(c.amountCollected, c.target)), 0);
     const totalContributedUSD = subgraphData.myDonations.reduce((acc: number, d: any) => acc + parseFloat(formatUnits(d.amountUsd, 18)), 0);
     
     const myContributions = subgraphData.myDonations.map((d: any) => {
       const collected = parseFloat(formatUnits(d.campaign.amountCollectedUsd, 18));
       const target = parseFloat(formatUnits(d.campaign.target, 18));
       const isExpired = new Date(Number(d.campaign.deadline) * 1000) < now;
-      
       const isGoalMet = BigInt(d.campaign.amountCollectedUsd) >= BigInt(d.campaign.target) || (target - collected) <= 0.05;
 
       let effectiveStatus = d.campaign.status;
       if (isGoalMet) effectiveStatus = 'Successful';
       else if (isExpired) effectiveStatus = 'Failed';
 
-      if (effectiveStatus === 'Failed') {
-        failedIds.push(BigInt(d.campaign.id));
-      }
+      if (effectiveStatus === 'Failed') failedIds.push(BigInt(d.campaign.id));
 
       return {
         id: d.campaign.slug,
@@ -201,9 +196,7 @@ export default function ProfilePage() {
       };
     });
 
-    const failedCampaignIds = Array.from(new Set(failedIds));
-
-    return { myCampaigns, myContributions, totalUSD, totalContributedUSD, failedCampaignIds };
+    return { myCampaigns, myContributions, totalUSD, totalContributedUSD, failedCampaignIds: Array.from(new Set(failedIds)) };
   }, [subgraphData]);
 
   const { data: refundStatuses, refetch: refetchRefunds } = useReadContracts({
@@ -231,14 +224,25 @@ export default function ProfilePage() {
       functionName: 'batchClaimRefunds',
       args: [pendingRefundIds],
     }, {
-      onSuccess: () => toast({ title: "Transaction Sent", description: "Batch refund is being processed." }),
-      onError: (err: any) => toast({ title: "Batch Failed", description: err.message, variant: "destructive" })
+      onSuccess: () => toast({ 
+        title: "Initiating Claims", 
+        description: "Requesting refunds for your selected campaigns. Please confirm in your wallet." 
+      }),
+      onError: () => toast({ 
+        variant: "destructive",
+        title: "Refund Claim Failed", 
+        description: "The transaction was declined or encountered an error in your wallet." 
+      })
     });
   };
 
   useEffect(() => {
     if (isTransactionConfirmed) {
-      toast({ title: "Success!", description: "Refunds have been claimed." });
+      toast({ 
+        variant: "success",
+        title: "Refunds Secured", 
+        description: "Funds have been returned directly to your wallet balance." 
+      });
       refetch();
       refetchRefunds();
     }
@@ -252,13 +256,17 @@ export default function ProfilePage() {
     if (address) {
       navigator.clipboard.writeText(address);
       setIsCopied(true);
-      toast({ title: "Address Copied", description: "Wallet address copied to clipboard" });
+      toast({ 
+        variant: "success",
+        title: "Address Copied", 
+        description: "Your wallet address is now in your clipboard." 
+      });
       setTimeout(() => setIsCopied(false), 2000);
     }
   };
 
   if (!isConnected) return <NotConnectedView onConnect={openConnectModal!} />;
-  if (isSubgraphLoading) return <div className="flex flex-col items-center justify-center min-h-[60vh] gap-4"><Loader2 className="h-12 w-12 animate-spin text-primary" /><h1 className="text-lg font-bold">Syncing Ledger...</h1></div>;
+  if (isSubgraphLoading) return <div className="flex flex-col items-center justify-center min-h-[60vh] gap-4"><Loader2 className="h-12 w-12 animate-spin text-primary" /><p className="text-muted-foreground font-black uppercase tracking-widest text-xs">Loading your profile</p></div>;
 
   return (
     <div className="max-w-6xl mx-auto px-4 py-8 md:py-16 w-full">
@@ -313,33 +321,18 @@ export default function ProfilePage() {
             </div>
           </Card>
           
-          {/* SYNCED STAT CARDS: Applying formatter directly to the totals */}
-          <ProfileStatCard 
-            title="Raised (USD)" 
-            value={`$${formatCampaignUsd(processedData.totalUSD)}`} 
-            icon={TrendingUp} 
-          />
-          <ProfileStatCard 
-            title="Contributed (USD)" 
-            value={`$${formatCampaignUsd(processedData.totalContributedUSD)}`}
-            icon={HeartHandshake} 
-          />
+          <ProfileStatCard title="Raised (USD)" value={`$${formatCampaignUsd(processedData.totalUSD)}`} icon={TrendingUp} />
+          <ProfileStatCard title="Contributed (USD)" value={`$${formatCampaignUsd(processedData.totalContributedUSD)}`} icon={HeartHandshake} />
         </div>
 
         <Tabs defaultValue="my-campaigns" className="w-full mt-8">
           <div className="flex justify-center mb-4 md:mb-8">
             <TabsList className="bg-white/50 backdrop-blur-md px-2 rounded-2xl h-12 grid gap-1 grid-cols-2 max-w-md w-full border shadow-sm">
               <TabsTrigger value="my-campaigns" className="rounded-xl font-black text-xs md:text-sm data-[state=active]:bg-primary data-[state=active]:text-white flex items-center justify-center gap-3 transition-all">
-                My Campaigns
-                <span className="flex items-center justify-center bg-muted/20 text-[10px] h-5 w-5 rounded-full border border-current opacity-70">
-                  {processedData.myCampaigns.length}
-                </span>
+                My Campaigns <span className="flex items-center justify-center bg-muted/20 text-[10px] h-5 w-5 rounded-full border border-current opacity-70">{processedData.myCampaigns.length}</span>
               </TabsTrigger>
               <TabsTrigger value="contributions" className="rounded-xl font-black text-xs md:text-sm data-[state=active]:bg-primary data-[state=active]:text-white flex items-center justify-center gap-3 transition-all">
-                Contributions
-                <span className="flex items-center justify-center bg-muted/20 text-[10px] h-5 w-5 rounded-full border border-current opacity-70">
-                  {processedData.myContributions.length}
-                </span>
+                Contributions <span className="flex items-center justify-center bg-muted/20 text-[10px] h-5 w-5 rounded-full border border-current opacity-70">{processedData.myContributions.length}</span>
               </TabsTrigger>
             </TabsList>
           </div>
@@ -349,15 +342,7 @@ export default function ProfilePage() {
               {processedData.myCampaigns.length > 0 ? (
                 <div className="flex flex-col gap-3">
                   {processedData.myCampaigns.map((c: any) => (
-                    <ProfileCampaignCard 
-                      key={c.id} 
-                      id={c.slug} 
-                      title={hexToString(trim(c.title as `0x${string}`, { dir: 'right' })).replace(/\0/g, '')} 
-                      // SYNCED CAMPAIGN CARD: Pass target to formatter for ceiling check
-                      amountCollected={Number(formatCampaignUsd(c.amountCollected, c.target))}
-                      target={c.target}
-                      status={c.effectiveStatus} 
-                    />
+                    <ProfileCampaignCard key={c.id} id={c.slug} title={hexToString(trim(c.title as `0x${string}`, { dir: 'right' })).replace(/\0/g, '')} amountCollected={Number(formatCampaignUsd(c.amountCollected, c.target))} target={c.target} status={c.effectiveStatus} />
                   ))}
                 </div>
               ) : (
@@ -378,23 +363,14 @@ export default function ProfilePage() {
               {pendingRefundIds.length > 0 && (
                 <Card className="p-4 rounded-2xl bg-[#27AE60]/5 border-[#27AE60]/20 flex flex-col md:flex-row items-center justify-between gap-4 animate-in fade-in slide-in-from-top-4 duration-500">
                   <div className="flex items-center gap-3">
-                    <div className="p-2 bg-[#27AE60]/10 rounded-xl text-[#27AE60]">
-                      <AlertCircle className="h-5 w-5" />
-                    </div>
+                    <div className="p-2 bg-[#27AE60]/10 rounded-xl text-[#27AE60]"><AlertCircle className="h-5 w-5" /></div>
                     <div>
                       <h4 className="text-sm font-black text-[#27AE60]">Refunds Available</h4>
-                      <p className="text-[10px] md:text-xs text-[#27AE60]/70 font-medium">
-                        You have contributions ready to be claimed from {pendingRefundIds.length} failed campaigns.
-                      </p>
+                      <p className="text-[10px] md:text-xs text-emerald-600/80 font-medium">You have contributions ready to be claimed from {pendingRefundIds.length} failed campaigns.</p>
                     </div>
                   </div>
-                  <CustomButton 
-                    onClick={handleBatchRefund}
-                    isLoading={isWalletActionPending || isTransactionMining}
-                    className="w-full md:w-fit rounded-xl h-10 px-6 bg-[#27AE60] text-white hover:bg-[#27AE60]/90 gap-2 font-black text-xs"
-                  >
-                    <Coins className="h-4 w-4" />
-                    Claim All ({pendingRefundIds.length})
+                  <CustomButton onClick={handleBatchRefund} isLoading={isWalletActionPending || isTransactionMining} className="w-full md:w-fit rounded-xl h-10 px-6 bg-[#27AE60] text-white hover:bg-[#27AE60]/90 gap-2 font-black text-xs">
+                    <Coins className="h-4 w-4" /> Claim All ({pendingRefundIds.length})
                   </CustomButton>
                 </Card>
               )}
@@ -402,13 +378,7 @@ export default function ProfilePage() {
               {processedData.myContributions.length > 0 ? (
                 <div className="flex flex-col gap-3">
                   {processedData.myContributions.map((c: any) => (
-                    <ProfileContributionCard 
-                      key={c.id} 
-                      id={c.id}
-                      title={hexToString(trim(c.title as `0x${string}`, { dir: 'right' })).replace(/\0/g, '')} 
-                      ownerAddress={c.ownerAddress}
-                      personalContribution={c.personalContribution}
-                    />
+                    <ProfileContributionCard key={c.id} id={c.id} title={hexToString(trim(c.title as `0x${string}`, { dir: 'right' })).replace(/\0/g, '')} ownerAddress={c.ownerAddress} personalContribution={c.personalContribution} />
                   ))}
                 </div>
               ) : (
@@ -428,20 +398,8 @@ export default function ProfilePage() {
         </Tabs>
 
         <div className="flex flex-col md:flex-row gap-4 mt-8">
-          <CustomButton 
-            onClick={() => disconnect()} 
-            variant="outline" 
-            className="flex-1 rounded-2xl h-14 border-destructive/20 text-destructive font-bold gap-2"
-          >
-            <LogOut className="h-5 w-5" />Disconnect
-          </CustomButton>
-          <CustomButton 
-            onClick={() => openAccountModal?.()} 
-            variant="secondary" 
-            className="flex-1 rounded-2xl h-14 font-bold border"
-          >
-            <Settings2 className="h-5 w-5 mr-2" />Wallet Settings
-          </CustomButton>
+          <CustomButton onClick={() => disconnect()} variant="outline" className="flex-1 rounded-2xl h-14 border-destructive/20 text-destructive font-bold gap-2"><LogOut className="h-5 w-5" />Disconnect</CustomButton>
+          <CustomButton onClick={() => openAccountModal?.()} variant="secondary" className="flex-1 rounded-2xl h-14 font-bold border"><Settings2 className="h-5 w-5 mr-2" />Wallet Settings</CustomButton>
         </div>
       </div>
     </div>

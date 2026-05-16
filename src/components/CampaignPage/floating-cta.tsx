@@ -32,19 +32,21 @@ export function FloatingCTA({ onContribute, visible, status, isOwner = false, ha
 
   let content = {
     Active: { 
-      label: hasContributed ? 'Contribute Again' : 'Drive Impact', // Dynamic label
-      sub: hasContributed ? "You've backed this cause!" : 'Help this cause', // Dynamic subtext
-      btn: hasContributed ? 'Support Again' : 'Contribute Now' // Dynamic button text
+      label: hasContributed ? 'Contribute Again' : 'Drive Impact',
+      sub: hasContributed ? "You've backed this cause!" : 'Help this cause',
+      btn: hasContributed ? 'Support Again' : 'Contribute Now'
     },
     Successful: { label: 'Target Met', sub: 'Goal successfully reached', btn: 'Campaign Ended' },
     Failed: { label: 'Campaign Ended', sub: 'Funding goal not reached', btn: 'Claim Refund' }
   }[status];
-
+  
   if (isOwner && status === 'Successful') {
     content = { label: 'Target Met', sub: 'Ready for withdrawal', btn: 'Withdraw Funds' };
   }
 
-  const isButtonActive = status === 'Active' || (status === 'Successful' && isOwner);
+  // Treat active campaigns normally; owner withdrawals get the special green action layout
+  const isButtonActive = status === 'Active';
+  const isGreenTheme = status === 'Failed' || (status === 'Successful' && isOwner);
 
   return (
     <div 
@@ -56,7 +58,7 @@ export function FloatingCTA({ onContribute, visible, status, isOwner = false, ha
     >
       <div className={cn(
         "p-3 md:p-4 rounded-2xl md:rounded-3xl text-white flex items-center justify-between gap-4 shadow-2xl ring-1 ring-white/10 backdrop-blur-xl",
-        status === 'Failed' ? "bg-[#27AE60]" : "bg-foreground/90"
+        isGreenTheme ? "bg-emerald-600" : "bg-foreground/90"
       )}>
         <div className="pl-2">
           <p className="text-[10px] md:text-xs text-white/60 font-bold uppercase tracking-widest">{content.label}</p>
@@ -68,7 +70,7 @@ export function FloatingCTA({ onContribute, visible, status, isOwner = false, ha
           className={cn(
             "h-10 md:h-12 px-6 md:px-8 rounded-xl font-black text-xs md:text-sm shadow-lg transition-transform active:scale-95",
             isButtonActive ? "bg-primary hover:bg-primary/90 shadow-primary/20" : 
-            status === 'Failed' ? "bg-white text-[#27AE60] hover:bg-white/90 shadow-black/10" :
+            isGreenTheme ? "bg-white text-emerald-600 hover:bg-white/90 shadow-black/10" :
             "bg-white/10 text-white border border-white/20"
           )}
         >

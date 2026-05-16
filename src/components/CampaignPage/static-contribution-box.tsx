@@ -57,7 +57,7 @@ export function StaticContributionBox({
     <div ref={containerRef} className="p-5 md:p-8 bg-foreground rounded-2xl md:rounded-3xl text-white flex flex-col items-center gap-6 shadow-2xl ring-1 ring-white/10 scroll-mt-24">
       <div className="text-center w-full">
         <h3 className="text-base md:text-lg font-bold">Fund this Campaign</h3>
-        <p className="text-xs md:text-sm text-white/60">Target remaining: ${remainingUSD.toLocaleString(undefined, { maximumFractionDigits: 8, minimumFractionDigits: 2 })}</p>
+        <p className="text-xs md:text-sm text-white/60">Target remaining: ${remainingUSD.toLocaleString(undefined, { maximumFractionDigits: 2, minimumFractionDigits: 2 })}</p>
       </div>
       
       {isSuccess ? (

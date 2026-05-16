@@ -49,7 +49,13 @@ export function CampaignCard({
   const timeRemaining = isExpired ? 'Ended' : `${formatDistanceToNow(deadlineDate)} left`;
 
   // 1. CLEAN DISPLAY VALUES (No $5.01 technical surplus)
-  const displayContributed = formatCampaignUsd(contributedAmount, targetAmount);
+  // const displayContributed = formatCampaignUsd(contributedAmount, targetAmount);
+
+  // UI Ceiling ($5.01 -> $5.00)
+  const intendedAmount = Math.floor(contributedAmount);
+  const diff = contributedAmount - intendedAmount;
+  const threshold = intendedAmount * 0.015;
+  const displayAmount = (diff > 0 && diff <= threshold) ? intendedAmount : contributedAmount;
 
   useEffect(() => {
     if (images.length <= 1) return;
@@ -131,14 +137,14 @@ export function CampaignCard({
               </div>
               <div className="text-[10px] md:text-sm font-black text-foreground truncate">
                 {/* USE CLEAN DISPLAY VALUE HERE */}
-                ${displayContributed} <span className="text-[8px] md:text-[11px] text-muted-foreground font-medium">/ ${targetAmount.toFixed(2)}</span>
+                ${displayAmount.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})} <span className="text-[8px] md:text-[11px] text-muted-foreground font-medium">/ ${targetAmount.toFixed(2)}</span>
               </div>
             </div>
             
             <div className="p-2 md:p-3 bg-secondary/50 rounded-lg border border-border/10">
               <div className="flex items-center gap-1 text-muted-foreground mb-1">
                 <Calendar className="h-2.5 w-2.5 md:h-3 md:w-3" />
-                <span className="text-[7px] md:text-[9px] font-bold uppercase tracking-widest">Ends</span>
+                <span className="text-[7px] md:text-[9px] font-bold uppercase tracking-widest">Deadline</span>
               </div>
               <div className={cn("text-[10px] md:text-sm font-black", isExpired ? "text-destructive" : "text-foreground")}>
                 {timeRemaining}

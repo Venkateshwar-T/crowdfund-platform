@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useMemo, Suspense } from 'react';
+import { useState, useEffect, useMemo, Suspense, useRef } from 'react';
 import { useQuery, gql } from '@apollo/client';
 import { useSearchParams } from 'next/navigation';
 import { formatUnits } from 'viem';
@@ -8,7 +8,6 @@ import { hexToString, trim } from 'viem';
 import { BrowseFilterBar, type FilterState } from '@/components/BrowsePage/browse-filter-bar';
 import { CampaignCard } from '@/components/BrowsePage/campaign-card';
 import { Loader2 } from 'lucide-react';
-import { CustomButton } from '@/components/shared/custom-button';
 
 const GET_CAMPAIGNS = gql`
   query GetCampaigns($first: Int!, $skip: Int!, $where: Campaign_filter, $orderBy: Campaign_orderBy, $orderDirection: OrderDirection) {
@@ -21,9 +20,9 @@ const GET_CAMPAIGNS = gql`
     ) {
       id
       slug
-      title          # For display logic
-      titleSearch    # For the data layer
-      categorySearch # For the data layer
+      title          
+      titleSearch    
+      categorySearch 
       owner
       target
       deadline
@@ -43,13 +42,16 @@ function BrowseCampaigns() {
   const searchParams = useSearchParams();
   const q = searchParams.get('q') || '';
   
-  const [skip, setSkip] = useState(0);
   const [allCampaigns, setAllCampaigns] = useState<any[]>([]);
+  const [hasMore, setHasMore] = useState(true);
+  const [isFetchingMore, setIsFetchingMore] = useState(false);
   const [filters, setFilters] = useState<FilterState>({
     time: 'any',
     status: 'all',
     categories: [],
   });
+
+  const loadMoreRef = useRef<HTMLDivElement>(null);
 
   const filterVariables = useMemo(() => {
     const where: any = {};
@@ -62,9 +64,6 @@ function BrowseCampaigns() {
     }
   
     if (filters.categories.length > 0) {
-      // IMPORTANT: Match the case of your IDs. 
-      // If you saved 'Medical' to the blockchain, use .map(c => c.charAt(0).toUpperCase() + c.slice(1))
-      // If you saved 'medical', use it raw.
       where.categorySearch_in = filters.categories; 
     }
     if (filters.status !== 'all') {
@@ -90,30 +89,77 @@ function BrowseCampaigns() {
       orderDirection: filterVariables.orderDirection
     },
     notifyOnNetworkStatusChange: true,
-    onCompleted: (newData) => {
-        if (skip === 0) {
-            setAllCampaigns(newData.campaigns);
-        }
-    }
   });
 
   useEffect(() => {
-    setSkip(0);
     setAllCampaigns([]);
+    setHasMore(true);
   }, [q, filters]);
 
+  useEffect(() => {
+    if (data?.campaigns) {
+      setAllCampaigns(data.campaigns);
+      if (data.campaigns.length < PAGE_SIZE) {
+        setHasMore(false);
+      }
+    }
+  }, [data]);
+
   const handleLoadMore = async () => {
-    const nextSkip = allCampaigns.length;
-    const { data: moreData } = await fetchMore({
-      variables: { skip: nextSkip },
-    });
-    if (moreData?.campaigns) {
-      setAllCampaigns([...allCampaigns, ...moreData.campaigns]);
+    if (isFetchingMore || !hasMore) return;
+    setIsFetchingMore(true);
+
+    try {
+      const nextSkip = allCampaigns.length;
+      const { data: moreData } = await fetchMore({
+        variables: { skip: nextSkip },
+        updateQuery: (prev, { fetchMoreResult }) => {
+          if (!fetchMoreResult) return prev;
+          
+          // Deduplicate items at the cache layer to prevent identity collisions
+          const seenIds = new Set(prev.campaigns.map((c: any) => c.id));
+          const uniqueIncoming = fetchMoreResult.campaigns.filter((c: any) => !seenIds.has(c.id));
+          
+          return {
+            ...prev,
+            campaigns: [...prev.campaigns, ...uniqueIncoming],
+          };
+        },
+      });
+
+      if (moreData?.campaigns && moreData.campaigns.length < PAGE_SIZE) {
+        setHasMore(false);
+      }
+    } catch (err) {
+      console.error("Pagination error:", err);
+    } finally {
+      setIsFetchingMore(false);
     }
   };
 
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting && hasMore && !loading && !isFetchingMore) {
+          handleLoadMore();
+        }
+      },
+      { threshold: 0.1, rootMargin: '100px' }
+    );
+
+    const currentTarget = loadMoreRef.current;
+    if (currentTarget) {
+      observer.observe(currentTarget);
+    }
+
+    return () => {
+      if (currentTarget) {
+        observer.unobserve(currentTarget);
+      }
+    };
+  }, [hasMore, loading, isFetchingMore, allCampaigns.length]);
+
   const campaigns = allCampaigns.map((c) => {
-    // 1. DECODE TITLE PROPERLY (Bytes32 fix)
     const decodedTitle = hexToString(
       trim(c.title as `0x${string}`, { dir: 'right' })
     ).replace(/\0/g, '');
@@ -122,7 +168,6 @@ function BrowseCampaigns() {
     const target = parseFloat(formatUnits(c.target, 18));
     const isExpired = (Number(c.deadline) * 1000) < Date.now();
 
-    // 2. SYNCED STATUS LOGIC ($0.05 Grace Margin)
     const goalMet = BigInt(c.amountCollectedUsd) >= BigInt(c.target) || (target - amountCollected) <= 0.05;
     
     let effectiveStatus = c.status;
@@ -150,11 +195,11 @@ function BrowseCampaigns() {
           {loading && allCampaigns.length === 0 ? (
             <div className="flex flex-col items-center justify-center min-h-[40vh] gap-4">
               <Loader2 className="h-10 w-10 animate-spin text-primary" />
-              <p className="text-muted-foreground font-black uppercase tracking-widest text-[10px]">Querying the decentralized graph...</p>
+              <p className="text-muted-foreground font-black uppercase tracking-widest text-xs">Finding latest campaigns...</p>
             </div>
           ) : error ? (
             <div className="flex flex-col items-center justify-center min-h-[40vh] text-center gap-4">
-              <p className="text-destructive font-black uppercase tracking-tighter">Failed to sync with Subgraph.</p>
+              <p className="text-destructive font-black uppercase tracking-tighter">Something went wrong. Please try again.</p>
               <p className="text-xs text-muted-foreground max-w-md">{error.message}</p>
             </div>
           ) : campaigns.length === 0 ? (
@@ -165,23 +210,20 @@ function BrowseCampaigns() {
             </div>
           ) : (
             <>
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 md:gap-6">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 md:gap-6">
                 {campaigns.map((campaign) => (
                   <CampaignCard key={campaign.id} {...campaign} />
                 ))}
               </div>
-              {data?.campaigns.length === PAGE_SIZE && (
-                <div className="mt-12 flex justify-center">
-                  <CustomButton 
-                    onClick={handleLoadMore} 
-                    variant="outline" 
-                    className="rounded-full px-8 gap-2 border-primary/20 text-primary font-black uppercase tracking-widest text-xs"
-                    isLoading={loading}
-                  >
-                    Load More Campaigns
-                  </CustomButton>
-                </div>
-              )}
+              
+              <div ref={loadMoreRef} className="mt-12 flex justify-center min-h-[60px] items-center">
+                {(loading || isFetchingMore) && (
+                  <div className="flex flex-col items-center gap-2 text-primary font-black uppercase tracking-widest text-xs">
+                    <Loader2 className="h-5 w-5 animate-spin" />
+                    Loading
+                  </div>
+                )}
+              </div>
             </>
           )}
         </div>
@@ -195,7 +237,7 @@ export default function BrowsePage() {
     <Suspense fallback={
       <div className="flex flex-col items-center justify-center min-h-screen gap-4">
         <Loader2 className="h-10 w-10 animate-spin text-primary" />
-        <p className="text-muted-foreground font-black uppercase tracking-widest text-[10px]">Loading discovery interface...</p>
+        <p className="text-muted-foreground font-black uppercase tracking-widest text-[10px]">Searching the platform...</p>
       </div>
     }>
       <BrowseCampaigns />
