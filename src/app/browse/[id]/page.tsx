@@ -101,7 +101,7 @@ export default function CampaignDetailsPage({ params }: { params: Promise<{ id: 
   const campaignData = apolloData?.campaigns?.[0];
   const { displayName: ownerName, loading: ownerLoading } = useUserName(campaignData?.owner);
 
-  const { data: hasClaimedRefundData, isLoading: isRefundStatusLoading } = useReadContract({
+  const { data: hasClaimedRefundData, isLoading: isRefundStatusLoading, refetch: refetchRefund } = useReadContract({
     address: CONTRACT_ADDRESS,
     abi: CONTRACT_ABI,
     functionName: 'hasUserClaimedRefund',
@@ -161,15 +161,28 @@ export default function CampaignDetailsPage({ params }: { params: Promise<{ id: 
         description: "Your transaction has been securely confirmed on the blockchain." 
       });
       refetch();
+      refetchRefund();
     }
-  }, [isTransactionConfirmed, refetch, toast]);
+  }, [isTransactionConfirmed, refetch, refetchRefund, toast]);
 
+  const isOwner = userAddress?.toLowerCase() === campaignData?.owner.toLowerCase();
+
+  // Added isOwner and campaign status tracking to reset the observer when cards swap structures
   useEffect(() => {
     if (isInitialLoading || !campaignData) return;
-    const observer = new IntersectionObserver(([entry]) => setIsFundInView(entry.isIntersecting), { threshold: 0.1 });
-    if (fundRef.current) observer.observe(fundRef.current);
-    return () => observer.disconnect();
-  }, [isInitialLoading, campaignData]);
+    
+    const observer = new IntersectionObserver(([entry]) => {
+      setIsFundInView(entry.isIntersecting);
+    }, { threshold: 0.1 });
+    
+    const currentRef = fundRef.current;
+    if (currentRef) observer.observe(currentRef);
+    
+    return () => {
+      if (currentRef) observer.unobserve(currentRef);
+      observer.disconnect();
+    };
+  }, [isInitialLoading, campaignData, isOwner, campaign?.status]);
 
   const handleAction = (functionName: 'donateToCampaign' | 'withdraw' | 'claimRefund', amount?: string) => {
     if (!isConnected) { 
@@ -199,7 +212,6 @@ export default function CampaignDetailsPage({ params }: { params: Promise<{ id: 
   if (isInitialLoading) return <div className="flex flex-col items-center justify-center min-h-[60vh] gap-4 p-4 text-center"><Loader2 className="h-12 w-12 animate-spin text-primary" /><h1 className="text-lg font-bold uppercase text-muted-foreground">Searching...</h1></div>;
   if (error || !campaignData || !campaign) return <div className="flex flex-col items-center justify-center min-h-[60vh] gap-4 p-4 text-center"><h1 className="text-2xl font-bold">Campaign not found</h1><Link href="/browse"><CustomButton variant="outline" className="rounded-full">Back to Browse</CustomButton></Link></div>;
 
-  const isOwner = userAddress?.toLowerCase() === campaignData.owner.toLowerCase();
   const hasContributed = campaignData.donations?.some((d: any) => d.donator.toLowerCase() === userAddress?.toLowerCase());
   const sanitizeHTML = (html: string) => ({ __html: typeof window !== 'undefined' ? DOMPurify.sanitize(html) : html });
 
@@ -240,7 +252,7 @@ export default function CampaignDetailsPage({ params }: { params: Promise<{ id: 
           </div>
         </div>
 
-        <div ref={fundRef} className="bg-white/70 backdrop-blur-xl rounded-2xl md:rounded-3xl border border-white/20 p-5 md:p-8 shadow-xl flex flex-col gap-6 scroll-mt-32">
+        <div className="bg-white/70 backdrop-blur-xl rounded-2xl md:rounded-3xl border border-white/20 p-5 md:p-8 shadow-xl flex flex-col gap-6">
           <div className="flex items-center gap-3">
             <Avatar className="h-10 w-10 border-2 border-background ring-1 ring-border/10"><AvatarFallback className="bg-muted"><User size={20} /></AvatarFallback></Avatar>
             <div className="flex flex-col min-w-0">
@@ -275,7 +287,8 @@ export default function CampaignDetailsPage({ params }: { params: Promise<{ id: 
           </Collapsible>
         </div>
 
-        <div className="scroll-mt-32">
+        {/* This wrapper div uniquely holds the ref now. containerRef inside is passed as null to prevent ref collisions */}
+        <div ref={fundRef} className="scroll-mt-32">
           {campaign.status === 'Active' && !isOwner && (
             <StaticContributionBox onContribute={(amt) => handleAction('donateToCampaign', amt)} isConfirming={isConfirmingInWallet} isMining={isMining} isSuccess={isTransactionConfirmed} ethPrice={ethPrices} userBalance={userBalance} remainingUSD={remainingUSD} containerRef={fundRef} />
           )}
