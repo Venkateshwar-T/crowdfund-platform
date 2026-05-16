@@ -76,7 +76,11 @@ export function CampaignFailedCard({
           className="w-full h-12 md:h-14 rounded-xl md:rounded-2xl gap-2 text-white font-black text-sm md:text-base shadow-emerald-100 hover:bg-emerald-600/100 bg-emerald-600" 
           isLoading={isLoading}
         >
-          <Coins size={20} /> Claim My Refund
+          {isLoading ? (
+            <>Claiming Refund...</>
+          ) : (
+            <><Coins size={20} /> Claim My Refund</>
+          )}
         </CustomButton>
       )}
     </div>

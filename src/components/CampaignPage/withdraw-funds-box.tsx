@@ -25,7 +25,11 @@ export function WithdrawFundsBox({ onWithdraw, isLoading = false }: WithdrawFund
         className="w-full h-12 md:h-14 rounded-xl md:rounded-2xl gap-2 font-black text-sm md:text-base shadow-xl shadow-primary/20" 
         isLoading={isLoading}
       >
-        <ExternalLink size={20} /> Withdraw Funds
+        {isLoading ? (
+          <>Withdrawing Funds...</>
+        ) : (
+          <><ExternalLink size={20} /> Withdraw Funds</>
+        )}
       </CustomButton>
     </div>
   );
