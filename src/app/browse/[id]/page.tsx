@@ -261,7 +261,11 @@ export default function CampaignDetailsPage({ params }: { params: Promise<{ id: 
           <Collapsible open={isSupportersOpen} onOpenChange={setIsSupportersOpen}>
             <div className="flex items-center justify-between">
               <div><h2 className="text-[10px] font-bold uppercase tracking-widest text-primary">Supporters</h2><p className="text-sm font-bold text-foreground">{campaign.contributors.toLocaleString()} people supported this campaign</p></div>
-              <CollapsibleTrigger asChild><CustomButton variant="ghost" size="sm" className="rounded-full h-8 w-8 p-0 hover:bg-primary/10"><ChevronDown className={cn("h-4 w-4 text-primary transition-transform", isSupportersOpen && "rotate-180")} /></CollapsibleTrigger>
+              <CollapsibleTrigger asChild>
+                <CustomButton variant="ghost" size="sm" className="rounded-full h-8 w-8 p-0 hover:bg-primary/10">
+                  <ChevronDown className={cn("h-4 w-4 text-primary transition-transform", isSupportersOpen && "rotate-180")} />
+                </CustomButton>
+              </CollapsibleTrigger>
             </div>
             <CollapsibleContent className="mt-6 space-y-4">
               {campaignData.donations?.length > 0 ? campaignData.donations.map((d: any, i: number) => (
