@@ -59,7 +59,7 @@ export function NavSearch({ isSearching, setIsSearching, placeholder, mode = 'ov
   };
 
   if (mode === 'trigger') {
-    return <CustomSearchBar placeholder={placeholder || "Search fundraisers"} onClick={() => setIsSearching(true)} />;
+    return <CustomSearchBar placeholder={placeholder || "Search campaigns"} onClick={() => setIsSearching(true)} />;
   }
 
   if (!isSearching) return null;
