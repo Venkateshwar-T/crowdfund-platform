@@ -240,7 +240,7 @@ export default function CampaignDetailsPage({ params }: { params: Promise<{ id: 
           </div>
         </div>
 
-        <div className="bg-white/70 backdrop-blur-xl rounded-2xl md:rounded-3xl border border-white/20 p-5 md:p-8 shadow-xl flex flex-col gap-6 scroll-mt-32">
+        <div ref={fundRef} className="bg-white/70 backdrop-blur-xl rounded-2xl md:rounded-3xl border border-white/20 p-5 md:p-8 shadow-xl flex flex-col gap-6 scroll-mt-32">
           <div className="flex items-center gap-3">
             <Avatar className="h-10 w-10 border-2 border-background ring-1 ring-border/10"><AvatarFallback className="bg-muted"><User size={20} /></AvatarFallback></Avatar>
             <div className="flex flex-col min-w-0">
@@ -275,15 +275,15 @@ export default function CampaignDetailsPage({ params }: { params: Promise<{ id: 
           </Collapsible>
         </div>
 
-        <div ref={fundRef} className="scroll-mt-32">
+        <div className="scroll-mt-32">
           {campaign.status === 'Active' && !isOwner && (
             <StaticContributionBox onContribute={(amt) => handleAction('donateToCampaign', amt)} isConfirming={isConfirmingInWallet} isMining={isMining} isSuccess={isTransactionConfirmed} ethPrice={ethPrices} userBalance={userBalance} remainingUSD={remainingUSD} containerRef={fundRef} />
           )}
           {isOwner && campaign.status === 'Successful' && (
-            <CampaignWithdrawalCard withdrawn={campaignData.withdrawn} onWithdraw={() => handleAction('withdraw')} isLoading={isMining} />
+            <CampaignWithdrawalCard withdrawn={campaignData.withdrawn} onWithdraw={() => handleAction('withdraw')} isLoading={isConfirmingInWallet || isMining} />
           )}
           {campaign.status === 'Failed' && (
-            <CampaignFailedCard isOwner={isOwner} hasContributed={hasContributed} hasClaimedRefund={hasClaimedRefund} onClaimRefund={() => handleAction('claimRefund')} isLoading={isMining} />
+            <CampaignFailedCard isOwner={isOwner} hasContributed={hasContributed} hasClaimedRefund={hasClaimedRefund} onClaimRefund={() => handleAction('claimRefund')} isLoading={isConfirmingInWallet || isMining} />
           )}
         </div>
       </main>

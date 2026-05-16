@@ -53,7 +53,7 @@ export function CampaignWithdrawalCard({
       </div>
       <CustomButton 
         onClick={onWithdraw} 
-        className="w-full h-12 md:h-14 rounded-xl md:rounded-2xl gap-2 text-sm md:text-base shadow-xl shadow-emerald-100 bg-emerald-600 hover:bg-emerald-600/100" 
+        className="w-full h-12 md:h-14 rounded-xl md:rounded-2xl gap-2 text-sm md:text-base shadow-xl shadow-emerald-100 bg-emerald-600 hover:bg-emerald-600/100 text-white font-black" 
         isLoading={isLoading}
       >
         {isLoading ? (
